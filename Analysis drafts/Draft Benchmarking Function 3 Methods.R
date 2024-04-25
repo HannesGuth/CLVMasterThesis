@@ -97,10 +97,11 @@ for (item in items){
     # Interval score (20PI)
     #values = c(values, sum(-2 * alpha * (unlist(unlist(upper[j])) - unlist(lower[j])) - 4 * ((item$true < unlist(lower[j])) * (unlist(lower[j]) - item$true) + (item$true > unlist(unlist(upper[j]))) * (item$true - unlist(unlist(upper[j]))))) / nrow(item))
     
-    # Mean scaled prediction interval width (comparable with NMPIL but scaled with mean and not with standard deviation)
+    # Mean scaled prediction interval width (comparable with NMPIL and PINAW but scaled with mean and not with standard deviation)
     mspiw = data.table("width" = (unlist(unlist(upper[j])) - unlist(lower[j])) / item$mod_CLV,
                         "CLV" = item$mod_CLV,
                         "weight" = 0)
+    
     values = c(values, mean(mspiw$width))
     
     # possibility to assign higher weights to more important customers
