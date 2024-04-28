@@ -50,6 +50,8 @@ benchmark_data = data.table("Id" = results_boots$Id,
                            "PB_PI_95" = intervals_PB$`PB_CLV_95%`,
                            "MB_PI_05" = intervals_MB$`MB_CLV_05%`,
                            "MB_PI_95" = intervals_MB$`MB_CLV_95%`,
+                           "CP_PI_05" = intervals_CP$Lower,
+                           "CP_PI_95" = intervals_CP$Upper,
                            "mod_CLV" = results_boots$predicted.CLV
 )
 
@@ -63,15 +65,16 @@ s70 = benchmark_data[mod_CLV >= quantiles[1] & mod_CLV < quantiles[2]]
 a70 = benchmark_data[mod_CLV >= quantiles[2]]
 items = list(s40 = s40, s70 = s70, a70 = a70)
 counter = 0
-methods = list("BS", "M1", "M2")
+methods = list("BS", "M1", "M2", "CP")
+rownames = list()
 alpha = 0.05
 
 for (item in items){
   counter = counter + 1
-  lower = list(item$mod_PI_05, item$PB_PI_05, item$MB_PI_05)
-  upper = list(item$mod_PI_95, item$PB_PI_95, item$MB_PI_95)
+  lower = list(item$mod_PI_05, item$PB_PI_05, item$MB_PI_05, item$CP_PI_05)
+  upper = list(item$mod_PI_95, item$PB_PI_95, item$MB_PI_95, item$CP_PI_95)
 
-  for (j in 1:3){
+  for (j in 1:4){
     values = list()
     
     # Coverage/PICP (16PI, 20PI)
@@ -79,7 +82,7 @@ for (item in items){
     values = c(values, PICP)
     
     # Average coverage error (16PI, 20PI)
-    values = c(values, 0.95 - PICP)
+    values = c(values, 0.90 - PICP)
 
     # Upper coverage (2L)
     values = c(values, sum(item$true < unlist(unlist(upper[j]))) / nrow(item))
@@ -113,46 +116,56 @@ for (item in items){
 
     measures = cbind(measures, round(unlist(values),4))
     names(measures)[length(names(measures))] = paste(names(items)[counter], "-", methods[j])
+    rownames = append(rownames, paste(names(items)[counter], "-", methods[j]))
   }
 }
 
-# Plotting the mspiw plot
+# Showing the measures table
+measures = transpose(measures)
+colnames(measures) = unlist(measures[1,])
+measures = measures[-1,]
+measures = data.table("run" = unlist(rownames), measures)
 
+# Plotting the mspiw plot
 plot_data_mspiw = data.table("lower_BS" = results_boots$predicted.CLV.CI.5,
                              "upper_BS" = results_boots$predicted.CLV.CI.95,
                              "lower_M1" = intervals_MB$`MB_CLV_05%`,
                              "upper_M1" = intervals_MB$`MB_CLV_95%`,
                              "lower_M2" = intervals_PB$`PB_CLV_05%`,
                              "upper_M2" = intervals_PB$`PB_CLV_95%`,
+                             "lower_CP" = intervals_CP$Lower,
+                             "upper_CP" = intervals_CP$Upper,
                              "CLV" = results_boots$predicted.CLV)
 
 plot_data_mspiw$width_BS = (plot_data_mspiw$upper_BS - plot_data_mspiw$lower_BS) / results_boots$predicted.CLV
 plot_data_mspiw$width_M1 = (plot_data_mspiw$upper_M1 - plot_data_mspiw$lower_M1) / results_boots$predicted.CLV
 plot_data_mspiw$width_M2 = (plot_data_mspiw$upper_M2 - plot_data_mspiw$lower_M2) / results_boots$predicted.CLV
+plot_data_mspiw$width_CP = (plot_data_mspiw$upper_CP - plot_data_mspiw$lower_CP) / results_boots$predicted.CLV
 
 ggplot(plot_data_mspiw[CLV < 1000,], aes(x = CLV)) + 
   geom_line(aes(y = width_BS, color = "blue")) +
   geom_line(aes(y = width_M1, color = "red")) +
   geom_line(aes(y = width_M2, color = "green")) +
+  geom_line(aes(y = width_CP, color = "black")) +
   labs(title = "Absolute interval width/CLV for different CLV values and intervals methods", y = "Relative interval width") +
   scale_color_identity(name = "Model",
-                       breaks = c("blue", "red", "green"),
-                       labels = c("Bootstrap", "Method 1", "Method 2"),
+                       breaks = c("blue", "red", "green", "black"),
+                       labels = c("Bootstrap", "Method 1", "Method 2", "CP"),
                        guide = "legend")
 
 # Plotting the relative distribution plot
 
 rel_data = data.table("Id" = results_boots$Id,
                       "prediction" = results_boots$predicted.CLV,
-                      "lower_PI" = lower,
-                      "upper_PI" = upper,
+                      "lower_PI" = plot_data_mspiw$lower_CP,
+                      "upper_PI" = plot_data_mspiw$upper_CP,
                       "true" = benchmark_data$true,
                       "position" = 0)
 
 rel_data$position = (rel_data$true - rel_data$lower_PI) / (rel_data$upper_PI - rel_data$lower_PI)
 
 ggplot(rel_data, aes(x = position)) +
-  geom_histogram(binwidth = 0.1) +
+  geom_histogram(binwidth = 0.05) +
   geom_vline(xintercept = 0) +
   geom_vline(xintercept = 1) +
   labs(title = "Distribution of true observations relative to their PIs",

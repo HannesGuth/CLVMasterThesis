@@ -98,19 +98,19 @@ sum(plot_data_old$YN)
 sum(plot_data_old$NY)
 
 # Prepare data to plot
-plot_data = data.table("Id" = rep(results_boots$Id, each = 3),
-                         "Method" = rep(c("PI from model","Method 1","Method 2"), n = 250),
-                         "Low" = c(rbind(results_boots$predicted.CLV.CI.5, intervals_PB$`PB_CLV_05%`, intervals_MB$`MB_CLV_05%`)),
-                         "High" = c(rbind(results_boots$predicted.CLV.CI.95, intervals_PB$`PB_CLV_95%`, intervals_MB$`MB_CLV_95%`)),
-                         "CLV" = rep(results_boots$predicted.CLV, each = 3)
+plot_data = data.table("Id" = rep(results_boots$Id, each = 4),
+                         "Method" = rep(c("PI from CLVTools","Method 1","Method 2","Conformal prediction"), n = 250),
+                         "Low" = c(rbind(results_boots$predicted.CLV.CI.5, intervals_PB$`PB_CLV_05%`, intervals_MB$`MB_CLV_05%`, intervals_CP$Lower)),
+                         "High" = c(rbind(results_boots$predicted.CLV.CI.95, intervals_PB$`PB_CLV_95%`, intervals_MB$`MB_CLV_95%`, intervals_CP$Upper)),
+                         "CLV" = rep(results_boots$predicted.CLV, each = 4)
                          )
 
-ggplot(plot_data[plot_data$CLV > 29 & plot_data$CLV < 32,], aes(as.factor(Id), CLV)) +
+ggplot(plot_data[plot_data$CLV >= 100 & plot_data$CLV <= 500,], aes(as.factor(Id), CLV)) +
   geom_pointrange(
     aes(ymin = Low, ymax = High, color = Method),
     position = position_dodge(0.3)
   ) +
-  labs(title = "CIs for customers with predicted CLV in [30,31]", x = "Customer", y = "CLV")
+  labs(title = "90% PIs for customers with predicted CLV in [29,32]", x = "Customer", y = "CLV")
 
 # Actually not needed anymore
 plot_data_new = data.table("Id" = c(1,1,1,10,10,10),
