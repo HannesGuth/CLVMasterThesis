@@ -38,7 +38,7 @@ results_boots$actual.total.spending
 hist((results_boots$predicted.CLV-results_boots$predicted.CLV.CI.5)/results_boots$predicted.CLV*100)
 hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boots$predicted.CLV*100)
 
-# Multiplying
+# Multiplication approach
 options(scipen=999)
 mean(((results_boots$DERT.CI.95 - results_boots$DERT) - (results_boots$DERT - results_boots$DERT.CI.5))/results_boots$DERT)
 
@@ -49,28 +49,32 @@ MB_DERT = data.table("Run" = 1:1000)
 MB_PMS = data.table("Run" = 1:1000)
 MB_CLV = data.table("Run" = 1:1000)
 
+# Sample for each customer 1000 DERTs and predicted mean spendings, assuming they were normally distributed
 for (i in 1:250){
   column = toString(results_boots$Id[i])
   MB_DERT[, (column) := rnorm(1000, mean = (results_boots$DERT.CI.5[i] + results_boots$DERT.CI.95[i]) / 2, sd = (results_boots$DERT.CI.95[i] - results_boots$DERT.CI.5[i]) / (2 * qnorm(0.975)))]
   MB_PMS[, (column) := rnorm(1000, mean = (results_boots$predicted.mean.spending.CI.5[i] + results_boots$predicted.mean.spending.CI.95[i]) / 2, sd = (results_boots$predicted.mean.spending.CI.95[i] - results_boots$predicted.mean.spending.CI.5[i]) / (2 * qnorm(0.975)))]
 }
 
+# Calculate 1000 CLVs for every customers
 MB_CLV = MB_DERT * MB_PMS
 
+# Summarize the data in a table
 intervals_MB = data.table("Id" = results_boots$Id,
-                       "Mod_DERT" = results_boots$DERT,
-                       "Mod_DERT05" = results_boots$DERT.CI.5,
-                       "Mod_DERT95" = results_boots$DERT.CI.95,
-                       "Mod_PMS" = results_boots$predicted.mean.spending,
-                       "Mod_PMS05" = results_boots$predicted.mean.spending.CI.5,
-                       "Mod_PMS95" = results_boots$predicted.mean.spending.CI.95,
-                       "MB_CLV_05%" = 0,
-                       "MB_CLV_95%" = 0,
-                       "CLV_05" = results_boots$predicted.CLV.CI.5,
-                       "CLV_95" = results_boots$predicted.CLV.CI.95,
-                       "CLV" = results_boots$predicted.CLV
+                          "Mod_DERT" = results_boots$DERT,
+                          "Mod_DERT05" = results_boots$DERT.CI.5,
+                          "Mod_DERT95" = results_boots$DERT.CI.95,
+                          "Mod_PMS" = results_boots$predicted.mean.spending,
+                          "Mod_PMS05" = results_boots$predicted.mean.spending.CI.5,
+                          "Mod_PMS95" = results_boots$predicted.mean.spending.CI.95,
+                          "MB_CLV_05%" = 0,
+                          "MB_CLV_95%" = 0,
+                          "CLV_05" = results_boots$predicted.CLV.CI.5,
+                          "CLV_95" = results_boots$predicted.CLV.CI.95,
+                          "CLV" = results_boots$predicted.CLV
 )
 
+# Take the quantiles
 for (i in 2:251){
   intervals_MB[i-1,8] = quantile(MB_CLV[,..i], probs = c(0.05,0.95), na.rm = TRUE)[1]
   intervals_MB[i-1,9] = quantile(MB_CLV[,..i], probs = c(0.05,0.95), na.rm = TRUE)[2]

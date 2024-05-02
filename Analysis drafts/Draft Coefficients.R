@@ -40,7 +40,7 @@ hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boo
 
 # Modifying parameters
 
-
+# Create datatables and copy the estimated model
 m_DERT = data.table("Id" = results_boots$Id)
 m_PMS = data.table("Id" = results_boots$Id)
 m_CLV = data.table("Id" = results_boots$Id)
@@ -52,12 +52,15 @@ model_GG = copy(est.gg)
 
 ######
 
-estpnbd_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
-estgg_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.gg@prediction.params.model), vcov(est.gg), tol = 1e-06, empirical = FALSE)))
+# 
+#estpnbd_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
+#estgg_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.gg@prediction.params.model), vcov(est.gg), tol = 1e-06, empirical = FALSE)))
 
+# Create tables containing the parameter estimates that are supposed to follow a normal distribution considering the covariance matrix
 while (nrow(estpnbd_cov_table) < 1000){
   row_pnbd = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
   row_gg = data.table(t(mvrnorm(n = 1, as.numeric(est.gg@prediction.params.model), vcov(est.gg), tol = 1e-06, empirical = FALSE)))
+  # Ruling out the cases where parameters are estimated < 0 what would result in errors (unfortunately, by this, one introduces bias)
   if (all(row_pnbd > 0)){
     estpnbd_cov_table = rbind(estpnbd_cov_table, row_pnbd)
   }
@@ -66,8 +69,7 @@ while (nrow(estpnbd_cov_table) < 1000){
   }
 }
 
-######
-
+# Build models and estimate CLVs for all the above created parameter realizations
 for (i in 1:1000){
   print(i)
   
@@ -88,12 +90,15 @@ for (i in 1:1000){
   m_PMS[, (column) := pred_GG$predicted.mean.spending]
 }
 
+# Calculate the CLV with DERT and predicted mean spending
 PB_CLV = m_PMS[,2:1000]*m_DERT[,2:1000]
 
+# Example histograms of the CLV distribution for the first 20 customers
 for (i in 1:20){
   hist(unlist(PB_CLV[i,]), breaks = 200)
 }
 
+# Summarize the data in a datatable
 intervals_PB = data.table("Id" = results_boots$Id,
                        "Mod_DERT" = results_boots$DERT,
                        "Mod_DERT05" = results_boots$DERT.CI.5,
@@ -113,6 +118,7 @@ for (i in 1:250){
   intervals_PB[i,9] = quantile(unlist(PB_CLV[i,]), probs = c(0.05,0.95), na.rm = TRUE)[2]
 }
 
+# Check for quality of the intervals
 intervals_PB$PBlower = intervals$`PB_CLV_05%`/intervals$CLV
 intervals_PB$PBupper = intervals$`PB_CLV_95%`/intervals$CLV
 intervals_PB$modlower = intervals$CLV_05/intervals$CLV
