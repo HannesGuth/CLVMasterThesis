@@ -92,8 +92,16 @@ plot_data_old = data.table("Id" = results_boots$Id,
                        "PB_PI_95" = intervals_PB$`PB_CLV_95%`,
                        "MB_PI_05" = intervals_MB$`MB_CLV_05%`,
                        "MB_PI_95" = intervals_MB$`MB_CLV_95%`,
-                       "mod_CLV" = results_boots$predicted.CLV
+                       "CP_PI_05" = intervals_CP$Lower,
+                       "CP_PI_95" = intervals_CP$Upper,
+                       "mod_CLV" = results_boots$predicted.CLV,
+                       "true" = new3$CLV
                        )
+
+covered_mod = sum(plot_data_old$true < plot_data_old$mod_PI_95 & plot_data_old$true > plot_data_old$mod_PI_05)
+covered_PB = sum(plot_data_old$true < plot_data_old$PB_PI_95 & plot_data_old$true > plot_data_old$PB_PI_05)
+covered_MB = sum(plot_data_old$true < plot_data_old$MB_PI_95 & plot_data_old$true > plot_data_old$MB_PI_05)
+covered_CP = sum(plot_data_old$true < plot_data_old$CP_PI_95 & plot_data_old$true > plot_data_old$CP_PI_05)
 
 # Is any point prediction outside of any interval?
 plot_data_old$YN = (plot_data_old$mod_CLV > plot_data_old$mod_PI_95) + (plot_data_old$mod_CLV > plot_data_old$PB_PI_95) + (plot_data_old$mod_CLV > plot_data_old$MB_PI_95)
@@ -109,12 +117,13 @@ plot_data = data.table("Id" = rep(results_boots$Id, each = 4),
                          "CLV" = rep(results_boots$predicted.CLV, each = 4)
                          )
 
-ggplot(plot_data[plot_data$CLV >= 100 & plot_data$CLV <= 500,], aes(as.factor(Id), CLV)) +
+ggplot(plot_data[plot_data$CLV >= 50 & plot_data$CLV <= 500,], aes(as.factor(Id), CLV)) +
   geom_pointrange(
     aes(ymin = Low, ymax = High, color = Method),
     position = position_dodge(0.3)
   ) +
-  labs(title = "90% PIs for customers with predicted CLV in [29,32]", x = "Customer", y = "CLV")
+  labs(title = "90% PIs for customers with predicted CLV in [29,32]", x = "Customer", y = "CLV")# +
+  ylim(0,60)
 
 # Actually not needed anymore
 plot_data_new = data.table("Id" = c(1,1,1,10,10,10),

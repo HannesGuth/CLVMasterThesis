@@ -13,7 +13,7 @@ splitWeek = 40
 
 # Load data
 data("apparelTrans")
-clv.apparel <- clvdata(apparelTrans,  
+clv.apparel <- clvdata(apparelTrans,
                        date.format="ymd", 
                        time.unit = "week",
                        estimation.split = splitWeek,
@@ -39,12 +39,21 @@ UpperPI = data.table("Id" = customers,
 quantiles = list()
 q = ceiling(((ncalibration + 1) * (1 - alpha)))/ncalibration
 true = data.table("Id" = results$"Id",
-                  "True" = results$predicted.CLV + (results$predicted.CLV * runif(length(results$predicted.CLV), -0.2, 0.2)))
+                  #"True" = results$predicted.CLV + (results$predicted.CLV * runif(length(results$predicted.CLV), -0.2, 0.2)))
+                  "True" = new3$CLV)
 validity_table = data.table("Id" = customers)
-
+parametertable = data.table("run" = seq(1:200),
+                            "r" = 0,
+                            "a" = 0,
+                            "s" = 0,
+                            "b" = 0,
+                            "accuracy" = 0,
+                            "quantile" = 0)
 # Train many models, use CP to predict intervals, average over the results
-while (sum(is.na(LowerPI$mean)) > 0){
+for (i in 1:80){
+#while (sum(is.na(LowerPI$mean)) > 0){
   print(sum(is.na(LowerPI$mean)))
+  print(i)
   tryCatch( # sometimes, the model training returns an error, this result shall then be skipped
     {
       # Split the data set in training, validation and test
@@ -127,6 +136,7 @@ while (sum(is.na(LowerPI$mean)) > 0){
       # Get the rror quantiles in this run
       conformal_data_calibrate$error = abs(conformal_data_calibrate$Prediction - conformal_data_calibrate$True)/conformal_data_calibrate$Prediction
       quantile = quantile(conformal_data_calibrate$error, q)
+      if (quantile == 1) next
       quantiles = append(quantiles, quantile)
       
       # Predict the intervals in this run for the calibration data (actually not needed)
@@ -152,6 +162,13 @@ while (sum(is.na(LowerPI$mean)) > 0){
       names(UpperPI)[length(names(LowerPI))] = paste(toString(length(names(LowerPI))))
       LowerPI$mean = rowMeans(LowerPI[,!c("Id","mean")], na.rm = TRUE)
       UpperPI$mean = rowMeans(UpperPI[,!c("Id","mean")], na.rm = TRUE)
+      
+      parametertable[i, 2] = trainModelpnbd@prediction.params.model[1]
+      parametertable[i, 3] = trainModelpnbd@prediction.params.model[2]
+      parametertable[i, 4] = trainModelpnbd@prediction.params.model[3]
+      parametertable[i, 5] = trainModelpnbd@prediction.params.model[4]
+      parametertable[i, 6] = mean(conformaldata_test$covered)
+      parametertable[i, 7] = as.numeric(quantile)
     },
     # Catch errors
     error = function(e){},
@@ -172,6 +189,7 @@ mean(as.vector(unlist(validity_table[,2:length(validity_table)])), na.rm = TRUE)
 validities = list()
 for (i in 2:length(validity_table)){
   validities = append(validities, mean(unlist(validity_table[,..i]), na.rm = TRUE))
+  print(paste("i", i, ": ", mean(unlist(validity_table[,..i]), na.rm = TRUE)))
 }
 validities = as.vector(unlist(validities))
 hist(validities)
