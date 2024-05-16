@@ -1,31 +1,31 @@
-install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
-
-# Load package
-library(CLVTools)
-library(data.table)
-library(compiler)
-library(ggplot2)
-library(profvis)
-library(rockchalk)
-library(TAF)
-
-splitWeek = 40
-
-# Load data
-data("apparelTrans")
-clv.apparel <- clvdata(apparelTrans,
-                       date.format="ymd", 
-                       time.unit = "week",
-                       estimation.split = splitWeek,
-                       name.id = "Id",
-                       name.date = "Date",
-                       name.price = "Price")
-
-# Predict intervals and calculate validity
-
-# Initialize variables and tables for the CP process
-est.pnbd = pnbd(clv.data = clv.apparel)
-results = predict(est.pnbd, predict.spending = TRUE)
+# install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
+# 
+# # Load package
+# library(CLVTools)
+# library(data.table)
+# library(compiler)
+# library(ggplot2)
+# library(profvis)
+# library(rockchalk)
+# library(TAF)
+# 
+# splitWeek = 40
+# 
+# # Load data
+# data("apparelTrans")
+# clv.apparel <- clvdata(apparelTrans,
+#                        date.format="ymd", 
+#                        time.unit = "week",
+#                        estimation.split = splitWeek,
+#                        name.id = "Id",
+#                        name.date = "Date",
+#                        name.price = "Price")
+# 
+# # Predict intervals and calculate validity
+# 
+# # Initialize variables and tables for the CP process
+# est.pnbd = pnbd(clv.data = clv.apparel)
+# results = predict(est.pnbd, predict.spending = TRUE)
 
 alpha = 0.1
 ntraining = 50

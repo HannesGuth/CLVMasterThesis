@@ -1,45 +1,45 @@
-install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
-
-# Load package
-library(CLVTools)
-library(data.table)
-library(compiler)
-library(ggplot2)
-library(profvis)
-library(rockchalk)
-library(TAF)
-
-splitWeek = 40
-
-# Load data
-data("apparelTrans")
-clv.apparel <- clvdata(apparelTrans,  
-                       date.format="ymd", 
-                       time.unit = "week",
-                       estimation.split = splitWeek,
-                       name.id = "Id",
-                       name.date = "Date",
-                       name.price = "Price")
-
-# Estimate standard Pareto/NBD Model
-est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
-summary(est.pnbd)
-results <- predict(est.pnbd, predict.spending = TRUE)
-print(results)
-est.gg <- gg(clv.data = clv.apparel)
-predict(est.gg)
-
-# Boostrapping to get prediction intervalls
-set.seed(1)
-results_boots <- predict(est.pnbd, uncertainty="boots")
-
-# A more detailed look at the results
-results_boots$predicted.CLV
-results_boots$predicted.CLV.CI.5
-results_boots$predicted.CLV.CI.95
-results_boots$actual.total.spending
-hist((results_boots$predicted.CLV-results_boots$predicted.CLV.CI.5)/results_boots$predicted.CLV*100)
-hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boots$predicted.CLV*100)
+# install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
+# 
+# # Load package
+# library(CLVTools)
+# library(data.table)
+# library(compiler)
+# library(ggplot2)
+# library(profvis)
+# library(rockchalk)
+# library(TAF)
+# 
+# splitWeek = 40
+# 
+# # Load data
+# data("apparelTrans")
+# clv.apparel <- clvdata(apparelTrans,  
+#                        date.format="ymd", 
+#                        time.unit = "week",
+#                        estimation.split = splitWeek,
+#                        name.id = "Id",
+#                        name.date = "Date",
+#                        name.price = "Price")
+# 
+# # Estimate standard Pareto/NBD Model
+# est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
+# summary(est.pnbd)
+# results <- predict(est.pnbd, predict.spending = TRUE)
+# print(results)
+# est.gg <- gg(clv.data = clv.apparel)
+# predict(est.gg)
+# 
+# # Boostrapping to get prediction intervalls
+# set.seed(1)
+# results_boots <- predict(est.pnbd, uncertainty="boots")
+# 
+# # A more detailed look at the results
+# results_boots$predicted.CLV
+# results_boots$predicted.CLV.CI.5
+# results_boots$predicted.CLV.CI.95
+# results_boots$actual.total.spending
+# hist((results_boots$predicted.CLV-results_boots$predicted.CLV.CI.5)/results_boots$predicted.CLV*100)
+# hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boots$predicted.CLV*100)
 
 # Benchmarking
 
@@ -125,6 +125,7 @@ measures = transpose(measures)
 colnames(measures) = unlist(measures[1,])
 measures = measures[-1,]
 measures = data.table("run" = unlist(rownames), measures)
+measures
 
 # Plotting the mspiw plot
 plot_data_mspiw = data.table("lower_BS" = results_boots$predicted.CLV.CI.5,
@@ -155,18 +156,34 @@ ggplot(plot_data_mspiw[CLV < 1000,], aes(x = CLV)) +
 
 # Plotting the relative distribution plot
 
-rel_data = data.table("Id" = results_boots$Id,
+rel_data_CP = data.table("Id" = results_boots$Id,
                       "prediction" = results_boots$predicted.CLV,
                       "lower_PI" = plot_data_mspiw$lower_CP,
                       "upper_PI" = plot_data_mspiw$upper_CP,
                       "true" = benchmark_data$true,
                       "position" = 0)
 
-rel_data$position = (rel_data$true - rel_data$lower_PI) / (rel_data$upper_PI - rel_data$lower_PI)
+rel_data_M1 = data.table("Id" = results_boots$Id,
+                         "prediction" = results_boots$predicted.CLV,
+                         "lower_PI" = plot_data_mspiw$lower_M1,
+                         "upper_PI" = plot_data_mspiw$upper_M1,
+                         "true" = benchmark_data$true,
+                         "position" = 0)
 
-ggplot(rel_data, aes(x = position)) +
+rel_data_CP$position = (rel_data_CP$true - rel_data_CP$lower_PI) / (rel_data_CP$upper_PI - rel_data_CP$lower_PI)
+rel_data_M1$position = (rel_data_M1$true - rel_data_M1$lower_PI) / (rel_data_M1$upper_PI - rel_data_M1$lower_PI)
+
+ggplot(rel_data_CP, aes(x = position)) +
   geom_histogram(binwidth = 0.05) +
   geom_vline(xintercept = 0) +
   geom_vline(xintercept = 1) +
   labs(title = "Distribution of true observations relative to their PIs",
        x = "0: On the lower boundary, 1: On the upper boundary, outside: Outside of the PIs")
+
+ggplot(rel_data_M1, aes(x = position)) +
+  geom_histogram(binwidth = 0.05) +
+  geom_vline(xintercept = 0) +
+  geom_vline(xintercept = 1) +
+  labs(title = "Distribution of true observations relative to their PIs",
+       x = "0: On the lower boundary, 1: On the upper boundary, outside: Outside of the PIs")
+

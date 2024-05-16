@@ -1,42 +1,42 @@
-install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
-
-# Load package
-library(CLVTools)
-library(data.table)
-library(compiler)
-library(ggplot2)
-library(profvis)
-library(rockchalk)
-
-# Load data
-data("apparelTrans")
-clv.apparel <- clvdata(apparelTrans,  
-                       date.format="ymd", 
-                       time.unit = "week",
-                       estimation.split = 40,
-                       name.id = "Id",
-                       name.date = "Date",
-                       name.price = "Price")
-
-# Estimate standard Pareto/NBD Model
-est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
-summary(est.pnbd)
-results <- predict(est.pnbd, predict.spending = TRUE)
-print(results)
-est.gg <- gg(clv.data = clv.apparel)
-predict(est.gg)
-
-# Boostrapping to get prediction intervalls
-set.seed(1)
-results_boots <- predict(est.pnbd, uncertainty="boots")
-
-# A more detailed look at the results
-results_boots$predicted.CLV
-results_boots$predicted.CLV.CI.5
-results_boots$predicted.CLV.CI.95
-results_boots$actual.total.spending
-hist((results_boots$predicted.CLV-results_boots$predicted.CLV.CI.5)/results_boots$predicted.CLV*100)
-hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boots$predicted.CLV*100)
+# install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
+# 
+# # Load package
+# library(CLVTools)
+# library(data.table)
+# library(compiler)
+# library(ggplot2)
+# library(profvis)
+# library(rockchalk)
+# 
+# # Load data
+# data("apparelTrans")
+# clv.apparel <- clvdata(apparelTrans,  
+#                        date.format="ymd", 
+#                        time.unit = "week",
+#                        estimation.split = 40,
+#                        name.id = "Id",
+#                        name.date = "Date",
+#                        name.price = "Price")
+# 
+# # Estimate standard Pareto/NBD Model
+# est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
+# summary(est.pnbd)
+# results <- predict(est.pnbd, predict.spending = TRUE)
+# print(results)
+# est.gg <- gg(clv.data = clv.apparel)
+# predict(est.gg)
+# 
+# # Boostrapping to get prediction intervalls
+# set.seed(1)
+# results_boots <- predict(est.pnbd, uncertainty="boots")
+# 
+# # A more detailed look at the results
+# results_boots$predicted.CLV
+# results_boots$predicted.CLV.CI.5
+# results_boots$predicted.CLV.CI.95
+# results_boots$actual.total.spending
+# hist((results_boots$predicted.CLV-results_boots$predicted.CLV.CI.5)/results_boots$predicted.CLV*100)
+# hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boots$predicted.CLV*100)
 
 # Modifying parameters
 
@@ -119,41 +119,16 @@ for (i in 1:250){
 }
 
 # Check for quality of the intervals
-intervals_PB$PBlower = intervals$`PB_CLV_05%`/intervals$CLV
-intervals_PB$PBupper = intervals$`PB_CLV_95%`/intervals$CLV
-intervals_PB$modlower = intervals$CLV_05/intervals$CLV
-intervals_PB$modupper = intervals$CLV_95/intervals$CLV
-
-sum(intervals_PB$`PB_CLV_05%` < intervals_PB$CLV_05 & intervals_PB$`PB_CLV_95%` < intervals_PB$CLV_95)
-sum(intervals_PB$`PB_CLV_05%` > intervals_PB$CLV_05 & intervals_PB$`PB_CLV_95%` > intervals_PB$CLV_95)
-sum(intervals_PB$`PB_CLV_95%` > intervals_PB$CLV_95)
-
-mean(intervals_PB$PBlower)
-mean(intervals_PB$modlower)
-mean(intervals_PB$PBupper)
-mean(intervals_PB$modupper)
-
-########
-
-# Set the desired mean vector and covariance matrix
-mean_vector <- c(5, 10, 15, 20)  # Mean vector for each variable
-cov_matrix <- matrix(c(10, 5, 5, 2, 
-                       5, 20, 5, 2, 
-                       5, 5, 30, 1, 
-                       2, 2, 1, 40), nrow = 4)  # Covariance matrix
-
-# Generate independent random variables
-n <- 100  # Number of samples
-n_vars <- length(mean_vector)
-independent_random_vars <- matrix(runif(n * n_vars), ncol = n_vars)  # Using uniform distribution for simplicity
-
-# Perform spectral decomposition of the covariance matrix
-eigen_decomp <- eigen(cov_matrix)
-lambda <- eigen_decomp$values  # Eigenvalues
-v <- eigen_decomp$vectors  # Eigenvectors
-
-# Generate transformed variables with desired covariance matrix and mean
-transformed_vars <- independent_random_vars %*% (v %*% diag(sqrt(lambda))) + rep(mean_vector, each = n)
-
-# Print the first few rows of the transformed data
-print(head(transformed_vars))
+# intervals_PB$PBlower = intervals$`PB_CLV_05%`/intervals$CLV
+# intervals_PB$PBupper = intervals$`PB_CLV_95%`/intervals$CLV
+# intervals_PB$modlower = intervals$CLV_05/intervals$CLV
+# intervals_PB$modupper = intervals$CLV_95/intervals$CLV
+# 
+# sum(intervals_PB$`PB_CLV_05%` < intervals_PB$CLV_05 & intervals_PB$`PB_CLV_95%` < intervals_PB$CLV_95)
+# sum(intervals_PB$`PB_CLV_05%` > intervals_PB$CLV_05 & intervals_PB$`PB_CLV_95%` > intervals_PB$CLV_95)
+# sum(intervals_PB$`PB_CLV_95%` > intervals_PB$CLV_95)
+# 
+# mean(intervals_PB$PBlower)
+# mean(intervals_PB$modlower)
+# mean(intervals_PB$PBupper)
+# mean(intervals_PB$modupper)

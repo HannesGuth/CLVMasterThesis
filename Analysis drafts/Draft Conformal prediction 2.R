@@ -154,26 +154,33 @@ f2 = function(pred, param){
 }
 
 compute_coverage = function(true, pred, param){
-  width = f1(pred, param)
+  width = f2(pred, param)
+  #width = param[1] + param[2] * pred + param[3] * pred^2 + param[4] * pred^3 + param[5] * pred^4
   l = pred - as.numeric(width)
   u = pred + as.numeric(width)
   print(paste("sum(true < u & true > l)/length(true):", sum(true < u & true > l)/length(true)))
   return(sum(true < u & true > l)/length(true))
 }
 
-param = rep(0.1,5)
-
 objective = function(param){
-  -compute_coverage(new3$CLV, results$predicted.CLV, param)
+  #compute_coverage(new3$CLV, results$predicted.CLV, param)
+  width = f2(results$predicted.CLV, param)
+  #width = param[1] + param[2] * pred + param[3] * pred^2 + param[4] * pred^3 + param[5] * pred^4
+  l = results$predicted.CLV - as.numeric(width)
+  u = results$predicted.CLV + as.numeric(width)
+  print(paste("sum(true < u & true > l)/length(true):", sum(new3$CLV < u & new3$CLV > l)/length(new3$CLV)))
+  sum(new3$CLV < u & new3$CLV > l)/length(new3$CLV)
 }
 
-optim_result <- optim(param, objective, 
-                      method = "L-BFGS-B",  # specify the optimization method that supports constraints
-                      lower = c(-100,-100,-100,-100,-100),  # lower bounds for each parameter
-                      upper = c(100,100,100,100,100),  # upper bounds for each parameter
-                      control = list(maxit = 20000))
-                      #control = list(fnscale = -1))  # maximize the objective function
+p = rep(10,5)
 
+optim_result <- optimx(par = p, fn = objective, 
+                      method = "L-BFGS-B",  # specify the optimization method that supports constraints
+                      lower = rep(-Inf,5),  # lower bounds for each parameter
+                      upper = rep(Inf,5),  # upper bounds for each parameter
+                      control = list(pgtol = 0.000000000001))
+                      #control = list(fnscale = -1))  # maximize the objective function
+p
 optim_result
 
 
@@ -195,3 +202,79 @@ compute_coverage2 = function(true, pred, p){
 }
 
 r = compute_coverage2(new3$CLV, results$predicted.CLV, p)
+
+
+#######################
+
+library(optimx)
+importance = cut(results$predicted.CLV, breaks = c(-Inf, 10, 30, 70, Inf), labels = c(1,2,3,4))
+p = rep(100,5)
+
+objectivefn = function(p){
+  mean(compute_width(p)) + (covered(p) < 0.8) * 9654344823487
+}
+
+compute_width = function(p){
+  width = (f2(results$predicted.CLV, p) / results$predicted.CLV) * as.numeric(importance)
+  return(width)
+}
+
+covered = function(p){
+  width = compute_width(p)
+  lower = results$predicted.CLV - width
+  upper = results$predicted.CLV + width
+  inside = (new3$CLV > lower & new3$CLV < upper)
+  return(sum(inside)/length(inside))
+}
+
+optim_result = optim(par = p, fn = objectivefn,
+                     method = "L-BFGS-B",
+                     lower = rep(0,5),
+                     upper = rep(Inf,5)
+                     )
+
+optim_result = optimx(par = p, fn = objectivefn,
+                      method = "L-BFGS-B",
+                      control = list(fnscale = -1),
+                      # lower = rep(0,5),
+                      # upper = rep(Inf,5),
+                      ui = matrix(covered, nrow = 1), ci = x)
+
+compute_width(optim_result$par)
+covered(optim_result$par)
+
+#
+
+compute_width = function(p){
+  width = p[1] + 2*p[6] + (results$predicted.CLV < 10) * results$predicted.CLV * p[2] + (results$predicted.CLV >= 10 & results$predicted.CLV < 30) * results$predicted.CLV * p[3] + (results$predicted.CLV >= 30 & results$predicted.CLV < 70) * results$predicted.CLV * p[4] + (results$predicted.CLV >= 70) * results$predicted.CLV * p[5]
+  width = width / (results$predicted.CLV * as.numeric(importance))
+  print(width)
+  return(mean(width))
+}
+
+wrapper = function(x) compute_width(x)
+
+covered = function(x){
+  width = compute_width(x)
+  lower = results$predicted.CLV - width
+  upper = results$predicted.CLV + width
+  inside = (new3$CLV > lower & new3$CLV < upper)
+  return(sum(inside)/length(inside))
+}
+
+nlp = OP(F_objective(F = wrapper, n = 1),
+         F_constraint(covered, dir = "<=", rhs = 0.8),
+         maximum = FALSE)
+#ROI_applicable_solvers(nlp)
+r = ROI_solve(nlp, solver = "nlminb", start = rep(1,6))
+
+, method = "NLOPT_LD_SLSQP")
+
+
+
+
+
+
+
+
+
