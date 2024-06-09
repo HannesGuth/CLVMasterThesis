@@ -64,7 +64,16 @@ sqrt(ext2 - ext^2)
 
 
 
-
+est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
+summary(est.pnbd)
+est.ggomnbd = ggomnbd(clv.data = clv.apparel, verbose = TRUE)
+predict(est.ggomnbd)
+est.bgnbd = bgnbd(clv.data = clv.apparel, verbose = TRUE)
+predict(est.bgnbd)
+results <- predict(est.pnbd, predict.spending = TRUE)
+print(results)
+est.gg <- gg(clv.data = clv.apparel)
+predict(est.gg)
 
 
 

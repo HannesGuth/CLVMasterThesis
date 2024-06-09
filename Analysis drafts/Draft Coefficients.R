@@ -41,33 +41,34 @@
 # Modifying parameters
 
 # Create datatables and copy the estimated model
-m_DERT = data.table("Id" = results_boots$Id)
-m_PMS = data.table("Id" = results_boots$Id)
-m_CLV = data.table("Id" = results_boots$Id)
+m_CET = data.table("Id" = results_boots$Id)
+m_PTS = data.table("Id" = results_boots$Id)
 
-est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
-est.gg <- gg(clv.data = clv.apparel)
+est.pnbd = pnbd(clv.data = clv.apparel, verbose = TRUE)
 model_PNDB = copy(est.pnbd)
-model_GG = copy(est.gg)
 
 ######
 
-# 
+# Create parameter tables by the help of a multivariate normal distribution over the parameter covariance matrix
+
 estpnbd_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
 estgg_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.gg@prediction.params.model), vcov(est.gg), tol = 1e-06, empirical = FALSE)))
-
+# x = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
 # Create tables containing the parameter estimates that are supposed to follow a normal distribution considering the covariance matrix
 while (nrow(estpnbd_cov_table) < 1000){
   row_pnbd = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
-  row_gg = data.table(t(mvrnorm(n = 1, as.numeric(est.gg@prediction.params.model), vcov(est.gg), tol = 1e-06, empirical = FALSE)))
+  # row_x = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
+  # row_gg = data.table(t(mvrnorm(n = 1, as.numeric(est.gg@prediction.params.model), vcov(est.gg), tol = 1e-06, empirical = FALSE)))
+  # x = rbind(x, row_x)
   # Ruling out the cases where parameters are estimated < 0 what would result in errors (unfortunately, by this, one introduces bias)
   if (all(row_pnbd > 0)){
     estpnbd_cov_table = rbind(estpnbd_cov_table, row_pnbd)
   }
-  if (all(row_gg > 0)){
-    estgg_cov_table = rbind(estgg_cov_table, row_gg)
-  }
+  # if (all(row_gg > 0)){
+  #   estgg_cov_table = rbind(estgg_cov_table, row_gg)
+  # }
 }
+
 
 # Build models and estimate CLVs for all the above created parameter realizations
 for (i in 1:1000){
@@ -77,45 +78,40 @@ for (i in 1:1000){
   est.pnbd@prediction.params.model[2] = as.numeric(estpnbd_cov_table[i,2])
   est.pnbd@prediction.params.model[3] = as.numeric(estpnbd_cov_table[i,3])
   est.pnbd@prediction.params.model[4] = as.numeric(estpnbd_cov_table[i,4])
-
-  est.gg@prediction.params.model[1] = as.numeric(estgg_cov_table[i,1])
-  est.gg@prediction.params.model[2] = as.numeric(estgg_cov_table[i,2])
-  est.gg@prediction.params.model[3] = as.numeric(estgg_cov_table[i,3])
   
   pred_PNBD = predict(est.pnbd)
-  pred_GG = predict(est.gg)
   
   column = toString(i)
-  m_DERT[, (column) := pred_PNBD$DERT]
-  m_PMS[, (column) := pred_GG$predicted.mean.spending]
+  m_CET[, (column) := pred_PNBD$CET]
+  m_PTS[, (column) := pred_PNBD$predicted.total.spending]
 }
-
-# Calculate the CLV with DERT and predicted mean spending
-PB_CLV = m_PMS[,2:1000]*m_DERT[,2:1000]
 
 # Example histograms of the CLV distribution for the first 20 customers
 for (i in 1:20){
-  hist(unlist(PB_CLV[i,]), breaks = 200)
+  hist(unlist(m_CET[i,2:1000]), breaks = 200)
+  hist(unlist(m_PTS[i,2:1000]), breaks = 200)
 }
 
 # Summarize the data in a datatable
 intervals_PB = data.table("Id" = results_boots$Id,
-                       "Mod_DERT" = results_boots$DERT,
-                       "Mod_DERT05" = results_boots$DERT.CI.5,
-                       "Mod_DERT95" = results_boots$DERT.CI.95,
-                       "Mod_PMS" = results_boots$predicted.mean.spending,
-                       "Mod_PMS05" = results_boots$predicted.mean.spending.CI.5,
-                       "Mod_PMS95" = results_boots$predicted.mean.spending.CI.95,
-                       "PB_CLV_05%" = 0,
-                       "PB_CLV_95%" = 0,
-                       "CLV_05" = results_boots$predicted.CLV.CI.5,
-                       "CLV_95" = results_boots$predicted.CLV.CI.95,
-                       "CLV" = results_boots$predicted.CLV
+                          "Mod_CET" = results_boots$CET,
+                          "Mod_CET05" = results_boots$CET.CI.5,
+                          "Mod_CET95" = results_boots$CET.CI.95,
+                          "Mod_PTS" = results_boots$predicted.total.spending,
+                          "Mod_PTS05" = 0, #results_boots$predicted.total.spending.CI.5,
+                          "Mod_PTS95" = 0, #results_boots$predicted.total.spending.CI.95,
+                          "PB_CET_05" = 0,
+                          "PB_CET_95" = 0,
+                          "PB_PTS_05" = 0,
+                          "PB_PTS_95" = 0
 )
 
+# Get the intervals
 for (i in 1:250){
-  intervals_PB[i,8] = quantile(unlist(PB_CLV[i,]), probs = c(0.05,0.95), na.rm = TRUE)[1]
-  intervals_PB[i,9] = quantile(unlist(PB_CLV[i,]), probs = c(0.05,0.95), na.rm = TRUE)[2]
+  intervals_PB[i,8] = quantile(unlist(m_CET[i,2:1000]), probs = c(0.05,0.95), na.rm = TRUE)[1]
+  intervals_PB[i,9] = quantile(unlist(m_CET[i,2:1000]), probs = c(0.05,0.95), na.rm = TRUE)[2]
+  intervals_PB[i,10] = quantile(unlist(m_PTS[i,2:1000]), probs = c(0.05,0.95), na.rm = TRUE)[1]
+  intervals_PB[i,11] = quantile(unlist(m_PTS[i,2:1000]), probs = c(0.05,0.95), na.rm = TRUE)[2]
 }
 
 # Check for quality of the intervals
