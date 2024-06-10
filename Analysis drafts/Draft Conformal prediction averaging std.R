@@ -138,7 +138,7 @@ parametertable = data.table("run" = seq(1:200),
                             "PTS_quantile" = 0)
 
 # Train many models, use CP to predict intervals, average over the results
-for (i in 1:10){
+for (i in 1:80){
   print(sum(is.na(CET_LowerPI$mean)))
   print(i)
   tryCatch( # sometimes, the model training returns an error, this result shall then be skipped
@@ -236,9 +236,9 @@ for (i in 1:10){
       print(paste("quantile_PTS:", quantile_PTS))
       
       # Predict the intervals in this run for the calibration data (actually not needed)
-      conformal_data_calibrate$CET_Lower90 = conformal_data_calibrate$CET_prediction - (conformal_data_calibrate$CET_std * quantile_CET)
+      conformal_data_calibrate$CET_Lower90 = max(0, conformal_data_calibrate$CET_prediction - (conformal_data_calibrate$CET_std * quantile_CET))
       conformal_data_calibrate$CET_Upper90 = conformal_data_calibrate$CET_prediction + (conformal_data_calibrate$CET_std * quantile_CET)
-      conformal_data_calibrate$PTS_Lower90 = conformal_data_calibrate$PTS_prediction - (conformal_data_calibrate$PTS_std * quantile_PTS)
+      conformal_data_calibrate$PTS_Lower90 = max(0, conformal_data_calibrate$PTS_prediction - (conformal_data_calibrate$PTS_std * quantile_PTS))
       conformal_data_calibrate$PTS_Upper90 = conformal_data_calibrate$PTS_prediction + (conformal_data_calibrate$PTS_std * quantile_PTS)
       
       # Create a table for the test data that contains the PIs for each customer in this run and if the true value is covered
@@ -257,9 +257,9 @@ for (i in 1:10){
       conformaldata_test$CET_std = predict(CET_mod, data.frame(CET_pred = conformaldata_test$CET_prediction))
       conformaldata_test$PTS_std = predict(PTS_mod, data.frame(PTS_pred = conformaldata_test$PTS_prediction))
       
-      conformaldata_test$CET_Lower90 = conformaldata_test$CET_prediction - (conformaldata_test$CET_std * quantile_CET)
+      conformaldata_test$CET_Lower90 = max(0, conformaldata_test$CET_prediction - (conformaldata_test$CET_std * quantile_CET))
       conformaldata_test$CET_Upper90 = conformaldata_test$CET_prediction + (conformaldata_test$CET_std * quantile_CET)
-      conformaldata_test$PTS_Lower90 = conformaldata_test$PTS_prediction - (conformaldata_test$PTS_std * quantile_PTS)
+      conformaldata_test$PTS_Lower90 = max(0, conformaldata_test$PTS_prediction - (conformaldata_test$PTS_std * quantile_PTS))
       conformaldata_test$PTS_Upper90 = conformaldata_test$PTS_prediction + (conformaldata_test$PTS_std * quantile_PTS)
       
       conformaldata_test$CET_covered = ifelse(conformaldata_test$CET_Lower90 < conformaldata_test$actual.x & conformaldata_test$CET_Upper90 > conformaldata_test$actual.x, 1, 0)
@@ -352,6 +352,6 @@ for (i in 1:length(PTS_validities)){
 }
 
 ggplot(val, aes(x = run, y = average)) +
-  geom_line() +
+  geom_line() #+
   geom_point(aes(y = PTS_validities))
 

@@ -372,8 +372,8 @@ intervals_QR = data.table("Id" = results_boots$Id,
                           "PTS_lower" = round(PTS_lower, 4),
                           "PTS_upper" = PTS_upper)
 
-
-
-
+sum(intervals_QR$CET_true + CET_tolerance > intervals_QR$CET_lower & intervals_QR$CET_true < intervals_QR$CET_upper)/nrow(results)
+sum(intervals_QR$PTS_true + PTS_tolerance > intervals_QR$PTS_lower & intervals_QR$PTS_true < intervals_QR$PTS_upper)/nrow(results)
+sum(intervals_PB$CET_true > intervals_PB$Mod_CET05 & intervals_PB$CET_true < intervals_PB$Mod_CET95)/nrow(results)
 
 

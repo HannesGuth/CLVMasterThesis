@@ -103,7 +103,9 @@ intervals_PB = data.table("Id" = results_boots$Id,
                           "PB_CET_05" = 0,
                           "PB_CET_95" = 0,
                           "PB_PTS_05" = 0,
-                          "PB_PTS_95" = 0
+                          "PB_PTS_95" = 0,
+                          "CET_true" = results$actual.x,
+                          "PTS_true" = results$actual.total.spending
 )
 
 # Get the intervals
@@ -113,6 +115,13 @@ for (i in 1:250){
   intervals_PB[i,10] = quantile(unlist(m_PTS[i,2:1000]), probs = c(0.05,0.95), na.rm = TRUE)[1]
   intervals_PB[i,11] = quantile(unlist(m_PTS[i,2:1000]), probs = c(0.05,0.95), na.rm = TRUE)[2]
 }
+
+# Performance Ensembles
+sum(intervals_PB$PB_CET_05 < intervals_PB$CET_true & intervals_PB$CET_true < intervals_PB$PB_CET_95)/nrow(results)
+sum(intervals_PB$PB_PTS_05 < intervals_PB$PTS_true & intervals_PB$PTS_true < intervals_PB$PB_PTS_95)/nrow(results)
+
+# Performance Bootstrap
+sum(intervals_PB$CET_true > intervals_PB$Mod_CET05 & intervals_PB$CET_true < intervals_PB$Mod_CET95)/nrow(results)
 
 # Check for quality of the intervals
 # intervals_PB$PBlower = intervals$`PB_CLV_05%`/intervals$CLV

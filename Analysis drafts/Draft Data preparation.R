@@ -7,7 +7,7 @@ electronics$Price = electronics$QUANTITY * electronics$UNIT_PRICE
 elclv = electronics[, c("HOUSEHOLD_ID", "Date", "Price")]
 colnames(elclv) = c("Id", "Date", "Price")
 x = elclv[, min(Date), by = "Id"]
-mindate_cust = x[V1 %in% "2001-01-06"]
+mindate_cust = x[V1 %in% "2002-01-05"]
 x = x[, .N, by = "V1"]
 x[order(N, decreasing = TRUE)]
 #elclv = elclv[Date %in% "2001-01-06"]
@@ -16,13 +16,16 @@ eldata = eldata[,-"V1"]
   
 clv.electronics <- clvdata(eldata,  
                            date.format="ymd", 
-                           time.unit = "week",
-                           estimation.split = 20,
+                           time.unit = "day",
+                           estimation.split = 100*5,
                            name.id = "Id",
                            name.date = "Date",
                            name.price = "Price")
 elmod = pnbd(clv.data = clv.electronics, verbose = TRUE)
 el.results = predict(elmod, predict.spending = TRUE)
+el.results
+cor(el.results$actual.total.spending, el.results$predicted.total.spending)
+View(el.results)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Gifts

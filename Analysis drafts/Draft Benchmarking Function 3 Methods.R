@@ -56,7 +56,7 @@ benchmark_CET = data.table("Id" = results_boots$Id,
                            "QR_CET_PI_95" = intervals_QR$CET_upper,
                            "pred" = results$CET,
                            "true" = results$actual.x,
-                           "mod_CLV" = results_boots$predicted.CLV
+                           "mod_CLV" = results$predicted.CLV
 )
 
 benchmark_PTS = data.table("Id" = results_boots$Id,
@@ -70,7 +70,7 @@ benchmark_PTS = data.table("Id" = results_boots$Id,
                            "QR_PTS_PI_95" = intervals_QR$CET_upper,
                            "pred" = results$predicted.total.spending,
                            "true" = results$actual.total.spending,
-                           "mod_CLV" = results_boots$predicted.CLV
+                           "mod_CLV" = results$predicted.CLV
 )
 
 #benchmark_data$true = benchmark_data$mod_CLV + (benchmark_data$mod_CLV * runif(nrow(benchmark_data), -0.2, 0.2))

@@ -52,15 +52,17 @@ plot_data_CET = data.table("Id" = rep(results_boots$Id, each = 5),
 
 # Plot
 
-ggplot(plot_data_CET[CET >= 20,], aes(as.factor(Id), CET)) +
-  geom_pointrange(
-    aes(ymin = Low, ymax = High, color = Method),
-    position = position_dodge(0.3)
-  ) +
-  geom_point(aes(y = True), color = "black") +
-  #geom_point(aes(y = True), color = "red") +
-  labs(title = "90% PIs for customers with predicted CLV in [29,32]", x = "Customer", y = "CLV") #+
-  ylim(c(15,35))
+print(
+  ggplot(plot_data_CET[CET >= 20,], aes(as.factor(Id), CET)) +
+    geom_pointrange(
+      aes(ymin = Low, ymax = High, color = Method),
+      position = position_dodge(0.3)
+    ) +
+    geom_point(aes(y = True), color = "black") +
+    #geom_point(aes(y = True), color = "red") +
+    labs(title = "90% PIs for customers with predicted CLV in [29,32]", x = "Customer", y = "CLV") +#+
+    ylim(c(-1,100))
+)
 
 
 

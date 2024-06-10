@@ -25,9 +25,9 @@ print(results)
 est.gg <- gg(clv.data = clv.apparel)
 predict(est.gg)
 
-# Boostrapping to get prediction intervalls
+# Bootstrapping to get prediction intervals
 set.seed(1)
-results_boots <- predict(est.pnbd, uncertainty="boots")
+results_boots = predict(est.pnbd, uncertainty="boots")
 
 source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Coefficients.r")
 source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Bayesian approach.r")

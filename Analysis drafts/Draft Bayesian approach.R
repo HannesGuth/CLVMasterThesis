@@ -60,6 +60,7 @@ data("apparelTrans")
 datecustomer = apparelTrans[,c(1,2)]
 colnames(datecustomer) = c("cust", "date")
 
+# Convert data into BTYD format
 aptcbs = elog2cbs(datecustomer, T.cal = "2005-10-08")
 params.pnbd = BTYD::pnbd.EstimateParameters(aptcbs[, c("x", "t.x", "T.cal")])
 BTYD::pnbd.cbs.LL(params.pnbd, aptcbs[, c("x", "t.x", "T.cal")])
@@ -89,6 +90,7 @@ for (i in 1:250){
   print(mean(pnbd.xstar.draws[,i]))
 }
 
+# Performance measure
 sum(intervals_BA$True > intervals_BA$Lower & intervals_BA$True < intervals_BA$Upper)/nrow(intervals_BA)
 
 
