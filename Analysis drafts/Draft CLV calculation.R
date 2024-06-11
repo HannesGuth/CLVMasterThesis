@@ -1,85 +1,103 @@
-# install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
-# 
-# # Load package
-# library(CLVTools)
-# library(data.table)
-# library(compiler)
-# library(ggplot2)
-# library(profvis)
-# library(rockchalk)
-# 
-# splitWeek = 40
-# 
-# # Load data
-# data("apparelTrans")
-# clv.apparel <- clvdata(apparelTrans,  
-#                        date.format="ymd",
-#                        time.unit = "week",
-#                        estimation.split = splitWeek,
-#                        name.id = "Id",
-#                        name.date = "Date",
-#                        name.price = "Price")
-# 
-# # Estimate standard Pareto/NBD Model
-# est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
-# results <- predict(est.pnbd, predict.spending = TRUE, continuous.discount.factor = 0.1)
-# est.gg <- gg(clv.data = clv.apparel)
-# 
-# # Boostrapping to get prediction intervalls
-# set.seed(1)
-# results_boots <- predict(est.pnbd, uncertainty="boots")
-# 
-# 
-# # CLV
-# clv = data.table("old" = apparelTrans[Date < min(Date) + splitWeek * 7, sum(Price), by = Id],
-#                  "new" = 0,
-#                  "sum" = 0)
-# 
-# new = apparelTrans
-# new$Price = (new$Date >= min(new$Date) + splitWeek * 7) * new$Price
-# new$weeks = as.numeric(difftime(new$Date, as.Date("2005-01-03") + splitWeek * 7, units = "weeks"))
-# new$DiscountedPrice = new$Price / ((1 + 0.1)^new$weeks)
-# 
-# clv$new = new[, sum(DiscountedPrice), by = Id]$V1
-# clv$sum = clv$old.V1 + clv$new
-# clv$lower = results_boots$predicted.CLV.CI.5
-# clv$upper = results_boots$predicted.CLV.CI.95
-# clv
-# 
-# sum(clv$new < clv$upper & clv$new > clv$lower)
-# 
-# x = new[Id == 100,]
-# sum(x$DiscountedPrice)
-# 
+# Purpose: Discount true spendings, to get the true CLV
+# 3 ways:
+#   - Discount everything to the first period (INcluding the first transaction) in "All periods"  (should be wrong)
+#   - Discount everything to the first period (EXcluding the first transaction) in "All periods"  (should be wrong)
+#   - Discount everything from the holdout period to the first period in "Only holdout period"    (should be correct)
+# with 3 different discount factors
+#   - (1+0.1/52)              [""]        (should be correct)
+#   - (1+(log(1+0.1)/52)      ["log"]     (should be correct)
+#   - (1+0.1)                 ["Direct"]  (should be wrong)
+#
+# -----------------------> 9 columns
+
 # # From (1L)
-new2 = apparelTrans
-#new2 = new2[duplicated(new2$Id),]
-new2$weeks = as.numeric(difftime(new2$Date, as.Date("2005-01-03"), units = "weeks"))
-new2$DiscountedPrice = new2$Price/((1+log(1+0.1))^new2$weeks)
-new2 = merge(x = results[, c("Id", "predicted.CLV")], new2[, sum(DiscountedPrice), by = Id], by = "Id", all.x = TRUE)
-colnames(new2) = c("Id", "predicted.CLV", "allwithfirst (1L)")
-#new2 = merge(x = new2, y = results[,c("Id","predicted.CLV")], by = "Id", all.y = TRUE)
-new2$allwithoutfirst = new2$allwithfirst - apparelTrans[!duplicated(apparelTrans$Id),]$Price
+library(CLVTools)
+library(data.table)
+splitWeek = 40
+# Load data
+data("apparelTrans")
+clv.apparel <- clvdata(apparelTrans,  
+                       date.format="ymd", 
+                       time.unit = "week",
+                       estimation.split = splitWeek,
+                       name.id = "Id",
+                       name.date = "Date",
+                       name.price = "Price")
+
+# Estimate standard Pareto/NBD Model
+est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
+summary(est.pnbd)
+results <- predict(est.pnbd, predict.spending = TRUE)
+
+##### All periods
+
+# Copy apparelTrans
+allPeriods = apparelTrans
+# Calculate the week difference of transactions to the first date
+allPeriods$weeks = as.numeric(difftime(allPeriods$Date, as.Date("2005-01-03"), units = "weeks"))
+# Divide annual discount rate by 52 [weeks] and discount it with the number of weeks
+allPeriods$DiscountedPrice = allPeriods$Price/((1+0.1/52)^allPeriods$weeks)
+# Divide annual discount rate by 52 [weeks] and discount it with the number of weeks (continuous rate)
+allPeriods$DiscountedPriceLog = allPeriods$Price/((1+(log(1+0.1)/52))^allPeriods$weeks)
+# Discount with 0.1 ^ number of weeks (continuous rate)
+allPeriods$DiscountedDirect = allPeriods$Price/((1+0.1)^allPeriods$weeks)
+# Aggregate the discounted prices by customer and compare them with the predicted CLV (including the first transaction)
+intermediate = merge(x = results[, c("Id", "predicted.CLV", "actual.total.spending")], allPeriods[, sum(DiscountedPrice), by = Id], by = "Id", all.x = TRUE)
+colnames(intermediate) = c("Id", "predicted.CLV", "actual.total.spending", "allwithfirst(1L)")
+# Aggregate the discounted prices by customer and compare them with the predicted CLV (including the first transaction) (continuous rate)
+intermediate = merge(x = intermediate[, c("Id", "predicted.CLV", "actual.total.spending", "allwithfirst(1L)")], allPeriods[, sum(DiscountedPriceLog), by = Id], by = "Id", all.x = TRUE)
+colnames(intermediate) = c("Id", "predicted.CLV", "actual.total.spending", "allwithfirst(1L)", "allwithfirstlog(1L)")
+# Aggregate the discounted prices by customer and compare them with the predicted CLV (including the first transaction) (direct)
+intermediate = merge(x = intermediate[, c("Id", "predicted.CLV", "actual.total.spending","allwithfirst(1L)", "allwithfirstlog(1L)")], allPeriods[, sum(DiscountedDirect), by = Id], by = "Id", all.x = TRUE)
+colnames(intermediate) = c("Id", "predicted.CLV", "actual.total.spending", "allwithfirst(1L)", "allwithfirstlog(1L)", "Direct(1L)")
+# Deduct each customer's first purchase from the previous results
+intermediate$allwithoutfirst = intermediate$`allwithfirst(1L)` - apparelTrans[!duplicated(apparelTrans$Id),]$Price
+intermediate$allwithoutfirstlog = intermediate$`allwithfirstlog(1L)` - apparelTrans[!duplicated(apparelTrans$Id),]$Price
+intermediate$allwithoutfirstDirect = intermediate$`Direct(1L)` - apparelTrans[!duplicated(apparelTrans$Id),]$Price
+allPeriods = intermediate
+allPeriods
+
+##### Only holdout period
+
+# Copy apparelTrans
 intermediate = apparelTrans
+# Only those transactions that occur in the holdout period
 intermediate = intermediate[Date > as.Date("2005-01-03") + splitWeek * 7,]
+# Calculate the week difference of transactions to the first date
 intermediate$weeks = as.numeric(difftime(intermediate$Date, as.Date("2005-01-03"), units = "weeks"))
-intermediate$DiscountedPrice = intermediate$Price/((1+log(1+0.1))^intermediate$weeks)
-intermediate = intermediate[, sum(DiscountedPrice), by = "Id"]
-new2 = merge(x = new2, y = intermediate, by = "Id", all.x = TRUE)
-colnames(new2) = c("Id", "predicted.CLV", "allwithfirst (1L)", "allwithoutfirst", "onlyholdout")
-new2
+# Discount the transactions with the previously calculated weeks
+intermediate$DiscountedPrice = intermediate$Price/((1+0.1/52)^intermediate$weeks)
+# Discount the transactions with the previously calculated weeks (continuous rate)
+intermediate$DiscountedPriceLog = intermediate$Price/((1+(log(1+0.1)/52))^intermediate$weeks)
+# Discount the transactions with the previously calculated weeks (direct)
+intermediate$DiscountedPriceDirect = intermediate$Price/((1+0.1)^intermediate$weeks)
+# Aggregate with discounted prices
+onlyHoldout = intermediate[, sum(DiscountedPrice), by = "Id"]
+colnames(onlyHoldout) = c("Id", "OnlyHoldout")
+# Aggregate with discounted prices (continuous rate)
+onlyHoldout = merge(x = onlyHoldout[,c("Id", "OnlyHoldout")], y = intermediate[,sum(DiscountedPriceLog), by = Id], by = "Id")
+colnames(onlyHoldout) = c("Id", "OnlyHoldout", "OnlyHoldoutLog")
+# Aggregate with discounted prices (Direct)
+onlyHoldout = merge(x = onlyHoldout[,c("Id", "OnlyHoldout", "OnlyHoldoutLog")], y = intermediate[,sum(DiscountedPriceDirect), by = Id], by = "Id")
+colnames(onlyHoldout) = c("Id", "OnlyHoldout", "OnlyHoldoutLog", "OnlyHoldoutDirect")
+onlyHoldout
 
-# With model definition
-new3 = data.table("Id" = results$Id,
-                  "actual.x" = results$actual.x,
-                  "actual.total.spending" = results$actual.total.spending,
-                  "CET" = results$CET,
-                  "DERT_old" = results$DERT,
-                  "CLV_old" = results$predicted.CLV)
+# Merge results
+comparison = merge(x = allPeriods, y = onlyHoldout, by = "Id", all.x = TRUE)
+comparison[is.na(comparison)] = 0
+comparison
 
-new3$DERT_new = new3$actual.x / 3.612912 # results$CET / results$DERT
-new3$mean_spending = ifelse(new3$actual.x == 0, 0, new3$actual.total.spending/new3$actual.x)
-new3$CLV = new3$DERT_new * new3$mean_spending
+# # With model definition
+# new3 = data.table("Id" = results$Id,
+#                   "actual.x" = results$actual.x,
+#                   "actual.total.spending" = results$actual.total.spending,
+#                   "CET" = results$CET,
+#                   "DERT_old" = results$DERT,
+#                   "CLV_old" = results$predicted.CLV)
+# 
+# new3$DERT_new = new3$actual.x / 3.612912 # results$CET / results$DERT
+# new3$mean_spending = ifelse(new3$actual.x == 0, 0, new3$actual.total.spending/new3$actual.x)
+# new3$CLV = new3$DERT_new * new3$mean_spending
 
 # # Calculate DERT with the BTYD package
 #   cutoffSplitweek = apparelTrans[Date <= as.Date("2005-01-03") + splitWeek * 7,]
