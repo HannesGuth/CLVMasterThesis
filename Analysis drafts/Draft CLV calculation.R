@@ -87,6 +87,26 @@ comparison = merge(x = allPeriods, y = onlyHoldout, by = "Id", all.x = TRUE)
 comparison[is.na(comparison)] = 0
 comparison
 
+#####################
+# Try different discount rates d
+
+d = seq(0,5,0.5)
+d_overview = data.table("Id" = results$Id,
+                        "predicted.CLV d=default" = results$predicted.CLV,
+                        "predicted.total.spending" = results$predicted.total.spending)
+for (i in 1:length(d)){
+  print(i)
+  d_results = predict(est.pnbd, predict.spending = TRUE, continuous.discount.factor = d[i]/52)
+  d_overview = cbind(d_overview, d_results$predicted.CLV)
+  names(d_overview)[length(names(d_overview))] = paste("d =", as.character(d[i]))
+  print(paste("d[i]", d[i]))
+  print(paste("d_overview$predicted.CLV", d_results$predicted.CLV[1]))
+  print(paste("d_overview$predicted_total_spending", d_results$predicted.total.spending[1]))
+}
+d_overview
+
+#predict(est.pnbd, predict.spending = TRUE, continuous.discount.factor = 0.1, prediction.end = "2006-07-16")
+
 # # With model definition
 # new3 = data.table("Id" = results$Id,
 #                   "actual.x" = results$actual.x,
