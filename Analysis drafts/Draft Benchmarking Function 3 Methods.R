@@ -1,59 +1,16 @@
-# install.packages("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/CLVTools", repos = NULL, type="source")
-# 
-# # Load package
-# library(CLVTools)
-# library(data.table)
-# library(compiler)
-# library(ggplot2)
-# library(profvis)
-# library(rockchalk)
-# library(TAF)
-# 
-# splitWeek = 40
-# 
-# # Load data
-# data("apparelTrans")
-# clv.apparel <- clvdata(apparelTrans,  
-#                        date.format="ymd", 
-#                        time.unit = "week",
-#                        estimation.split = splitWeek,
-#                        name.id = "Id",
-#                        name.date = "Date",
-#                        name.price = "Price")
-# 
-# # Estimate standard Pareto/NBD Model
-# est.pnbd <- pnbd(clv.data = clv.apparel, verbose = TRUE)
-# summary(est.pnbd)
-# results <- predict(est.pnbd, predict.spending = TRUE)
-# print(results)
-# est.gg <- gg(clv.data = clv.apparel)
-# predict(est.gg)
-# 
-# # Boostrapping to get prediction intervalls
-# set.seed(1)
-# results_boots <- predict(est.pnbd, uncertainty="boots")
-# 
-# # A more detailed look at the results
-# results_boots$predicted.CLV
-# results_boots$predicted.CLV.CI.5
-# results_boots$predicted.CLV.CI.95
-# results_boots$actual.total.spending
-# hist((results_boots$predicted.CLV-results_boots$predicted.CLV.CI.5)/results_boots$predicted.CLV*100)
-# hist((results_boots$predicted.CLV.CI.95-results_boots$predicted.CLV)/results_boots$predicted.CLV*100)
-
 # Benchmarking
 
 benchmark_CET = data.table("Id" = results_boots$Id,
-                           "mod_CET_PI_05" = results_boots$CET.CI.5,
-                           "mod_CET_PI_95" = results_boots$CET.CI.95,
+                           "mod_CET_PI_05" = intervals_BS$CET_lower,
+                           "mod_CET_PI_95" = intervals_BS$CET_upper,
                            "PB_CET_PI_05" = intervals_PB$PB_CET_05,
                            "PB_CET_PI_95" = intervals_PB$PB_CET_95,
-                           "CP_CET_PI_05" = intervals_CP$CET_Lower,
-                           "CP_CET_PI_95" = intervals_CP$CET_Upper,
+                           "CP_CET_PI_05" = intervals_CP_m$CET_Lower,
+                           "CP_CET_PI_95" = intervals_CP_m$CET_Upper,
                            "BA_CET_PI_05" = intervals_BA$Lower,
                            "BA_CET_PI_95" = intervals_BA$Upper,
-                           "QR_CET_PI_05" = intervals_QR$CET_lower,
-                           "QR_CET_PI_95" = intervals_QR$CET_upper,
+                           "QR_CET_PI_05" = intervals_QR_m$CET_lower,
+                           "QR_CET_PI_95" = intervals_QR_m$CET_upper,
                            "pred" = results$CET,
                            "true" = results$actual.x,
                            "mod_CLV" = results$predicted.CLV
@@ -64,10 +21,10 @@ benchmark_PTS = data.table("Id" = results_boots$Id,
                            "mod_PTS_PI_95" = 0,
                            "PB_PTS_PI_05" = intervals_PB$PB_PTS_05,
                            "PB_PTS_PI_95" = intervals_PB$PB_PTS_95,
-                           "CP_PTS_PI_05" = intervals_CP$PTS_Lower,
-                           "CP_PTS_PI_95" = intervals_CP$PTS_Upper,
-                           "QR_PTS_PI_05" = intervals_QR$CET_lower,
-                           "QR_PTS_PI_95" = intervals_QR$CET_upper,
+                           "CP_PTS_PI_05" = intervals_CP_m$PTS_Lower,
+                           "CP_PTS_PI_95" = intervals_CP_m$PTS_Upper,
+                           "QR_PTS_PI_05" = intervals_QR_m$PTS_lower,
+                           "QR_PTS_PI_95" = intervals_QR_m$CET_upper,
                            "pred" = results$predicted.total.spending,
                            "true" = results$actual.total.spending,
                            "mod_CLV" = results$predicted.CLV
@@ -119,7 +76,7 @@ for (item in items){
     values = c(values, sum(((unlist(upper[j]) - unlist(lower[j]))/item$mod_CLV) + (2/alpha) * ((item$true < unlist(lower[j])) * ((unlist(lower[j]) - item$true)/item$mod_CLV) + (item$true > unlist(unlist(upper[j]))) * ((item$true - unlist(unlist(upper[j])))/item$mod_CLV)) / nrow(item)))
     
     # Bias (2L)
-     values = c(values, sum(item$true - item$mod_CLV) / (mean(item$true) * nrow(item)))
+    values = c(values, sum(item$true - item$mod_CLV) / (mean(item$true) * nrow(item)))
     
     # Interval score (20PI)
     #values = c(values, sum(-2 * alpha * (unlist(unlist(upper[j])) - unlist(lower[j])) - 4 * ((item$true < unlist(lower[j])) * (unlist(lower[j]) - item$true) + (item$true > unlist(unlist(upper[j]))) * (item$true - unlist(unlist(upper[j]))))) / nrow(item))
@@ -222,64 +179,4 @@ colnames(measures_PTS) = unlist(measures_PTS[1,])
 measures_PTS = measures_PTS[-1,]
 measures_PTS = data.table("run" = unlist(rownames), measures_PTS)
 measures_PTS
-# 
-# # Plotting the mspiw plot
-# plot_data_mspiw = data.table("lower_BS" = results_boots$predicted.CLV.CI.5,
-#                              "upper_BS" = results_boots$predicted.CLV.CI.95,
-#                              "lower_M1" = intervals_MB$`MB_CLV_05%`,
-#                              "upper_M1" = intervals_MB$`MB_CLV_95%`,
-#                              "lower_M2" = intervals_PB$`PB_CLV_05%`,
-#                              "upper_M2" = intervals_PB$`PB_CLV_95%`,
-#                              "lower_CP" = intervals_CP$Lower,
-#                              "upper_CP" = intervals_CP$Upper,
-#                              "CLV" = results_boots$predicted.CLV)
-# 
-# plot_data_mspiw$width_BS = (plot_data_mspiw$upper_BS - plot_data_mspiw$lower_BS) / results_boots$predicted.CLV
-# plot_data_mspiw$width_M1 = (plot_data_mspiw$upper_M1 - plot_data_mspiw$lower_M1) / results_boots$predicted.CLV
-# plot_data_mspiw$width_M2 = (plot_data_mspiw$upper_M2 - plot_data_mspiw$lower_M2) / results_boots$predicted.CLV
-# plot_data_mspiw$width_CP = (plot_data_mspiw$upper_CP - plot_data_mspiw$lower_CP) / results_boots$predicted.CLV
-# 
-# ggplot(plot_data_mspiw[CLV < 1000,], aes(x = CLV)) + 
-#   geom_line(aes(y = width_BS, color = "blue")) +
-#   geom_line(aes(y = width_M1, color = "red")) +
-#   geom_line(aes(y = width_M2, color = "green")) +
-#   geom_line(aes(y = width_CP, color = "black")) +
-#   labs(title = "Absolute interval width/CLV for different CLV values and intervals methods", y = "Relative interval width") +
-#   scale_color_identity(name = "Model",
-#                        breaks = c("blue", "red", "green", "black"),
-#                        labels = c("Bootstrap", "Method 1", "Method 2", "CP"),
-#                        guide = "legend")
-# 
-# # Plotting the relative distribution plot
-# 
-# rel_data_CP = data.table("Id" = results_boots$Id,
-#                       "prediction" = results_boots$predicted.CLV,
-#                       "lower_PI" = plot_data_mspiw$lower_CP,
-#                       "upper_PI" = plot_data_mspiw$upper_CP,
-#                       "true" = benchmark_data$true,
-#                       "position" = 0)
-# 
-# rel_data_M1 = data.table("Id" = results_boots$Id,
-#                          "prediction" = results_boots$predicted.CLV,
-#                          "lower_PI" = plot_data_mspiw$lower_M1,
-#                          "upper_PI" = plot_data_mspiw$upper_M1,
-#                          "true" = benchmark_data$true,
-#                          "position" = 0)
-# 
-# rel_data_CP$position = (rel_data_CP$true - rel_data_CP$lower_PI) / (rel_data_CP$upper_PI - rel_data_CP$lower_PI)
-# rel_data_M1$position = (rel_data_M1$true - rel_data_M1$lower_PI) / (rel_data_M1$upper_PI - rel_data_M1$lower_PI)
-# 
-# ggplot(rel_data_CP, aes(x = position)) +
-#   geom_histogram(binwidth = 0.05) +
-#   geom_vline(xintercept = 0) +
-#   geom_vline(xintercept = 1) +
-#   labs(title = "Distribution of true observations relative to their PIs",
-#        x = "0: On the lower boundary, 1: On the upper boundary, outside: Outside of the PIs")
-# 
-# ggplot(rel_data_M1, aes(x = position)) +
-#   geom_histogram(binwidth = 0.05) +
-#   geom_vline(xintercept = 0) +
-#   geom_vline(xintercept = 1) +
-#   labs(title = "Distribution of true observations relative to their PIs",
-#        x = "0: On the lower boundary, 1: On the upper boundary, outside: Outside of the PIs")
 

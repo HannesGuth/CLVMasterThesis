@@ -1,0 +1,92 @@
+intervals_QR_measures = intervals_QR_m
+intervals_QR_measures$CET_lower = (intervals_QR_measures$CET_lower <= CET_tolerance) * 0 + (intervals_QR_measures$CET_lower > CET_tolerance) * intervals_QR_measures$CET_lower
+intervals_QR_measures$PTS_lower = (intervals_QR_measures$PTS_lower <= PTS_tolerance) * 0 + (intervals_QR_measures$PTS_lower > PTS_tolerance) * intervals_QR_measures$PTS_lower
+
+
+rst = list(intervals_BS, intervals_PB, intervals_BA, intervals_QR_measures, intervals_CP_m)
+
+CET_measures = data.table("Measure" = c("PICP", "ACE", "Upper coverage", "Lower coverage", "MIS", "Bias", "MSPIW", "MSPIWW", "SWR"),
+                      "BS" = 0,
+                      "EN" = 0,
+                      "BA" = 0,
+                      "QR" = 0,
+                      "CP" = 0)
+
+PTS_measures = data.table("Measure" = c("PICP", "ACE", "Upper coverage", "Lower coverage", "MIS", "Bias", "MSPIW", "MSPIWW", "SWR"),
+                          "BS" = 0,
+                          "EN" = 0,
+                          "BA" = 0,
+                          "QR" = 0,
+                          "CP" = 0)
+
+f_PICP = function(true, lower, upper){
+  vec = true >= lower & true <= upper
+  return(mean(vec))
+}
+
+f_ACE = function(true, lower, upper, alpha){
+  return((1-alpha) - f_PICP(true, lower, upper))
+}
+
+f_UC = function(true, upper){
+  return(sum(true <= upper)/length(true))
+}
+
+f_LC = function(true, lower){
+  return(sum(true >= lower)/length(true))
+}
+
+f_MIS = function(true, lower, upper, est, alpha){
+  return(sum((upper - lower)/est + (2/alpha) * ((true > upper)*((true-upper)/est) + (true < lower)*((lower-true)/est))) / length(true)) # scaling should be done by true value or estimation, not by upper but one cannot divide by 0
+}
+
+f_BIAS = function(true, est){
+  return(sum(true - est) / sum(true))
+}
+
+f_MSIW = function(lower, upper, est){
+  return(mean((upper - lower) / est))
+}
+
+f_MSIWW = function(lower, upper, est){
+  weight = est / sum(est)
+  return(sum(((upper - lower)/est)*weight))
+}
+
+f_SWR = function(true, lower, upper, est){
+  return(f_PICP(true,lower,upper) / f_MSIW(lower, upper, est))
+}
+
+f_measures = function(true, lower, upper, est, alpha){
+  res = c(
+         f_PICP(true, lower, upper),
+         f_ACE(true, lower, upper, alpha),
+         f_UC(true, upper),
+         f_LC(true, lower),
+         f_MIS(true, lower, upper, est, alpha),
+         f_BIAS(true, est),
+         f_MSIW(lower, upper, est),
+         f_MSIWW(lower, upper, est),
+         f_SWR(true, lower, upper, est)
+         )
+  return(res)
+}
+
+for (i in 1:length(rst)){
+  CET_measures[1:9, i+1] = f_measures(rst[[i]]$CET_true, rst[[i]]$CET_lower, rst[[i]]$CET_upper, rst[[i]]$CET_prediction, alpha)
+  PTS_measures[1:9, i+1] = f_measures(rst[[i]]$PTS_true, rst[[i]]$PTS_lower, rst[[i]]$PTS_upper, rst[[i]]$PTS_prediction, alpha)
+}
+CET_measures
+PTS_measures
+
+f_PICP(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper)
+f_ACE(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, 0.1)
+f_UC(intervals_BA$CET_true, intervals_BA$CET_upper)
+f_LC(intervals_BA$CET_true, intervals_BA$CET_lower)
+f_MIS(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction, alpha)
+f_BIAS(intervals_BA$CET_true, intervals_BA$CET_prediction)
+f_MSIW(intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
+f_MSIWW(intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
+f_SWR(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
+f_measures(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction, alpha)
+
