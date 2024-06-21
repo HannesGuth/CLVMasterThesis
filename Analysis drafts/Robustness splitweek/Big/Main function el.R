@@ -79,13 +79,13 @@ for (training_index in 1:length(s1)){
 comparison_el_big = comparison
 write.csv(comparison_el_big, "D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Robustness splitweek/comparison_el_big.csv")
 
-ggplot(data = comparison_el_big) +
+ggplot(data = comparison_el_big[1:(nrow(comparison_el_big)-12),]) +
   geom_density(aes(x = CET_CP_perf, color = "CP rep")) +
   geom_density(aes(x = CET_CP_perf_B2, color = "CP once")) +
   geom_density(aes(x = CET_QR_perf, color = "QR")) +
   labs(title = "CET electronics")
 
-ggplot(data = comparison_el_big) +
+ggplot(data = comparison_el_big[1:(nrow(comparison_el_big)-12),]) +
   geom_density(aes(x = PTS_CP_perf, color = "CP rep")) +
   geom_density(aes(x = PTS_CP_perf_B2, color = "CP once")) +
   geom_density(aes(x = PTS_QR_perf, color = "QR")) +
