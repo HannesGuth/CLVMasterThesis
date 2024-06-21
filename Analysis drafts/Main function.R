@@ -6,10 +6,10 @@ library(profvis)
 library(rockchalk)
 library(doParallel)
 
-splitweek = 130 # 130 for gift2
+splitweek = 80 # 130 for gift2
 # Load data
 
-source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Data preparation.r")
+#source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Data preparation.r")
 clv.gift2 <- clvdata(gift2,  
                      date.format="ymd", 
                      time.unit = "week",
@@ -33,6 +33,19 @@ source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/D
 
 source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Plotting.r")
 source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Benchmarking Function 3 Methods.r")
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
 
 
 

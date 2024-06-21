@@ -1,118 +1,37 @@
-# 1. Get the variances
-# 2. Get the intervals (acadmeic version) and collect the quantiles (managerial version)
-
-# Set default settings
-# splitweek = 130
-ntraining = 225
-ntest = 445 - ntraining
-customers = unique(gift1$Id)
+ntraining = 150
+ntest = 301 - ntraining
+customers = unique(el1$Id)
 CET_variance_table = data.table("Id" = customers,
                                 "std" = 0)
 PTS_variance_table = data.table("Id" = customers,
                                 "std" = 0)
 
-# First loop to get the averages over the differences (sds)
-# for (i in 1:80){
-#   print(i)
-#   tryCatch( # sometimes, the model training returns an error, this result shall then be skipped
-#     {
-#       # Split the data set in training, validation and test
-#       smp = sample(customers, ntraining, replace = FALSE)
-#       train = gift1[Id %in% smp,]
-#       test = gift1[!(Id %in% smp),]
-#       
-#       # Transform the split data into clvdata
-#       trainCLV = clvdata(train,
-#                          date.format="ymd", 
-#                          time.unit = "week",
-#                          estimation.split = splitWeek,
-#                          name.id = "Id",
-#                          name.date = "Date",
-#                          name.price = "Price")
-#       
-#       testCLV = clvdata(test,
-#                              date.format="ymd",
-#                              time.unit = "week",
-#                              estimation.split = splitWeek,
-#                              name.id = "Id",
-#                              name.date = "Date",
-#                              name.price = "Price")
-#       
-#       # Create all models
-#       trainModelpnbd = pnbd(clv.data = trainCLV)
-#       testModelpnbd = pnbd(clv.data = testCLV)
-# 
-#       # Take the parameters from the training model for the other 2 models as well (only like this, it is possible
-#       # to make predictions for calibration and test data using the train model)
-#       testModelpnbd@prediction.params.model[1] = trainModelpnbd@prediction.params.model[1]
-#       testModelpnbd@prediction.params.model[2] = trainModelpnbd@prediction.params.model[2]
-#       testModelpnbd@prediction.params.model[3] = trainModelpnbd@prediction.params.model[3]
-#       testModelpnbd@prediction.params.model[4] = trainModelpnbd@prediction.params.model[4]
-#       
-#       # Make predictions
-#       results_pnbd_test = predict(testModelpnbd)
-#       
-#       # Create a table that later contains Id, Prediction, True values, error and quantiles for the calibration data
-#       conformal_data_test = data.table("Id" = results_pnbd_test$Id,
-#                                        "CET_prediction" = results_pnbd_test$CET,
-#                                        "PTS_prediction" = results_pnbd_test$predicted.total.spending,
-#                                        "CET_true" = results_pnbd_test$actual.x,
-#                                        "PTS_true" = results_pnbd_test$actual.total.spending,
-#                                        "CET_diff" = abs(results_pnbd_test$actual.x - results_pnbd_test$CET),
-#                                        "PTS_diff" = abs(results_pnbd_test$actual.total.spending - results_pnbd_test$predicted.total.spending)
-#       )
-#       
-#       # Collect the sds
-#       CET_variance_table = merge(x = CET_variance_table, y = conformal_data_test[, c("Id", "CET_diff")], by = "Id", all.x = TRUE)
-#       names(CET_variance_table)[length(CET_variance_table)] = paste("run", toString(length(names(CET_variance_table))))
-#       PTS_variance_table = merge(x = PTS_variance_table, y = conformal_data_test[, c("Id", "PTS_diff")], by = "Id", all.x = TRUE)
-#       names(PTS_variance_table)[length(PTS_variance_table)] = paste("run", toString(length(names(PTS_variance_table))))
-#     },
-#     # Catch errors
-#     error = function(e){print(e)},
-#     warning = function(w){print(w)}
-#   )
-# }
-
-# Take the average over the differences of all runs
-# for (i in 1:250){
-#   CET_variance_table[i,2] = sqrt(var(as.vector(unlist(CET_variance_table[i,2:length(CET_variance_table)])), na.rm = TRUE))
-#   PTS_variance_table[i,2] = sqrt(var(as.vector(unlist(PTS_variance_table[i,2:length(PTS_variance_table)])), na.rm = TRUE))
-#   CET_variance_table[i,2] = mean(as.vector(unlist(CET_variance_table[i,2:length(CET_variance_table)])), na.rm = TRUE)
-#   PTS_variance_table[i,2] = mean(as.vector(unlist(PTS_variance_table[i,2:length(PTS_variance_table)])), na.rm = TRUE)
-# }
-
-# # Table based on the differences from the loop
-# cor_table = data.table("Id" = customers,
-#                        "CET_pred" = results$CET,
-#                        "CET_true" = results$actual.x,
-#                        "CET_std" = CET_variance_table$CET_std,
-#                        "PTS_pred" = results$predicted.total.spending,
-#                        "PTS_true" = results$actual.total.spending,
-#                        "PTS_std" = PTS_variance_table$PTS_std)
-# 
-# # Fit the linear models based on the 1. table
-# CET_mod = lm(CET_std ~ CET_pred, data = cor_table)
-# PTS_mod = lm(PTS_std ~ PTS_pred, data = cor_table)
-
-clv.gifts <- clvdata(gift1,  
+clv.el <- clvdata(el1,  
                      date.format="ymd", 
                      time.unit = "week",
-                     estimation.split = 130,
+                     estimation.split = splitweek1, # 10, 20, 80, 120, 180
                      name.id = "Id",
                      name.date = "Date",
                      name.price = "Price")
-est.pnbd = pnbd(clv.data = clv.gifts)
-results_gift1 = predict(est.pnbd, predict.spending = TRUE)
+est.pnbd = pnbd(clv.data = clv.el)
+
+if (end1 > 0){
+  results.el1 = predict(est.pnbd, predict.spending = TRUE, prediction.end = end1)
+  print("a")
+}else{
+  results.el1 = predict(est.pnbd, predict.spending = TRUE)
+  print("b")
+}
+
 
 # Table based on differences from a single fit
 cor_table = data.table("Id" = customers,
-                       "CET_pred" = results_gift1$CET,
-                       "CET_true" = results_gift1$actual.x,
-                       "CET_std" = abs(results_gift1$actual.x - results_gift1$CET),
-                       "PTS_pred" = results_gift1$predicted.total.spending,
-                       "PTS_true" = results_gift1$actual.total.spending,
-                       "PTS_std" = abs(results_gift1$actual.total.spending - results_gift1$predicted.total.spending))
+                       "CET_pred" = results.el1$CET,
+                       "CET_true" = results.el1$actual.x,
+                       "CET_std" = abs(results.el1$actual.x - results.el1$CET),
+                       "PTS_pred" = results.el1$predicted.total.spending,
+                       "PTS_true" = results.el1$actual.total.spending,
+                       "PTS_std" = abs(results.el1$actual.total.spending - results.el1$predicted.total.spending))
 
 # Fit the linear models based on the 2. table
 CET_mod = lm(CET_std ~ CET_pred, data = cor_table)
@@ -124,9 +43,9 @@ PTS_mod = lm(PTS_std ~ PTS_pred, data = cor_table)
 
 # Set default settings 
 alpha = 0.1
-ntraining = 225
-ntest = 445 - ntraining
-customers = unique(gift1$Id)
+ntraining = 150
+ntest = 301 - ntraining
+customers = unique(el1$Id)
 CET_LowerPI = data.table("Id" = customers,
                          "mean" = NA)
 CET_UpperPI = data.table("Id" = customers,
@@ -151,21 +70,21 @@ parametertable = data.table("run" = seq(1:200),
                             "PTS_quantile" = 0)
 
 # Train many models, use CP to predict intervals, average over the results
-for (i in 1:1000){
+for (i in 1:80){
   print(sum(is.na(CET_LowerPI$mean)))
   print(i)
   tryCatch( # sometimes, the model training returns an error, this result shall then be skipped
     {
       # Split the data set in training, validation and test
       smp = sample(customers, ntraining, replace = FALSE)
-      train = gift1[Id %in% smp,]
-      test = gift1[!(Id %in% smp),]
+      train = el1[Id %in% smp,]
+      test = el1[!(Id %in% smp),]
       
       # Transform the split data into clvdata
       trainCLV = clvdata(train,
                          date.format="ymd", 
                          time.unit = "week",
-                         estimation.split = 130,
+                         estimation.split = splitweek1,
                          name.id = "Id",
                          name.date = "Date",
                          name.price = "Price")
@@ -173,7 +92,7 @@ for (i in 1:1000){
       testCLV = clvdata(test,
                         date.format="ymd",
                         time.unit = "week",
-                        estimation.split = 130,
+                        estimation.split = splitweek1,
                         name.id = "Id",
                         name.date = "Date",
                         name.price = "Price")
@@ -183,8 +102,15 @@ for (i in 1:1000){
       testModelpnbd = pnbd(clv.data = testCLV)
       
       # Make predictions
-      results_pnbd_train = predict(trainModelpnbd)
-      results_pnbd_test = predict(testModelpnbd)
+
+      
+      if (end1 > 0){
+        results_pnbd_train = predict(trainModelpnbd, prediction.end = end1)
+        results_pnbd_test = predict(testModelpnbd, prediction.end = end1)
+      }else{
+        results_pnbd_train = predict(trainModelpnbd)
+        results_pnbd_test = predict(testModelpnbd)
+      }
       
       # Create a table that later contains Id, Prediction, True values, error and quantiles for the calibration data
       conformal_data_train = data.table("Id" = results_pnbd_train$Id,
@@ -287,17 +213,17 @@ for (i in 1:1000){
 }
 
 # Create the resulting table for comparison with other methods
-intervals_CP = data.table("Id" = results.gift1$Id,
+intervals_CP = data.table("Id" = results.el1$Id,
                             "CET_lower" = max(0, CET_LowerPI$mean),
                             "CET_upper" = CET_UpperPI$mean,
-                            "CET_true" = results.gift1$actual.x,
-                            "CET_prediction" = results.gift1$CET,
-                            "CET_covered" = CET_LowerPI$mean < results_gift1$actual.x & CET_UpperPI$mean > results_gift1$actual.x,
+                            "CET_true" = results.el1$actual.x,
+                            "CET_prediction" = results.el1$CET,
+                            "CET_covered" = CET_LowerPI$mean < results.el1$actual.x & CET_UpperPI$mean > results.el1$actual.x,
                             "PTS_lower" = max(0, PTS_LowerPI$mean),
                             "PTS_upper" = PTS_UpperPI$mean,
-                            "PTS_true" = results.gift1$actual.total.spending,
-                            "PTS_prediction" = results.gift1$predicted.total.spending,
-                            "PTS_covered" = PTS_LowerPI$mean < results_gift1$actual.total.spending & PTS_UpperPI$mean > results_gift1$actual.total.spending
+                            "PTS_true" = results.el1$actual.total.spending,
+                            "PTS_prediction" = results.el1$predicted.total.spending,
+                            "PTS_covered" = PTS_LowerPI$mean < results.el1$actual.total.spending & PTS_UpperPI$mean > results.el1$actual.total.spending
 )
 
 ###################
@@ -327,62 +253,3 @@ plot(density(CET_validities))
 PTS_validities = as.vector(unlist(PTS_validities))
 hist(PTS_validities)
 plot(density(PTS_validities))
-
-###################
-# Managerial version
-
-val = data.table("run" = seq(1,length(CET_validities),1),
-                 "CET_validities" = CET_validities,
-                 "PTS_validities" = PTS_validities,
-                 "CET_average" = 0,
-                 "PTS_average" = 0)
-
-for (i in 1:nrow(val)){
-  val[i,4] = mean(as.vector(unlist(val[1:i,2])))
-  val[i,5] = mean(as.vector(unlist(val[1:i,3])))
-}
-
-print(ggplot(val) +
-  geom_line(aes(x = run, y = CET_average), color = "red") +
-  geom_line(aes(x = run, y = PTS_average), color = "green")
-)
-  #geom_point(aes(y = PTS_validities))
-
-
-
-
-
-clv.gift2 <- clvdata(gift2,  
-                     date.format="ymd", 
-                     time.unit = "week",
-                     estimation.split = 130,
-                     name.id = "Id",
-                     name.date = "Date",
-                     name.price = "Price")
-est.gift2 = pnbd(clv.data = clv.gift2)
-results.gift2 = predict(est.gift2, predict.spending = TRUE)
-
-CET_quantile = mean(as.vector(unlist(quantiles_CET)))
-PTS_quantile = mean(as.vector(unlist(quantiles_PTS)))
-
-CET_std = predict(CET_mod, data.frame(CET_pred = results.gift2$CET))
-PTS_std = predict(PTS_mod, data.frame(PTS_pred = results.gift2$predicted.total.spending))
-
-intervals_CP_m = data.table("Id" = pred_PNBD$Id,
-                          "CET_lower" = results.gift2$CET - (CET_std * CET_quantile),
-                          "CET_upper" = results.gift2$CET + (CET_std * CET_quantile),
-                          "CET_true" = results_general$actual.x,
-                          "CET_prediction" = results.gift2$CET,
-                          "CET_covered" = 0,
-                          "PTS_lower" = results.gift2$predicted.total.spending - (PTS_std * CET_quantile),
-                          "PTS_upper" = results.gift2$predicted.total.spending + (PTS_std * CET_quantile),
-                          "PTS_true" = results_general$actual.total.spending,
-                          "PTS_prediction" = results.gift2$predicted.total.spending,
-                          "PTS_covered" = 0
-)
-
-intervals_CP_m$CET_covered = intervals_CP_m$CET_lower <= intervals_CP_m$CET_true & intervals_CP_m$CET_upper >= intervals_CP_m$CET_true
-intervals_CP_m$PTS_covered = intervals_CP_m$PTS_lower <= intervals_CP_m$PTS_true & intervals_CP_m$PTS_upper >= intervals_CP_m$PTS_true
-mean(intervals_CP_m$CET_covered)
-mean(intervals_CP_m$PTS_covered)
-

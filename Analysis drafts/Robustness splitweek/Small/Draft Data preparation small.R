@@ -9,8 +9,8 @@ elclv = electronics[, c("HOUSEHOLD_ID", "Date", "Price")]
 colnames(elclv) = c("Id", "Date", "Price")
 elclv = elclv[complete.cases(elclv)]
 x = elclv[, min(Date), by = "Id"]
-el1 = x[V1 >= "2001-01-01" & V1 <= "2001-01-31"]
-el2 = x[V1 >= "2002-01-01" & V1 <= "2002-01-31"]
+el1 = x[V1 %in% "2001-01-06"]
+el2 = x[V1 %in% "2002-01-05"]
 x = x[, .N, by = "V1"]
 x[order(N, decreasing = TRUE)]
 el1 = merge(x = el1, y = elclv, by = "Id", all.x = TRUE)
@@ -54,13 +54,13 @@ x[order(-x$N),]
 x = gift[, min(Date), by = "Id"]
 
 # gift2
-gift2 = x[V1 >= "2002-12-01" & V1 <= "2002-12-31"]
+gift2 = x[V1 %in% "2002-12-16"]
 gift2 = merge(x = gift, y = gift2, by = "Id")
 gift2 = gift2[, -4]
 gift2$Date = as.Date(gift2$Date, format = "%d%b%Y")
 
 # gift1
-gift1 = x[V1 >= "2001-12-01" & V1 <= "2001-12-31"]
+gift1 = x[V1 %in% "2001-12-11"]
 gift1 = merge(x = gift, y = gift1, by = "Id")
 gift1 = gift1[, -4]
 gift1$Id = as.character(gift1$Id)
