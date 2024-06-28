@@ -3,7 +3,7 @@ intervals_QR_measures$CET_lower = (intervals_QR_measures$CET_lower <= CET_tolera
 intervals_QR_measures$PTS_lower = (intervals_QR_measures$PTS_lower <= PTS_tolerance) * 0 + (intervals_QR_measures$PTS_lower > PTS_tolerance) * intervals_QR_measures$PTS_lower
 
 
-rst = list(intervals_BS, intervals_PB, intervals_BA, intervals_QR_measures, intervals_CP_m)
+rst = list(intervals_BS, intervals_EN, intervals_BA, intervals_QR_measures, intervals_CP_m)
 
 CET_measures = data.table("Measure" = c("PICP", "ACE", "Upper coverage", "Lower coverage", "MIS", "Bias", "MSPIW", "MSPIWW", "SWR"),
                       "BS" = 0,
@@ -37,7 +37,9 @@ f_LC = function(true, lower){
 }
 
 f_MIS = function(true, lower, upper, est, alpha){
-  return(sum((upper - lower)/est + (2/alpha) * ((true > upper)*((true-upper)/est) + (true < lower)*((lower-true)/est))) / length(true)) # scaling should be done by true value or estimation, not by upper but one cannot divide by 0
+  equ = (est == 0) * sort(unique(est))[2] + est
+  #equ = ((upper + lower)/2 == 0) * sort(unique((upper+lower)/2))[2] + (upper+lower)/2
+  return(sum((upper - lower)/equ + (2/alpha) * ((true > upper)*((true-upper)/equ) + (true < lower)*((lower-true)/equ))) / length(true)) # scaling should be done by true value or estimation, not by upper but one cannot divide by 0
 }
 
 f_BIAS = function(true, est){
@@ -45,12 +47,14 @@ f_BIAS = function(true, est){
 }
 
 f_MSIW = function(lower, upper, est){
-  return(mean((upper - lower) / est))
+  equ = (est == 0) * sort(unique(est))[2] + est
+  return(mean((upper - lower) / equ))
 }
 
 f_MSIWW = function(lower, upper, est){
-  weight = est / sum(est)
-  return(sum(((upper - lower)/est)*weight))
+  equ = (est == 0) * sort(unique(est))[2] + est
+  weight = equ / sum(equ)
+  return(sum(((upper - lower)/equ)*weight))
 }
 
 f_SWR = function(true, lower, upper, est){
@@ -79,6 +83,7 @@ for (i in 1:length(rst)){
 CET_measures
 PTS_measures
 
+
 f_PICP(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper)
 f_ACE(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, 0.1)
 f_UC(intervals_BA$CET_true, intervals_BA$CET_upper)
@@ -90,3 +95,4 @@ f_MSIWW(intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_predict
 f_SWR(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
 f_measures(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction, alpha)
 
+a = list(CET_measures = CET_measures, PTS_measures = PTS_measures)

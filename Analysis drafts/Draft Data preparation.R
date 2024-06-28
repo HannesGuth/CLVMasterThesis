@@ -9,8 +9,8 @@ elclv = electronics[, c("HOUSEHOLD_ID", "Date", "Price")]
 colnames(elclv) = c("Id", "Date", "Price")
 elclv = elclv[complete.cases(elclv)]
 x = elclv[, min(Date), by = "Id"]
-el1 = x[V1 >= "2001-01-01" & V1 <= "2001-01-31"]
-el2 = x[V1 >= "2002-01-01" & V1 <= "2002-01-31"]
+el1 = x[V1 >= "2000-01-01" & V1 <= "2000-03-31"]
+el2 = x[V1 >= "2002-01-01" & V1 <= "2002-03-31"]
 x = x[, .N, by = "V1"]
 x[order(N, decreasing = TRUE)]
 el1 = merge(x = el1, y = elclv, by = "Id", all.x = TRUE)
@@ -23,17 +23,17 @@ el2$Id = as.character(el2$Id)
 clv.el1 <- clvdata(el1,
                    date.format="ymd", 
                    time.unit = "week",
-                   estimation.split = 40, # 10,20,50,80,120
+                   estimation.split = 52, # 10,20,50,80,120
                    name.id = "Id",
                    name.date = "Date",
                    name.price = "Price")
 mod.el1 = pnbd(clv.data = clv.el1)
-results.el1 = predict(mod.el1, predict.spending = TRUE, prediction.end = "2002-01-05")
+results.el1 = predict(mod.el1, predict.spending = TRUE)
 
 clv.el2 <- clvdata(el2,  
                   date.format="ymd", 
                   time.unit = "week",
-                  estimation.split = 140, # 15,50,80,140
+                  estimation.split = 52, # 15,50,80,140
                   name.id = "Id",
                   name.date = "Date",
                   name.price = "Price")
@@ -54,13 +54,13 @@ x[order(-x$N),]
 x = gift[, min(Date), by = "Id"]
 
 # gift2
-gift2 = x[V1 >= "2002-12-01" & V1 <= "2002-12-31"]
+gift2 = x[V1 >= "2004-12-08" & V1 <= "2004-12-15"]
 gift2 = merge(x = gift, y = gift2, by = "Id")
 gift2 = gift2[, -4]
 gift2$Date = as.Date(gift2$Date, format = "%d%b%Y")
 
 # gift1
-gift1 = x[V1 >= "2001-12-01" & V1 <= "2001-12-31"]
+gift1 = x[V1 >= "2002-12-08" & V1 <= "2002-12-15"]
 gift1 = merge(x = gift, y = gift1, by = "Id")
 gift1 = gift1[, -4]
 gift1$Id = as.character(gift1$Id)
@@ -70,18 +70,18 @@ gift1$Date = as.Date(gift1$Date, format = "%d%b%Y")
 clv.gift2 <- clvdata(gift2,  
                        date.format="ymd", 
                        time.unit = "week",
-                       estimation.split = 130,
+                       estimation.split = 26,
                        name.id = "Id",
                        name.date = "Date",
                        name.price = "Price")
 est.gift2 = pnbd(clv.data = clv.gift2)
-results.gift2 = predict(est.gift2, predict.spending = TRUE)
+results.gift2 = predict(est.gift2, predict.spending = TRUE, prediction.end = 26)
 
 # gift1
 clv.gift1 <- clvdata(gift1,  
                      date.format="ymd", 
                      time.unit = "week",
-                     estimation.split = 130,
+                     estimation.split = 52,
                      name.id = "Id",
                      name.date = "Date",
                      name.price = "Price")
