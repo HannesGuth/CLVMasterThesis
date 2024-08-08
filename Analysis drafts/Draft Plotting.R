@@ -1,275 +1,500 @@
-# # For check only
-# 
-# plot_data_old = data.table("Id" = results_boots$Id,
-#                            "mod_PI_05" = results_boots$predicted.CLV.CI.5,
-#                            "mod_PI_95" = results_boots$predicted.CLV.CI.95,
-#                            "PB_PI_05" = intervals_PB$`PB_CLV_05%`,
-#                            "PB_PI_95" = intervals_PB$`PB_CLV_95%`,
-#                            # "MB_PI_05" = intervals_MB$`MB_CLV_05%`,
-#                            # "MB_PI_95" = intervals_MB$`MB_CLV_95%`,
-#                            "CP_PI_05" = intervals_CP$Lower,
-#                            "CP_PI_95" = intervals_CP$Upper,
-#                            "mod_CLV" = results_boots$predicted.CLV
-#                            #"true" = new3$CLV
-# )
-# 
-# covered_mod = sum(plot_data_old$true < plot_data_old$mod_PI_95 & plot_data_old$true > plot_data_old$mod_PI_05)
-# covered_PB = sum(plot_data_old$true < plot_data_old$PB_PI_95 & plot_data_old$true > plot_data_old$PB_PI_05)
-# covered_MB = sum(plot_data_old$true < plot_data_old$MB_PI_95 & plot_data_old$true > plot_data_old$MB_PI_05)
-# covered_CP = sum(plot_data_old$true < plot_data_old$CP_PI_95 & plot_data_old$true > plot_data_old$CP_PI_05)
-# 
-# # Is any point prediction outside of any interval?
-# plot_data_old$YN = (plot_data_old$mod_CLV > plot_data_old$mod_PI_95) + (plot_data_old$mod_CLV > plot_data_old$PB_PI_95) + (plot_data_old$mod_CLV > plot_data_old$MB_PI_95)
-# plot_data_old$NY = (plot_data_old$mod_CLV < plot_data_old$mod_PI_05) + (plot_data_old$mod_CLV < plot_data_old$PB_PI_05) + (plot_data_old$mod_CLV < plot_data_old$MB_PI_05)
-# sum(plot_data_old$YN)
-# sum(plot_data_old$NY)
+plot_coverage_data = merge(x = coverage_table[, c("Method", "PICP", "PIARW", "Data")], y = ranking_table[, c("Method", "Rank_PICP")], by = "Method")
+plot_coverage_data = plot_coverage_data[order(-Rank_PICP)]
+plot_coverage_data$Method <- factor(plot_coverage_data$Method, levels = unique(plot_coverage_data$Method))
 
-# Prepare data to plot
+plot_width_data = data.table()
 
-# With all methods
-plot_data_CET = data.table("Id" = rep(intervals_BS$Id, each = 5),
-                           "Method" = rep(c("BS","EN","CP","BA","QR"), length(unique(data2$Id))),
-                           "Low" = c(rbind(intervals_BS$CET_lower, intervals_PB$CET_lower, intervals_CP_m$CET_lower, intervals_BA$CET_lower, intervals_QR_m$CET_lower)),
-                           "High" = c(rbind(intervals_BS$CET_upper, intervals_PB$CET_upper, intervals_CP_m$CET_upper, intervals_BA$CET_upper, intervals_QR_m$CET_upper)),
-                           "CET" = rep(intervals_BS$CET_prediction, each = 5),
-                           "True" = rep(intervals_BS$CET_true, each = 5)
-)
+title = "PICP by Method and Data Set"
+ggplot(plot_coverage_data, aes(x = Method, y = PICP*100, shape = Data)) +
+  geom_point(size = 2, color = "black") +  # Set color for all points
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +  # Horizontal line at 90%
+  annotate("text", x = Inf, y = 90, label = "90%", hjust = 15, vjust = -0.5, color = "red") +  # Add label for horizontal line
+  labs(title = title,
+       x = "Method",
+       y = "PICP in %",
+       shape = "Data Set")
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
 
-plot_data_PTS = data.table("Id" = rep(results_boots$Id, each = 3),
-                           "Method" = rep(c("EN","CP","QR"), length(unique(data2$Id))),
-                           "Low" = c(rbind(intervals_PB$PTS_lower, intervals_CP_m$PTS_lower, intervals_QR_m$PTS_lower)),
-                           "High" = c(rbind(intervals_PB$PTS_upper, intervals_CP_m$PTS_upper, intervals_QR_m$PTS_upper)),
-                           "PTS" = rep(results_boots$predicted.total.spending, each = 3)
-)
+title = "PICP and PIARW by Method and Data Set"
+ggplot(plot_coverage_data) +
+  geom_point(aes(x = Method, y = PIARW*2, shape = Data), size = 2, color = "blue", position = position_nudge(0.15)) +  # Line for PIARW
+  geom_point(aes(x = Method, y = PICP*100, shape = Data), size = 2, color = "black", position = position_nudge(-0.15)) +  # Set color for all points
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +  # Horizontal line at 90%
+  annotate("text", x = Inf, y = 90, label = "90%", hjust = 25, vjust = -0.5, color = "red") +  # Add label for horizontal line
+  scale_y_continuous(
+    name = "PICP in %",
+    sec.axis = sec_axis(~ ./2, name = "PIARW")  # Add a secondary axis for PIARW
+  ) +
+  labs(title = title,
+       x = "Method",
+       shape = "Data Set") +
+  theme(
+    axis.title.y = element_text(color = "black"),
+    axis.title.y.right = element_text(color = "blue"),
+    axis.text.y.right = element_text(colour = "blue"))
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
 
-# # Only M1, M2 and Bootstrap
-# plot_data_CET = data.table("Id" = rep(results_boots$Id, each = 5),
-#                            "Method" = rep(c("PI from CLVTools","Method 1","Conformal prediction","Bayesian","Quantile regression"), 250),
-#                            "Low" = c(rbind(results_boots$CET.CI.5, intervals_PB$PB_CET_05, intervals_CP$CET_Lower, intervals_BA$Lower, intervals_QR$CET_lower)),
-#                            "High" = c(rbind(results_boots$CET.CI.95, intervals_PB$PB_CET_95, intervals_CP$CET_Upper, intervals_BA$Upper, intervals_QR$CET_upper)),
-#                            "True" = rep(results$actual.x, each = 5),
-#                            "CET" = rep(results_boots$CET, each = 5)
-# )
+### Absolute numbers radar chart
 
-# Interval length plot
-print(
-  ggplot(plot_data_CET[CET <= 0.09531861 & CET >= 0.09531859,], aes(as.factor(Id), CET)) +
-    geom_pointrange(
-      aes(ymin = Low, ymax = High, color = Method),
-      position = position_dodge(0.3)
-    ) +
-    geom_point(aes(y = True), color = "black") +
-    labs(title = "90% PIs", x = "Customer", y = "CET")
-)
+title = "Method performance radar chart"
+averages_table_spider = averages_table[,1:11]
+averages_table_spider$ACE = abs(averages_table_spider$ACE)
+spider_data = as.data.frame(as.matrix(averages_table_spider[,2:11]))
+colnames(spider_data) = measure_list
+names(spider_data)[c(8,9)] = c("Upper c.","Lower c.")
+rownames(spider_data) = c("BA", "BS", "CP", "CR", "EN", "QR")
+spider_data$ACE = 1 - spider_data$ACE
+max_MSIS = max(spider_data$MSIS)
+min_MSIS = min(spider_data$MSIS)
+spider_data$MSIS = max_MSIS - spider_data$MSIS
+max_PIARW = max(spider_data$PIARW)
+min_PIARW = min(spider_data$PIARW)
+spider_data$PIARW = max_PIARW - spider_data$PIARW
+max_PIARWW = max(spider_data$PIARWW)
+min_PIARWW = min(spider_data$PIARWW)
+spider_data$PIARWW = max_PIARWW - spider_data$PIARWW
+max_SWR = max(spider_data$SWR)
+min_SWR = min(spider_data$SWR)
+min_time = min(spider_data$Time, na.rm = TRUE)
+max_time = max(spider_data$Time, na.rm = TRUE)
+spider_data$Time = max_time - spider_data$Time
+spider_data = rbind(c(1, 1, 1, max_PIARW-min_PIARW, max_PIARWW-min_PIARWW, max_MSIS, max_SWR, 1, 1, max_time),
+                    c(0, 0, 0, 0, 0, 0, min_SWR, 0, 0, 0),
+                    spider_data)
+spider_colors = c("green", "black", "red", "yellow", "grey", "blue")
+radarchart(spider_data, pcol = spider_colors, cglcol = "grey", vlcex = 1.8, title = title, plwd = 3)
+legend(x = "bottom", horiz = TRUE, y = -2.4, legend = c("BA", "BS", "CP", "CR", "EN", "QR"), bty = "n", pch=20 , col = spider_colors, text.col = "black", cex=1.5, pt.cex=3, x.intersp = 0.5, text.width = 0.1)
+# save as image with 1000:...
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
 
-# Ranking
-names = CET_measures$Measure
-#CET_measures = CET_measures[,-1]
-ranking_table = data.table(t(as.matrix(CET_measures[,-1])))
-colnames(ranking_table) = names
-ranking_table$PICP = -ranking_table$PICP
-ranking_table$ACE = abs(ranking_table$ACE)
-ranking_table$`Upper coverage` = -ranking_table$`Upper coverage`
-ranking_table$`Lower coverage` = -ranking_table$`Lower coverage`
-ranking_table$Bias = abs(ranking_table$Bias)
-ranking_table$SWR = -ranking_table$SWR
-apply(ranking_table,2,rank, ties.method="average")
+spider_data_gg = spider_data[3:nrow(spider_data),]
+spider_data_gg = cbind(Method = rownames(spider_data_gg), spider_data_gg)
 
-# Desired achieved plot
-methods = c("BS","EN","CP","BA","QR")
-daplot_data = data.table("Methods" = methods,
-                         t(as.matrix(CET_measures[,-1])))
-daplot_data$Methods = reorder(daplot_data$Methods, daplot_data$V1)
+for (data_list in data_lists){
+  if (data_list$BS){
+    print(data_list$name)
+    
+    # Overview
+    plot_data_CET = data.table("Id" = rep(all_res[[data_list$name]]$intervals_EN$Id, each = 6),
+                               "Method" = factor(rep(c("BS", "EN", "BA", "CP", "CR", "QR"), length(unique(all_res[[data_list$name]]$intervals_EN$Id))),
+                                                 levels = c("BS", "EN", "BA", "CP", "CR", "QR")),
+                               "Low" = c(rbind(all_res[[data_list$name]]$intervals_BS$CET_lower,
+                                               all_res[[data_list$name]]$intervals_EN$CET_lower,
+                                               all_res[[data_list$name]]$intervals_BA$CET_lower,
+                                               all_res[[data_list$name]]$intervals_CP_m$CET_lower,
+                                               all_res[[data_list$name]]$intervals_CR_m$CET_lower,
+                                               all_res[[data_list$name]]$intervals_QR_m$CET_lower)),
+                               "High" = c(rbind(all_res[[data_list$name]]$intervals_BS$CET_upper,
+                                                all_res[[data_list$name]]$intervals_EN$CET_upper,
+                                                all_res[[data_list$name]]$intervals_BA$CET_upper,
+                                                all_res[[data_list$name]]$intervals_CP_m$CET_upper,
+                                                all_res[[data_list$name]]$intervals_CR_m$CET_upper,
+                                                all_res[[data_list$name]]$intervals_QR_m$CET_upper)),
+                               "True" = rep(all_res[[data_list$name]]$intervals_EN$CET_true, each = 6),
+                               "CET" = rep(all_res[[data_list$name]]$intervals_EN$CET_prediction, each = 6)
+    )
 
-ggplot(data = daplot_data, aes(x = Methods, y = V1, label = round(V1,2))) +
+    lower = quantile(plot_data_CET$CET, 0.9125)
+    upper = quantile(plot_data_CET$CET, 0.9125)
+    length(unique(plot_data_CET[CET >= lower & CET <= upper,]$Id))
+    while (length(unique(plot_data_CET[CET >= lower & CET <= upper,]$Id)) <= 10){
+      upper = upper + 0.00001
+    }
+    
+    title = paste("90% PIs", data_list$name)
+    ggplot(plot_data_CET[CET >= lower & CET <= upper,], aes(as.factor(Id), True)) +
+      geom_linerange(
+        aes(ymin = Low, ymax = High, color = Method),
+        position = position_dodge(0.3),
+        linewidth = 0.8) +
+      geom_point(aes(y = True), color = "black") +
+      labs(title = title, x = "Customer", y = "CET") +
+      scale_color_manual(values = c("BS" = "black", "EN" = "grey", "BA" = "green", "CP" = "purple", "CR" = "orange", "QR" = "pink")) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    cdev_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
+                           "BS_covered" = ksmooth(all_res[[data_list$name]]$intervals_BS$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BS$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "EN_covered" = ksmooth(all_res[[data_list$name]]$intervals_EN$CET_true, as.numeric(all_res[[data_list$name]]$intervals_EN$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "BA_covered" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BA$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "CP_covered" = ksmooth(all_res[[data_list$name]]$intervals_CP_m$CET_true, as.numeric(all_res[[data_list$name]]$intervals_CP_m$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "CR_covered" = ksmooth(all_res[[data_list$name]]$intervals_CR_m$CET_true, as.numeric(all_res[[data_list$name]]$intervals_CR_m$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "QR_covered" = ksmooth(all_res[[data_list$name]]$intervals_QR_m$CET_true, as.numeric(all_res[[data_list$name]]$intervals_QR_m$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "true" = all_res[[data_list$name]]$intervals_BS$CET_true,
+                           "true_kernel" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BA$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$x
+    )
+    
+    # Coverage development with CET
+    title = paste("Coverage development with CET for", data_list$name)
+    print(ggplot(data = cdev_data, aes(x = true_kernel)) +
+      geom_line(aes(y = BS_covered*100, color = "BS")) +
+      geom_line(aes(y = EN_covered*100, color = "EN")) +
+      geom_line(aes(y = BA_covered*100, color = "BA")) +
+      geom_line(aes(y = CP_covered*100, color = "CP")) +
+      geom_line(aes(y = CR_covered*100, color = "CR")) +
+      geom_line(aes(y = QR_covered*100, color = "QR")) +
+      scale_color_manual(values = c("BS" = "purple", 
+                                    "EN" = "yellow", 
+                                    "BA" = "black", 
+                                    "CP" = "green", 
+                                    "CR" = "orange",
+                                    "QR" = "red")) +
+      labs(title = title,
+           y = "Coverage in %",
+           x = "True",
+           color = "Method")) +
+      theme(axis.text.x = element_text(size=rel(2)),
+            axis.text.y = element_text(size=rel(2)),
+            axis.title.y = element_text(size=rel(2))
+            )
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Relative error
+    mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                            "Pred" = all_res[[data_list$name]]$intervals_EN$CET_prediction,
+                            "True" = all_res[[data_list$name]]$intervals_EN$CET_true,
+                            "True_rel" = (all_res[[data_list$name]]$intervals_EN$CET_true)/max(all_res[[data_list$name]]$intervals_EN$CET_true),
+                            "Diff_abs" = all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true,
+                            "Diff_rel" = (all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction,
+                            "Diff_rel_pos" = abs((all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction)
+    )
+    title = paste("Relative model error for", data_list$name)
+    plot(mperf_data$True, mperf_data$Diff_rel_pos)
+    ggplot(mperf_data, aes(x = True, y = Diff_rel_pos)) +
+      geom_point() +
+      labs(title = title,
+           x = "True",
+           y = "Relative error")
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Residuals
+    res_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
+                          "BS" = ifelse(!(all_res[[data_list$name]]$intervals_BS$CET_covered), (all_res[[data_list$name]]$intervals_BS$CET_true < all_res[[data_list$name]]$intervals_BS$CET_lower) * abs(all_res[[data_list$name]]$intervals_BS$CET_true - all_res[[data_list$name]]$intervals_BS$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_BS$CET_true > all_res[[data_list$name]]$intervals_BS$CET_upper) * abs(all_res[[data_list$name]]$intervals_BS$CET_true - all_res[[data_list$name]]$intervals_BS$CET_upper), NA) / (all_res[[data_list$name]]$intervals_BS$CET_upper + all_res[[data_list$name]]$intervals_BS$CET_lower)/2,
+                          "EN" = ifelse(!(all_res[[data_list$name]]$intervals_EN$CET_covered), (all_res[[data_list$name]]$intervals_EN$CET_true < all_res[[data_list$name]]$intervals_EN$CET_lower) * abs(all_res[[data_list$name]]$intervals_EN$CET_true - all_res[[data_list$name]]$intervals_EN$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_EN$CET_true > all_res[[data_list$name]]$intervals_EN$CET_upper) * abs(all_res[[data_list$name]]$intervals_EN$CET_true - all_res[[data_list$name]]$intervals_EN$CET_upper), NA) / (all_res[[data_list$name]]$intervals_EN$CET_upper + all_res[[data_list$name]]$intervals_EN$CET_lower)/2,
+                          "BA" = ifelse(!(all_res[[data_list$name]]$intervals_BA$CET_covered), (all_res[[data_list$name]]$intervals_BA$CET_true < all_res[[data_list$name]]$intervals_BA$CET_lower) * abs(all_res[[data_list$name]]$intervals_BA$CET_true - all_res[[data_list$name]]$intervals_BA$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_BA$CET_true > all_res[[data_list$name]]$intervals_BA$CET_upper) * abs(all_res[[data_list$name]]$intervals_BA$CET_true - all_res[[data_list$name]]$intervals_BA$CET_upper), NA) / (all_res[[data_list$name]]$intervals_BA$CET_upper + all_res[[data_list$name]]$intervals_BA$CET_lower)/2,
+                          "CP" = ifelse(!(all_res[[data_list$name]]$intervals_CP_m$CET_covered), (all_res[[data_list$name]]$intervals_CP_m$CET_true < all_res[[data_list$name]]$intervals_CP_m$CET_lower) * abs(all_res[[data_list$name]]$intervals_CP_m$CET_true - all_res[[data_list$name]]$intervals_CP_m$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_CP_m$CET_true > all_res[[data_list$name]]$intervals_CP_m$CET_upper) * abs(all_res[[data_list$name]]$intervals_CP_m$CET_true - all_res[[data_list$name]]$intervals_CP_m$CET_upper), NA) / (all_res[[data_list$name]]$intervals_CP_m$CET_upper + all_res[[data_list$name]]$intervals_CP_m$CET_lower)/2,
+                          "CR" = ifelse(!(all_res[[data_list$name]]$intervals_CR_m$CET_covered), (all_res[[data_list$name]]$intervals_CR_m$CET_true < all_res[[data_list$name]]$intervals_CR_m$CET_lower) * abs(all_res[[data_list$name]]$intervals_CR_m$CET_true - all_res[[data_list$name]]$intervals_CR_m$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_CR_m$CET_true > all_res[[data_list$name]]$intervals_CR_m$CET_upper) * abs(all_res[[data_list$name]]$intervals_CR_m$CET_true - all_res[[data_list$name]]$intervals_CR_m$CET_upper), NA) / (all_res[[data_list$name]]$intervals_CR_m$CET_upper + all_res[[data_list$name]]$intervals_CR_m$CET_lower)/2,
+                          "QR" = ifelse(!(all_res[[data_list$name]]$intervals_QR_m$CET_covered), (all_res[[data_list$name]]$intervals_QR_m$CET_true < all_res[[data_list$name]]$intervals_QR_m$CET_lower) * abs(all_res[[data_list$name]]$intervals_QR_m$CET_true - all_res[[data_list$name]]$intervals_QR_m$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_QR_m$CET_true > all_res[[data_list$name]]$intervals_QR_m$CET_upper) * abs(all_res[[data_list$name]]$intervals_QR_m$CET_true - all_res[[data_list$name]]$intervals_QR_m$CET_upper), NA) / (all_res[[data_list$name]]$intervals_QR_m$CET_upper + all_res[[data_list$name]]$intervals_QR_m$CET_lower)/2
+    )
+    
+    max_vector = sort(as.vector(unlist(res_data[,2:length(res_data)])), decreasing = TRUE)
+    max_number = max(max_vector[!is.infinite(max_vector)])
+    
+    title = paste("Absolute scaled residuals distribution for", data_list$name)
+    print(ggplot(data = res_data) +
+      geom_density(aes(x = BS, color = "BS")) +
+      geom_density(aes(x = EN, color = "EN")) +
+      geom_density(aes(x = BA, color = "BA")) +
+      geom_density(aes(x = CP, color = "CP")) +
+      geom_density(aes(x = CR, color = "CR")) +
+      geom_density(aes(x = QR, color = "QR")) +
+      scale_color_manual(values = c("BS" = "purple",
+                                    "EN" = "yellow",
+                                    "BA" = "black",
+                                    "CP" = "green",
+                                    "CR" = "grey",
+                                    "QR" = "red")) +
+      xlim(0,2) +
+      ylim(0, max_number * 1.4) +
+      labs(title = title,
+           x = "Scaled residual",
+           y = "Frequency",
+           color = "Method"))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Rectangles
+    rec_data1 = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
+                           "BS" = (all_res[[data_list$name]]$intervals_BS$CET_true - all_res[[data_list$name]]$intervals_BS$CET_lower) / (all_res[[data_list$name]]$intervals_BS$CET_upper - all_res[[data_list$name]]$intervals_BS$CET_lower),
+                           "EN" = (all_res[[data_list$name]]$intervals_EN$CET_true - all_res[[data_list$name]]$intervals_EN$CET_lower) / (all_res[[data_list$name]]$intervals_EN$CET_upper - all_res[[data_list$name]]$intervals_EN$CET_lower),
+                           "BA" = (all_res[[data_list$name]]$intervals_BA$CET_true - all_res[[data_list$name]]$intervals_BA$CET_lower) / (all_res[[data_list$name]]$intervals_BA$CET_upper - all_res[[data_list$name]]$intervals_BA$CET_lower),
+                           "CP" = (all_res[[data_list$name]]$intervals_CP_m$CET_true - all_res[[data_list$name]]$intervals_CP_m$CET_lower) / (all_res[[data_list$name]]$intervals_CP_m$CET_upper - all_res[[data_list$name]]$intervals_CP_m$CET_lower),
+                           "CR" = (all_res[[data_list$name]]$intervals_CR_m$CET_true - all_res[[data_list$name]]$intervals_CR_m$CET_lower) / (all_res[[data_list$name]]$intervals_CR_m$CET_upper - all_res[[data_list$name]]$intervals_CR_m$CET_lower),
+                           "QR" = (all_res[[data_list$name]]$intervals_QR_m$CET_true - all_res[[data_list$name]]$intervals_QR_m$CET_lower) / (all_res[[data_list$name]]$intervals_QR_m$CET_upper - all_res[[data_list$name]]$intervals_QR_m$CET_lower))
+    
+    # All
+    methods = c("BS","EN","BA","CP","CR","QR")
+    
+    rec_data <- rec_data1[,2:7] %>%
+      pivot_longer(cols = everything(), names_to = "Method", values_to = "Value")
+    
+    title = paste("Density covered by interval (all methods) for", data_list$name)
+    print(ggplot(rec_data, aes(x = Method, y = Value)) +
+      geom_rect(aes(xmin = 0.5, xmax = 6.5, ymin = 0, ymax = 1), alpha = 0.008) +
+      geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
+      labs(title = title,
+           y = "Position with respect to PI")) #+
+    #ylim(-0.25,1)
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # BA, CP, CR, QR
+    methods = c("BA","CP","CR","QR")
+    
+    rec_data <- rec_data1[,4:7] %>%
+      pivot_longer(cols = everything(), names_to = "Method", values_to = "Value")
+    
+    title = paste("Density covered by interval (reliable methods) for", data_list$name)
+    print(ggplot(rec_data, aes(x = Method, y = Value)) +
+      geom_rect(aes(xmin = 0.5, xmax = 4.5, ymin = 0, ymax = 1), alpha = 0.008) +
+      geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
+      labs(title = paste("Density covered by interval for", data_list$name),
+           y = "Position with respect to PI") +
+      ylim(-0.25,1.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Width-CET
+    width_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
+                            "BS_width" = ksmooth(all_res[[data_list$name]]$intervals_BS$CET_true, (all_res[[data_list$name]]$intervals_BS$CET_upper - all_res[[data_list$name]]$intervals_BS$CET_lower)/all_res[[data_list$name]]$intervals_BS$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "EN_width" = ksmooth(all_res[[data_list$name]]$intervals_EN$CET_true, (all_res[[data_list$name]]$intervals_EN$CET_upper - all_res[[data_list$name]]$intervals_EN$CET_lower)/all_res[[data_list$name]]$intervals_BS$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "BA_width" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, (all_res[[data_list$name]]$intervals_BA$CET_upper - all_res[[data_list$name]]$intervals_BA$CET_lower)/all_res[[data_list$name]]$intervals_BS$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "CP_width" = ksmooth(all_res[[data_list$name]]$intervals_CP_m$CET_true, (all_res[[data_list$name]]$intervals_CP_m$CET_upper - all_res[[data_list$name]]$intervals_CP_m$CET_lower)/all_res[[data_list$name]]$intervals_BS$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "CR_width" = ksmooth(all_res[[data_list$name]]$intervals_CR_m$CET_true, (all_res[[data_list$name]]$intervals_CR_m$CET_upper - all_res[[data_list$name]]$intervals_CR_m$CET_lower)/all_res[[data_list$name]]$intervals_BS$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "QR_width" = ksmooth(all_res[[data_list$name]]$intervals_QR_m$CET_true, (all_res[[data_list$name]]$intervals_QR_m$CET_upper - all_res[[data_list$name]]$intervals_QR_m$CET_lower)/all_res[[data_list$name]]$intervals_BS$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "true"= all_res[[data_list$name]]$intervals_BS$CET_true,
+                            "true_kernel" = ksmooth(all_res[[data_list$name]]$intervals_EN$CET_true, all_res[[data_list$name]]$intervals_CP_m$CET_upper - all_res[[data_list$name]]$intervals_CP_m$CET_lower, kernel = "normal", bandwidth = data_list$smoothwidth)$x
+    )
+    
+    title = paste("Width development with CET", data_list$name)
+    print(ggplot(data = width_data, aes(x = true_kernel)) +
+      geom_line(aes(y = BS_width, color = "BS")) +
+      geom_line(aes(y = EN_width, color = "EN")) +
+      geom_line(aes(y = BA_width, color = "BA")) +
+      geom_line(aes(y = CP_width, color = "CP")) +
+      geom_line(aes(y = CR_width, color = "CR")) +
+      geom_line(aes(y = QR_width, color = "QR")) +
+      scale_color_manual(values = c("BS" = "purple", 
+                                    "EN" = "yellow", 
+                                    "BA" = "black", 
+                                    "CP" = "green", 
+                                    "CR" = "orange",
+                                    "QR" = "red")) +
+      labs(title = title,
+           y = "Width",
+           x = "CET",
+           color = "Method")) #+
+    #xlim(0,20)
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+  }
+  else{
+    print(data_list$name)
+    
+    # Overview
+    plot_data_CET = data.table("Id" = rep(all_res[[data_list$name]]$intervals_EN$Id, each = 5),
+                               "Method" = factor(rep(c("EN", "BA", "CP", "CR", "QR"), length(unique(all_res[[data_list$name]]$intervals_EN$Id))),
+                                                 levels = c("EN", "BA", "CP", "CR", "QR")),
+                               "Low" = c(rbind(all_res[[data_list$name]]$intervals_EN$CET_lower,
+                                               all_res[[data_list$name]]$intervals_BA$CET_lower,
+                                               all_res[[data_list$name]]$intervals_CP_m$CET_lower,
+                                               all_res[[data_list$name]]$intervals_CR_m$CET_lower,
+                                               all_res[[data_list$name]]$intervals_QR_m$CET_lower)),
+                               "High" = c(rbind(all_res[[data_list$name]]$intervals_EN$CET_upper,
+                                                all_res[[data_list$name]]$intervals_BA$CET_upper,
+                                                all_res[[data_list$name]]$intervals_CP_m$CET_upper,
+                                                all_res[[data_list$name]]$intervals_CR_m$CET_upper,
+                                                all_res[[data_list$name]]$intervals_QR_m$CET_upper)),
+                               "True" = rep(all_res[[data_list$name]]$intervals_EN$CET_true, each = 5),
+                               "CET" = rep(all_res[[data_list$name]]$intervals_EN$CET_prediction, each = 5)
+    )
+    
+    lower = quantile(plot_data_CET$CET, 0.9125)
+    upper = quantile(plot_data_CET$CET, 0.9125)
+    length(unique(plot_data_CET[CET >= lower & CET <= upper,]$Id))
+    
+    while (length(unique(plot_data_CET[CET >= lower & CET <= upper,]$Id)) <= 10){
+      upper = upper + 0.00001
+    }
+    
+    title = paste("90% PIs for", data_list$name)
+    ggplot(plot_data_CET[CET >= lower & CET <= upper,], aes(as.factor(Id), True)) +
+      geom_linerange(
+        aes(ymin = Low, ymax = High, color = Method),
+        position = position_dodge(0.3),
+        linewidth = 0.8) +
+      geom_point(aes(y = True), color = "black") +
+      labs(title = title, x = "Customer", y = "CET") +
+      scale_color_manual(values = c("EN" = "grey", "BA" = "green", "CP" = "purple", "CR" = "orange", "QR" = "pink")) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Coverage development with CET
+    cdev_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                           "EN_covered" = ksmooth(all_res[[data_list$name]]$intervals_EN$CET_true, as.numeric(all_res[[data_list$name]]$intervals_EN$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "BA_covered" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BA$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "CP_covered" = ksmooth(all_res[[data_list$name]]$intervals_CP_m$CET_true, as.numeric(all_res[[data_list$name]]$intervals_CP_m$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "CR_covered" = ksmooth(all_res[[data_list$name]]$intervals_CR_m$CET_true, as.numeric(all_res[[data_list$name]]$intervals_CR_m$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "QR_covered" = ksmooth(all_res[[data_list$name]]$intervals_QR_m$CET_true, as.numeric(all_res[[data_list$name]]$intervals_QR_m$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                           "true"= all_res[[data_list$name]]$intervals_EN$CET_true,
+                           "true_kernel" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BA$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$x
+    )
+    
+    title = paste("Coverage development with CET", data_list$name)
+    print(ggplot(data = cdev_data, aes(x = true_kernel)) +
+      geom_line(aes(y = EN_covered*100, color = "EN")) +
+      geom_line(aes(y = BA_covered*100, color = "BA")) +
+      geom_line(aes(y = CP_covered*100, color = "CP")) +
+      geom_line(aes(y = CR_covered*100, color = "CR")) +
+      geom_line(aes(y = QR_covered*100, color = "QR")) +
+      scale_color_manual(values = c("EN" = "yellow", 
+                                    "BA" = "black", 
+                                    "CP" = "green", 
+                                    "CR" = "orange",
+                                    "QR" = "red")) +
+      labs(title = title,
+           y = "Coverage",
+           x = "True",
+           color = "Method")) +
+      theme(axis.text.x = element_text(size=rel(2)),
+            axis.text.y = element_text(size=rel(2)),
+            axis.title.y = element_text(size=rel(2))
+      )
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Model performance
+    mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                            "Pred" = all_res[[data_list$name]]$intervals_EN$CET_prediction,
+                            "True" = all_res[[data_list$name]]$intervals_EN$CET_true,
+                            "True_rel" = (all_res[[data_list$name]]$intervals_EN$CET_true)/max(all_res[[data_list$name]]$intervals_EN$CET_true),
+                            "Diff_abs" = all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true,
+                            "Diff_rel" = (all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction,
+                            "Diff_rel_pos" = abs((all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction)
+    )
+    title = paste("Relative model error for", data_list$name)
+    plot(mperf_data$True, mperf_data$Diff_rel_pos)
+    ggplot(mperf_data, aes(x = True, y = Diff_rel_pos)) +
+      geom_point() +
+      labs(title = title,
+           x = "True",
+           y = "Relative error")
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Residuals
+    res_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                          "EN" = ifelse(!(all_res[[data_list$name]]$intervals_EN$CET_covered), (all_res[[data_list$name]]$intervals_EN$CET_true < all_res[[data_list$name]]$intervals_EN$CET_lower) * abs(all_res[[data_list$name]]$intervals_EN$CET_true - all_res[[data_list$name]]$intervals_EN$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_EN$CET_true > all_res[[data_list$name]]$intervals_EN$CET_upper) * abs(all_res[[data_list$name]]$intervals_EN$CET_true - all_res[[data_list$name]]$intervals_EN$CET_upper), NA) / (all_res[[data_list$name]]$intervals_EN$CET_upper + all_res[[data_list$name]]$intervals_EN$CET_lower)/2,
+                          "BA" = ifelse(!(all_res[[data_list$name]]$intervals_BA$CET_covered), (all_res[[data_list$name]]$intervals_BA$CET_true < all_res[[data_list$name]]$intervals_BA$CET_lower) * abs(all_res[[data_list$name]]$intervals_BA$CET_true - all_res[[data_list$name]]$intervals_BA$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_BA$CET_true > all_res[[data_list$name]]$intervals_BA$CET_upper) * abs(all_res[[data_list$name]]$intervals_BA$CET_true - all_res[[data_list$name]]$intervals_BA$CET_upper), NA) / (all_res[[data_list$name]]$intervals_BA$CET_upper + all_res[[data_list$name]]$intervals_BA$CET_lower)/2,
+                          "CP" = ifelse(!(all_res[[data_list$name]]$intervals_CP_m$CET_covered), (all_res[[data_list$name]]$intervals_CP_m$CET_true < all_res[[data_list$name]]$intervals_CP_m$CET_lower) * abs(all_res[[data_list$name]]$intervals_CP_m$CET_true - all_res[[data_list$name]]$intervals_CP_m$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_CP_m$CET_true > all_res[[data_list$name]]$intervals_CP_m$CET_upper) * abs(all_res[[data_list$name]]$intervals_CP_m$CET_true - all_res[[data_list$name]]$intervals_CP_m$CET_upper), NA) / (all_res[[data_list$name]]$intervals_CP_m$CET_upper + all_res[[data_list$name]]$intervals_CP_m$CET_lower)/2,
+                          "CR" = ifelse(!(all_res[[data_list$name]]$intervals_CR_m$CET_covered), (all_res[[data_list$name]]$intervals_CR_m$CET_true < all_res[[data_list$name]]$intervals_CR_m$CET_lower) * abs(all_res[[data_list$name]]$intervals_CR_m$CET_true - all_res[[data_list$name]]$intervals_CR_m$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_CR_m$CET_true > all_res[[data_list$name]]$intervals_CR_m$CET_upper) * abs(all_res[[data_list$name]]$intervals_CR_m$CET_true - all_res[[data_list$name]]$intervals_CR_m$CET_upper), NA) / (all_res[[data_list$name]]$intervals_CR_m$CET_upper + all_res[[data_list$name]]$intervals_CR_m$CET_lower)/2,
+                          "QR" = ifelse(!(all_res[[data_list$name]]$intervals_QR_m$CET_covered), (all_res[[data_list$name]]$intervals_QR_m$CET_true < all_res[[data_list$name]]$intervals_QR_m$CET_lower) * abs(all_res[[data_list$name]]$intervals_QR_m$CET_true - all_res[[data_list$name]]$intervals_QR_m$CET_lower) +
+                                          (all_res[[data_list$name]]$intervals_QR_m$CET_true > all_res[[data_list$name]]$intervals_QR_m$CET_upper) * abs(all_res[[data_list$name]]$intervals_QR_m$CET_true - all_res[[data_list$name]]$intervals_QR_m$CET_upper), NA) / (all_res[[data_list$name]]$intervals_QR_m$CET_upper + all_res[[data_list$name]]$intervals_QR_m$CET_lower)/2
+    )
+    
+    max_vector = sort(as.vector(unlist(res_data[,2:length(res_data)])), decreasing = TRUE)
+    max_number = max(max_vector[!is.infinite(max_vector)])
+    
+    title = paste("Absolute scaled residuals distribution", data_list$name)
+    print(ggplot(data = res_data) +
+      geom_density(aes(x = EN, color = "EN")) +
+      geom_density(aes(x = BA, color = "BA")) +
+      geom_density(aes(x = CP, color = "CP")) +
+      geom_density(aes(x = CR, color = "CR")) +
+      geom_density(aes(x = QR, color = "QR")) +
+      scale_color_manual(values = c("EN" = "yellow",
+                                    "BA" = "black",
+                                    "CP" = "green",
+                                    "QR" = "red")) +
+      xlim(0,2) +
+      ylim(0, max_number * 1.4) +
+      labs(title = title,
+           x = "Scaled residual",
+           y = "Frequency",
+           color = "Method"))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # Rectangles
+    rec_data1 = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                           "EN" = (all_res[[data_list$name]]$intervals_EN$CET_true - all_res[[data_list$name]]$intervals_EN$CET_lower) / (all_res[[data_list$name]]$intervals_EN$CET_upper - all_res[[data_list$name]]$intervals_EN$CET_lower),
+                           "BA" = (all_res[[data_list$name]]$intervals_BA$CET_true - all_res[[data_list$name]]$intervals_BA$CET_lower) / (all_res[[data_list$name]]$intervals_BA$CET_upper - all_res[[data_list$name]]$intervals_BA$CET_lower),
+                           "CP" = (all_res[[data_list$name]]$intervals_CP_m$CET_true - all_res[[data_list$name]]$intervals_CP_m$CET_lower) / (all_res[[data_list$name]]$intervals_CP_m$CET_upper - all_res[[data_list$name]]$intervals_CP_m$CET_lower),
+                           "CR" = (all_res[[data_list$name]]$intervals_CR_m$CET_true - all_res[[data_list$name]]$intervals_CR_m$CET_lower) / (all_res[[data_list$name]]$intervals_CR_m$CET_upper - all_res[[data_list$name]]$intervals_CR_m$CET_lower),
+                           "QR" = (all_res[[data_list$name]]$intervals_QR_m$CET_true - all_res[[data_list$name]]$intervals_QR_m$CET_lower) / (all_res[[data_list$name]]$intervals_QR_m$CET_upper - all_res[[data_list$name]]$intervals_QR_m$CET_lower))
+    
+    # All
+    methods = c("EN","BA","CP","CR","QR")
+    
+    rec_data <- rec_data1[,2:6] %>%
+      pivot_longer(cols = everything(), names_to = "Method", values_to = "Value")
+    
+    title = paste("Density covered by interval (all methods) for", data_list$name)
+    print(ggplot(rec_data, aes(x = Method, y = Value)) +
+      geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 1), alpha = 0.008) +
+      geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
+      labs(title = title,
+           y = "Position with respect to PI")) #+
+      #ylim(-0.25,1)
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    
+    # BA, CP, CR, QR
+      methods = c("BA","CP","CR","QR")
+      
+      rec_data <- rec_data1[,3:6] %>%
+        pivot_longer(cols = everything(), names_to = "Method", values_to = "Value")
+      
+      title = paste("Density covered by interval (reliable methods) for", data_list$name)
+      print(ggplot(rec_data, aes(x = Method, y = Value)) +
+        geom_rect(aes(xmin = 0.5, xmax = 4.5, ymin = 0, ymax = 1), alpha = 0.008) +
+        geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
+        labs(title = paste("Density covered by interval", data_list$name),
+             y = "Position with respect to PI") +
+        ylim(-0.25,1.5))
+      ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+      
+    # Width-CET
+    width_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                            "EN_width" = ksmooth(all_res[[data_list$name]]$intervals_EN$CET_true, (all_res[[data_list$name]]$intervals_EN$CET_upper - all_res[[data_list$name]]$intervals_EN$CET_lower)/all_res[[data_list$name]]$intervals_EN$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "BA_width" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, (all_res[[data_list$name]]$intervals_BA$CET_upper - all_res[[data_list$name]]$intervals_BA$CET_lower)/all_res[[data_list$name]]$intervals_EN$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "CP_width" = ksmooth(all_res[[data_list$name]]$intervals_CP_m$CET_true, (all_res[[data_list$name]]$intervals_CP_m$CET_upper - all_res[[data_list$name]]$intervals_CP_m$CET_lower)/all_res[[data_list$name]]$intervals_EN$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "CR_width" = ksmooth(all_res[[data_list$name]]$intervals_CR_m$CET_true, (all_res[[data_list$name]]$intervals_CR_m$CET_upper - all_res[[data_list$name]]$intervals_CR_m$CET_lower)/all_res[[data_list$name]]$intervals_EN$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "QR_width" = ksmooth(all_res[[data_list$name]]$intervals_QR_m$CET_true, (all_res[[data_list$name]]$intervals_QR_m$CET_upper - all_res[[data_list$name]]$intervals_QR_m$CET_lower)/all_res[[data_list$name]]$intervals_EN$CET_prediction, kernel = "normal", bandwidth = data_list$smoothwidth)$y,
+                            "true"= all_res[[data_list$name]]$intervals_EN$CET_true,
+                            "true_kernel" = ksmooth(all_res[[data_list$name]]$intervals_EN$CET_true, all_res[[data_list$name]]$intervals_CP_m$CET_upper - all_res[[data_list$name]]$intervals_CP_m$CET_lower, kernel = "normal", bandwidth = data_list$smoothwidth)$x
+    )
+    
+    title = paste("Width development with CET", data_list$name)
+    print(ggplot(data = width_data, aes(x = true_kernel)) +
+      geom_line(aes(y = EN_width, color = "EN")) +
+      geom_line(aes(y = BA_width, color = "BA")) +
+      geom_line(aes(y = CP_width, color = "CP")) +
+      geom_line(aes(y = CR_width, color = "CR")) +
+      geom_line(aes(y = QR_width, color = "QR")) +
+      scale_color_manual(values = c("EN" = "yellow", 
+                                    "BA" = "black", 
+                                    "CP" = "green", 
+                                    "CR" = "orange",
+                                    "QR" = "red")) +
+      labs(title = title,
+           y = "Width",
+           x = "CET",
+           color = "Method")) #+
+    #xlim(0,20))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+  }
+}
+
+
+#############
+
+mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+                        "Pred" = all_res[[data_list$name]]$intervals_EN$CET_prediction,
+                        "True" = all_res[[data_list$name]]$intervals_EN$CET_true,
+                        "True_rel" = (all_res[[data_list$name]]$intervals_EN$CET_true)/max(all_res[[data_list$name]]$intervals_EN$CET_true),
+                        "Diff_abs" = all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true,
+                        "Diff_rel" = (all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction,
+                        "Diff_rel_pos" = abs((all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction)
+                        )
+title = paste("Relative model error for", data_list$name)
+plot(mperf_data$True, mperf_data$Diff_rel_pos)
+ggplot(mperf_data, aes(x = True, y = Diff_rel_pos)) +
   geom_point() +
-  geom_texthline(yintercept = 0.9, label = "90%",
-                 hjust = 0.2, color = "red4") +
-  geom_text(hjust=-0.2, vjust=-0.2) +
-  labs(title = "Achieved coverage",
-       y = "Coverage")
-
-# Coverage CLV
-cdev_data = data.table("Id" = intervals_BS$Id,
-                       "BS_covered" = ksmooth(intervals_BS$CET_true, as.numeric(intervals_BS$CET_covered), kernel = "normal", bandwidth = 2)$y,
-                       "EN_covered" = ksmooth(intervals_PB$CET_true, as.numeric(intervals_PB$CET_covered), kernel = "normal", bandwidth = 2)$y,
-                       "BA_covered" = ksmooth(intervals_BA$CET_true, as.numeric(intervals_BA$CET_covered), kernel = "normal", bandwidth = 2)$y,
-                       "CP_covered" = ksmooth(intervals_CP_m$CET_true, as.numeric(intervals_CP_m$CET_covered), kernel = "normal", bandwidth = 2)$y,
-                       "QR_covered" = ksmooth(intervals_QR_m$CET_true, as.numeric(intervals_QR_m$CET_covered), kernel = "normal", bandwidth = 2)$y,
-                       "true"= intervals_BS$CET_true,
-                       "true_kernel" = ksmooth(intervals_BA$CET_true, as.numeric(intervals_BA$CET_covered), kernel = "normal", bandwidth = 2)$x
-                       )
-ggplot(data = cdev_data, aes(x = true_kernel)) +
-  geom_line(aes(y = BS_covered, color = "BS")) +
-  geom_line(aes(y = EN_covered, color = "EN")) +
-  geom_line(aes(y = BA_covered, color = "BA")) +
-  geom_line(aes(y = CP_covered, color = "CP")) +
-  geom_line(aes(y = QR_covered, color = "QR")) +
-  scale_color_manual(values = c("BS" = "purple", 
-                                "EN" = "yellow", 
-                                "BA" = "black", 
-                                "CP" = "green", 
-                                "QR" = "red")) +
-  labs(title = "Coverage development with CET",
-       y = "Coverage",
-       x = "CET")
-
-
-cdev_data = cdev_data[order(cdev_data$true),]
-plot(ksmooth(intervals_BA$CET_true, as.numeric(intervals_BA$CET_covered), kernel = "normal", bandwidth = 2))
-plot(frollmean(cdev_data$BA_covered, 100))
-
-# Residuals
-res_data = data.table("Id" = intervals_BS$Id,
-                      "BS" = ifelse(!(intervals_BS$CET_covered), (intervals_BS$CET_true < intervals_BS$CET_lower) * abs(intervals_BS$CET_true - intervals_BS$CET_lower) +
-                                                                 (intervals_BS$CET_true > intervals_BS$CET_upper) * abs(intervals_BS$CET_true - intervals_BS$CET_upper), NA) / (intervals_BS$CET_upper + intervals_BS$CET_lower)/2,
-                      "EN" = ifelse(!(intervals_PB$CET_covered), (intervals_PB$CET_true < intervals_PB$CET_lower) * abs(intervals_PB$CET_true - intervals_PB$CET_lower) +
-                                                                 (intervals_PB$CET_true > intervals_PB$CET_upper) * abs(intervals_PB$CET_true - intervals_PB$CET_upper), NA) / (intervals_PB$CET_upper + intervals_PB$CET_lower)/2,
-                      "BA" = ifelse(!(intervals_BA$CET_covered), (intervals_BA$CET_true < intervals_BA$CET_lower) * abs(intervals_BA$CET_true - intervals_BA$CET_lower) +
-                                                                 (intervals_BA$CET_true > intervals_BA$CET_upper) * abs(intervals_BA$CET_true - intervals_BA$CET_upper), NA) / (intervals_BA$CET_upper + intervals_BA$CET_lower)/2,
-                      "CP" = ifelse(!(intervals_CP_m$CET_covered), (intervals_CP_m$CET_true < intervals_CP_m$CET_lower) * abs(intervals_CP_m$CET_true - intervals_CP_m$CET_lower) +
-                                                                   (intervals_CP_m$CET_true > intervals_CP_m$CET_upper) * abs(intervals_CP_m$CET_true - intervals_CP_m$CET_upper), NA) / (intervals_CP_m$CET_upper + intervals_CP_m$CET_lower)/2,
-                      "QR" = ifelse(!(intervals_QR_m$CET_covered), (intervals_QR_m$CET_true < intervals_QR_m$CET_lower) * abs(intervals_QR_m$CET_true - intervals_QR_m$CET_lower) +
-                                                                   (intervals_QR_m$CET_true > intervals_QR_m$CET_upper) * abs(intervals_QR_m$CET_true - intervals_QR_m$CET_upper), NA) / (intervals_QR_m$CET_upper + intervals_QR_m$CET_lower)/2
-)
-
-ggplot(data = res_data) +
-  geom_density(aes(x = BS, color = "BS")) +
-  geom_density(aes(x = EN, color = "EN")) +
-  geom_density(aes(x = BA, color = "BA")) +
-  geom_density(aes(x = CP, color = "CP")) +
-  geom_density(aes(x = QR, color = "QR")) +
-  scale_color_manual(values = c("BS" = "purple",
-                                "EN" = "yellow",
-                                "BA" = "black",
-                                "CP" = "green",
-                                "QR" = "red")) +
-  xlim(0,2) +
-  ylim(0,10) +
-  labs(title = "Absolute scaled residuals distribution",
-       x = "Scaled residual")
-
-# Rectangles
-#methods = c("BS","EN","CP","BA","QR")
-#methods = c("CP","BA","QR")
-methods = c("BS","EN")
-
-rec_data1 = data.table("Id" = intervals_BS$Id,
-                      "BS" = (intervals_BS$CET_true - intervals_BS$CET_lower) / (intervals_BS$CET_upper - intervals_BS$CET_lower),
-                      "EN" = (intervals_PB$CET_true - intervals_PB$CET_lower) / (intervals_PB$CET_upper - intervals_PB$CET_lower),
-                      "BA" = (intervals_BA$CET_true - intervals_BA$CET_lower) / (intervals_BA$CET_upper - intervals_BA$CET_lower),
-                      "CP" = (intervals_CP_m$CET_true - intervals_CP_m$CET_lower) / (intervals_CP_m$CET_upper - intervals_CP_m$CET_lower),
-                      "QR" = (intervals_QR_m$CET_true - intervals_QR_m$CET_lower) / (intervals_QR_m$CET_upper - intervals_QR_m$CET_lower))
-
-# rec_data = data.table("Method" = rep(methods, 5079),
-#                       "Values" = c(rec_data1$BS, rec_data1$EN, rec_data1$BA, rec_data1$CP, rec_data1$QR))
-
-rec_data <- rec_data1[,2:3] %>%
-  pivot_longer(cols = everything(), names_to = "Method", values_to = "Value")
-
-ggplot(rec_data, aes(x = Method, y = Value)) +
-  geom_rect(aes(xmin = 0.6, xmax = 2.5, ymin = 0, ymax = 1), alpha = 0.9) +
-  geom_half_violin(trim = TRUE, aes(fill = Method), side = "r") +
-  labs(title = "Density covered by interval",
-       y = "Position with respect to PI") +
-  ylim(-20,30)
+  labs(title = title,
+       x = "True",
+       y = "Relative error")
   
-
-# Width-CET
-width_data = data.table("Id" = intervals_BS$Id,
-                      "BS_width" = ksmooth(intervals_BS$CET_true, intervals_BS$CET_upper - intervals_BS$CET_lower, kernel = "normal", bandwidth = 2)$y,
-                      "EN_width" = ksmooth(intervals_PB$CET_true, intervals_PB$CET_upper - intervals_PB$CET_lower, kernel = "normal", bandwidth = 2)$y,
-                      "BA_width" = ksmooth(intervals_BA$CET_true, intervals_BA$CET_upper - intervals_BA$CET_lower, kernel = "normal", bandwidth = 2)$y,
-                      "CP_width" = ksmooth(intervals_CP_m$CET_true, intervals_CP_m$CET_upper - intervals_CP_m$CET_lower, kernel = "normal", bandwidth = 2)$y,
-                      "QR_width" = ksmooth(intervals_QR_m$CET_true, intervals_QR_m$CET_upper - intervals_QR_m$CET_lower, kernel = "normal", bandwidth = 2)$y,
-                      "true"= intervals_BS$CET_true,
-                      "true_kernel" = ksmooth(intervals_BA$CET_true, intervals_CP_m$CET_upper - intervals_CP_m$CET_lower, kernel = "normal", bandwidth = 2)$x
-)
-
-ggplot(data = width_data, aes(x = true_kernel)) +
-  geom_line(aes(y = BS_width, color = "BS")) +
-  geom_line(aes(y = EN_width, color = "EN")) +
-  geom_line(aes(y = BA_width, color = "BA")) +
-  geom_line(aes(y = CP_width, color = "CP")) +
-  geom_line(aes(y = QR_width, color = "QR")) +
-  scale_color_manual(values = c("BS" = "purple", 
-                                "EN" = "yellow", 
-                                "BA" = "black", 
-                                "CP" = "green", 
-                                "QR" = "red")) +
-  labs(title = "Width development with CET",
-       y = "Width",
-       x = "CET") +
-  xlim(0,20)
-
-
-# #########################################
-# # Not changed yet from CLV to CET and PTS
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# # Plotting the mspiw plot
-# plot_data_mspiw = data.table("lower_BS" = results_boots$predicted.CLV.CI.5,
-#                              "upper_BS" = results_boots$predicted.CLV.CI.95,
-#                              # "lower_M1" = intervals_MB$`MB_CLV_05%`,
-#                              # "upper_M1" = intervals_MB$`MB_CLV_95%`,
-#                              "lower_M2" = intervals_PB$`PB_CLV_05%`,
-#                              "upper_M2" = intervals_PB$`PB_CLV_95%`,
-#                              "lower_CP" = intervals_CP$Lower,
-#                              "upper_CP" = intervals_CP$Upper,
-#                              "CLV" = results_boots$predicted.CLV)
-# 
-# plot_data_mspiw$width_BS = (plot_data_mspiw$upper_BS - plot_data_mspiw$lower_BS) / results_boots$predicted.CLV
-# plot_data_mspiw$width_M1 = (plot_data_mspiw$upper_M1 - plot_data_mspiw$lower_M1) / results_boots$predicted.CLV
-# plot_data_mspiw$width_M2 = (plot_data_mspiw$upper_M2 - plot_data_mspiw$lower_M2) / results_boots$predicted.CLV
-# plot_data_mspiw$width_CP = (plot_data_mspiw$upper_CP - plot_data_mspiw$lower_CP) / results_boots$predicted.CLV
-# 
-# ggplot(plot_data_mspiw[CLV < 1000,], aes(x = CLV)) + 
-#   geom_line(aes(y = width_BS, color = "blue")) +
-#   geom_line(aes(y = width_M1, color = "red")) +
-#   geom_line(aes(y = width_M2, color = "green")) +
-#   geom_line(aes(y = width_CP, color = "black")) +
-#   labs(title = "Absolute interval width/CLV for different CLV values and intervals methods", y = "Relative interval width") +
-#   scale_color_identity(name = "Model",
-#                        breaks = c("blue", "red", "green", "black"),
-#                        labels = c("Bootstrap", "Method 1", "Method 2", "CP"),
-#                        guide = "legend")
-# 
-# # Plotting the relative distribution plot
-# 
-# rel_data_CP = data.table("Id" = results_boots$Id,
-#                          "prediction" = results_boots$predicted.CLV,
-#                          "lower_PI" = plot_data_mspiw$lower_CP,
-#                          "upper_PI" = plot_data_mspiw$upper_CP,
-#                          "true" = benchmark_data$true,
-#                          "position" = 0)
-# 
-# rel_data_M1 = data.table("Id" = results_boots$Id,
-#                          "prediction" = results_boots$predicted.CLV,
-#                          "lower_PI" = plot_data_mspiw$lower_M1,
-#                          "upper_PI" = plot_data_mspiw$upper_M1,
-#                          "true" = benchmark_data$true,
-#                          "position" = 0)
-# 
-# rel_data_CP$position = (rel_data_CP$true - rel_data_CP$lower_PI) / (rel_data_CP$upper_PI - rel_data_CP$lower_PI)
-# rel_data_M1$position = (rel_data_M1$true - rel_data_M1$lower_PI) / (rel_data_M1$upper_PI - rel_data_M1$lower_PI)
-# 
-# ggplot(rel_data_CP, aes(x = position)) +
-#   geom_histogram(binwidth = 0.05) +
-#   geom_vline(xintercept = 0) +
-#   geom_vline(xintercept = 1) +
-#   labs(title = "Distribution of true observations relative to their PIs",
-#        x = "0: On the lower boundary, 1: On the upper boundary, outside: Outside of the PIs")
-# 
-# ggplot(rel_data_M1, aes(x = position)) +
-#   geom_histogram(binwidth = 0.05) +
-#   geom_vline(xintercept = 0) +
-#   geom_vline(xintercept = 1) +
-#   labs(title = "Distribution of true observations relative to their PIs",
-#        x = "0: On the lower boundary, 1: On the upper boundary, outside: Outside of the PIs")

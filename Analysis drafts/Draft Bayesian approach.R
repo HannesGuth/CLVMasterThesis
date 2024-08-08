@@ -1,13 +1,7 @@
-library(BTYD)
-library(BTYDplus)
-
-
-########################################################################################## For data2
-library(CLVTools)
-library(BTYDplus)
+print("1")
 # data("apparelTrans")
-tryCatch(
-  {
+# tryCatch(
+#   {
     datecustomer = data2[,c(1,2)]
     colnames(datecustomer) = c("cust", "date")
     
@@ -35,7 +29,7 @@ tryCatch(
     pnbd.xstar.draws = mcmc.DrawFutureTransactions(data2cbs, pnbd.draws)
     
     # Collect the data
-    intervals_BA = data.table("Id" = pred_PNBD$Id,
+    intervals_BA = data.table("Id" = results_general$Id,
                               "CET_lower" = 0,
                               "CET_upper" = 0,
                               "CET_true" = results_general$actual.x,
@@ -49,9 +43,9 @@ tryCatch(
     )
     
     # Take the intervals of CET
-    for (i in 1:nrow(pred_PNBD)){
-      intervals_BA[i,2] = quantile(pnbd.xstar.draws[,i], probs = 0.05)
-      intervals_BA[i,3] = quantile(pnbd.xstar.draws[,i], probs = 0.95)
+    for (i in 1:nrow(intervals_BA)){
+      intervals_BA[i,2] = quantile(pnbd.xstar.draws[,i], probs = alpha/2)
+      intervals_BA[i,3] = quantile(pnbd.xstar.draws[,i], probs = 1-(alpha/2))
       #intervals_BA[i,5] = quantile(pnbd.xstar.draws[,i], probs = 0.50) # assume the median as prediction
       #intervals_BA[i,5] = mean(pnbd.xstar.draws[,i])
       #print(mean(pnbd.xstar.draws[,i]))
@@ -62,10 +56,10 @@ tryCatch(
     
     # Performance measure
     mean(intervals_BA$CET_covered)
-  },
-  error = function(e){intervals_BA[,1:11] = NA}#,
-  #warning = function(w){print(w)}
-)
+#   },
+#   error = function(e){print(e)},#intervals_BA[,1:11] = NA
+#   warning = function(w){print(w)}
+# )
 
 
 

@@ -2,7 +2,6 @@
 # 2. Get the intervals (academic version) and collect the quantiles (managerial version)
 
 # Set default settings
-# splitweek = 130
 
 tryCatch(
   {
@@ -18,13 +17,13 @@ tryCatch(
                          name.date = "Date",
                          name.price = "Price")
     est.data1 = pnbd(clv.data = clv.data1)
-    print(1)
+    
     if (whole_period1){
       results.data1 = predict(est.data1, predict.spending = TRUE)
     }else{
       results.data1 = predict(est.data1, predict.spending = TRUE, prediction.end = end1)
     }
-    print(2)
+    
     # Table based on differences from a single fit
     cor_table = data.table("Id" = customers,
                            "CET_pred" = results.data1$CET,
@@ -46,8 +45,6 @@ tryCatch(
     alpha = 0.1
     q = ceiling(((ntraining + 1) * (1 - alpha)))/ntraining # see 9CP, equation 7
     
-    # quantiles_CET = list()
-    # quantiles_PTS = list()
     #########
     print(4)
     # Split the data set in training, validation and test
@@ -75,7 +72,9 @@ tryCatch(
     
     # Create all models
     trainModelpnbd = pnbd(clv.data = trainCLV)
+    print(5)
     testModelpnbd = pnbd(clv.data = testCLV)
+    print(6)
     
     # Make predictions
     if (whole_period1){
@@ -104,8 +103,8 @@ tryCatch(
     
     quantile_CET = quantile(conformal_data_train$CET_error, q)
     quantile_PTS = quantile(conformal_data_train$PTS_error, q)
-    # quantiles_CET = append(quantiles_CET, quantile_CET)
-    # quantiles_PTS = append(quantiles_PTS, quantile_PTS)
+    quantile_CET_one = quantile_CET
+    quantile_PTS_one = quantile_PTS
     
     # Create a table for the test data that contains the PIs for each customer in this run and if the true value is covered
     conformal_data_test = data.table("Id" = results_pnbd_test$Id,
@@ -128,65 +127,55 @@ tryCatch(
     # Calculate the coverage
     conformal_data_test$CET_covered = ifelse(conformal_data_test$CET_Lower90 < conformal_data_test$actual.x & conformal_data_test$CET_Upper90 > conformal_data_test$actual.x, 1, 0)
     conformal_data_test$PTS_covered = ifelse(conformal_data_test$PTS_Lower90 < conformal_data_test$actual.total.spending & conformal_data_test$PTS_Upper90 > conformal_data_test$actual.total.spending, 1, 0)
-    
-    # # Create the resulting table for comparison with other methods
-    # intervals_CP = data.table("Id" = results.data1$Id,
-    #                             "CET_lower" = max(0, CET_LowerPI$mean),
-    #                             "CET_upper" = CET_UpperPI$mean,
-    #                             "CET_true" = results.data1$actual.x,
-    #                             "CET_prediction" = results.data1$CET,
-    #                             "CET_covered" = CET_LowerPI$mean < results.data1$actual.x & CET_UpperPI$mean > results.data1$actual.x,
-    #                             "PTS_lower" = max(0, PTS_LowerPI$mean),
-    #                             "PTS_upper" = PTS_UpperPI$mean,
-    #                             "PTS_true" = results.data1$actual.total.spending,
-    #                             "PTS_prediction" = results.data1$predicted.total.spending,
-    #                             "PTS_covered" = PTS_LowerPI$mean < results.data1$actual.total.spending & PTS_UpperPI$mean > results.data1$actual.total.spending
-    # )
-    
-    ###################
-    # Managerial version
-    
-    # quantile_CET = mean(unlist(quantiles_CET))
-    # quantile_PTS = mean(unlist(quantiles_PTS))
-    
-    clv.data2 <- clvdata(data2,
-                         date.format="ymd", 
-                         time.unit = "week",
-                         estimation.split = splitweek2,
-                         name.id = "Id",
-                         name.date = "Date",
-                         name.price = "Price")
-    est.data2 = pnbd(clv.data = clv.data2)
-    
-    if (whole_period2){
-     results.data2 = predict(est.data2, predict.spending = TRUE)
-    }else{
-      results.data2 = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
-    }
-    
-    
-    CET_std = predict(CET_mod, data.frame(CET_pred = results.data2$CET))
-    PTS_std = predict(PTS_mod, data.frame(PTS_pred = results.data2$predicted.total.spending))
-    
-    intervals_CP_m = data.table("Id" = results.data2$Id,
-                              "CET_lower" = ifelse((results.data2$CET - (CET_std * quantile_CET)) < 0, 0, results.data2$CET - (CET_std * quantile_CET)),
-                              "CET_upper" = results.data2$CET + (CET_std * quantile_CET),
-                              "CET_true" = results.data2$actual.x,
-                              "CET_prediction" = results.data2$CET,
-                              "CET_covered" = 0,
-                              "PTS_lower" = ifelse((results.data2$predicted.total.spending - (PTS_std * quantile_PTS)) < 0, 0, results.data2$predicted.total.spending - (PTS_std * quantile_PTS)),
-                              "PTS_upper" = results.data2$predicted.total.spending + (PTS_std * quantile_PTS),
-                              "PTS_true" = results.data2$actual.total.spending,
-                              "PTS_prediction" = results.data2$predicted.total.spending,
-                              "PTS_covered" = 0
-    )
-    
-    intervals_CP_m$CET_covered = intervals_CP_m$CET_lower <= intervals_CP_m$CET_true & intervals_CP_m$CET_upper >= intervals_CP_m$CET_true
-    intervals_CP_m$PTS_covered = intervals_CP_m$PTS_lower <= intervals_CP_m$PTS_true & intervals_CP_m$PTS_upper >= intervals_CP_m$PTS_true
-    mean(intervals_CP_m$CET_covered)
-    mean(intervals_CP_m$PTS_covered)
   },
-  error = function(e){intervals_CP_m[,c(6,11)]= NA},
-  warning = function(w){intervals_CP_m[,c(6,11)]= NA}
+  error = function(e){
+    quantile_CET_one = quantile_CET
+    quantile_PTS_one = quantile_PTS
+  },
+  warning = function(w){
+    quantile_CET_one = quantile_CET
+    quantile_PTS_one = quantile_PTS
+  }
 )
+
+
+###################
+# Managerial version
+
+clv.data2 <- clvdata(data2,
+                     date.format="ymd", 
+                     time.unit = "week",
+                     estimation.split = splitweek2,
+                     name.id = "Id",
+                     name.date = "Date",
+                     name.price = "Price")
+est.data2 = pnbd(clv.data = clv.data2)
+
+if (whole_period2){
+ results.data2 = predict(est.data2, predict.spending = TRUE)
+}else{
+  results.data2 = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
+}
+
+
+CET_std = predict(CET_mod, data.frame(CET_pred = results.data2$CET))
+PTS_std = predict(PTS_mod, data.frame(PTS_pred = results.data2$predicted.total.spending))
+
+intervals_CP_m = data.table("Id" = results.data2$Id,
+                          "CET_lower" = ifelse((results.data2$CET - (CET_std * quantile_CET)) < 0, 0, results.data2$CET - (CET_std * quantile_CET)),
+                          "CET_upper" = results.data2$CET + (CET_std * quantile_CET),
+                          "CET_true" = results.data2$actual.x,
+                          "CET_prediction" = results.data2$CET,
+                          "CET_covered" = 0,
+                          "PTS_lower" = ifelse((results.data2$predicted.total.spending - (PTS_std * quantile_PTS)) < 0, 0, results.data2$predicted.total.spending - (PTS_std * quantile_PTS)),
+                          "PTS_upper" = results.data2$predicted.total.spending + (PTS_std * quantile_PTS),
+                          "PTS_true" = results.data2$actual.total.spending,
+                          "PTS_prediction" = results.data2$predicted.total.spending,
+                          "PTS_covered" = 0
+)
+
+intervals_CP_m$CET_covered = intervals_CP_m$CET_lower <= intervals_CP_m$CET_true & intervals_CP_m$CET_upper >= intervals_CP_m$CET_true
+intervals_CP_m$PTS_covered = intervals_CP_m$PTS_lower <= intervals_CP_m$PTS_true & intervals_CP_m$PTS_upper >= intervals_CP_m$PTS_true
+mean(intervals_CP_m$CET_covered)
+mean(intervals_CP_m$PTS_covered)
 

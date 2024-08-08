@@ -35,7 +35,7 @@ grid$PTS_theta_U = 0
 grid$PTS_theta_L = 0
 
 
-alpha = 0.05
+#alpha = 0.1
 CET_tolerance = 0.1
 PTS_tolerance = 1.5
 best_CET_i = 0
@@ -47,8 +47,11 @@ PTS_diffsummin = Inf
 
 # Set up the parallel backend
 num_cores <- parallel::detectCores()
+print("1")
 cl <- makeCluster(num_cores - 2)
+print("2")
 registerDoParallel(cl)
+print("3")
 
 # Define the model fitting function
 fit_model <- function(grid, i, est.data1) {
@@ -63,19 +66,22 @@ fit_model <- function(grid, i, est.data1) {
     pred = predict(est.data1, predict.spending = TRUE, prediction.end = end1)
   }
   
+  pred$CET = (pred$CET <= CET_tolerance) * 0 + (pred$CET > CET_tolerance) * pred$CET
+  pred$predicted.total.spending = (pred$predicted.total.spending <= PTS_tolerance) * 0 + (pred$predicted.total.spending > PTS_tolerance) * pred$predicted.total.spending
+  
   # "Loss functions"
   # Upper
     # Direct (not selected at the moment)
-    CET_diffsummax = (sum(pred$actual.x >= pred$CET)/nrow(pred)) - alpha
-    PTS_diffsummax = (sum(pred$actual.total.spending >= pred$predicted.total.spending)/nrow(pred)) - alpha
+    CET_diffsummax = (sum(pred$actual.x >= pred$CET)/nrow(pred)) - alpha/2
+    PTS_diffsummax = (sum(pred$actual.total.spending >= pred$predicted.total.spending)/nrow(pred)) - alpha/2
     # With formula (selected at the moment)
     # CET_thetamax = sum((pred$actual.x >= pred$CET) * (1 - alpha) + (pred$actual.x < pred$CET) * alpha)/nrow(pred) - alpha
     # PTS_thetamax = sum((pred$actual.total.spending >= pred$predicted.total.spending) * (1 - alpha) + (pred$actual.total.spending < pred$predicted.total.spending) * alpha)/nrow(pred) - alpha
   
   # Lower
     # Direct (not selected at the moment)
-    CET_diffsummin = (sum(pred$actual.x + CET_tolerance <= pred$CET)/nrow(pred)) - alpha
-    PTS_diffsummin = (sum(pred$actual.total.spending + PTS_tolerance <= pred$predicted.total.spending)/nrow(pred)) - alpha
+    CET_diffsummin = (sum(pred$actual.x <= pred$CET)/nrow(pred)) - alpha/2
+    PTS_diffsummin = (sum(pred$actual.total.spending <= pred$predicted.total.spending)/nrow(pred)) - alpha/2
     # With formula (selected at the moment)
     # CET_thetamin = sum((pred$actual.x + CET_tolerance < pred$CET) * (1 - alpha) + (pred$actual.x >= pred$CET) * alpha)/nrow(pred) - alpha
     # PTS_thetamin = sum((pred$actual.total.spending + PTS_tolerance < pred$predicted.total.spending) * (1 - alpha) + (pred$actual.total.spending >= pred$predicted.total.spending) * alpha)/nrow(pred) - alpha
@@ -98,14 +104,17 @@ fit_model <- function(grid, i, est.data1) {
   return(c(grid[i,1], grid[i,2], grid[i,3], grid[i,4], grid[i,5], grid[i,6], grid[i,7], grid[i,8], grid[i,9], grid[i,10], grid[i,11], grid[i,12], grid[i,13], grid[i,14], grid[i,15]))
 }
 
+print("4")
 # Run the loop in parallel
 result = foreach(i = 1:nrow(grid), .combine = rbind, .packages = "stats") %dopar% {
   fit_model(grid, i, est.data1)
 }
+print("5")
 stopCluster(cl)
-
+print("6")
 # Transfer results and rename columns
 grid = data.table(result)
+print("7")
 colnames(grid) = c("i", "r", "alpha", "s", "beta", "CET_U_diff", "PTS_U_diff", "U_diff", "CET_L_diff", "PTS_L_diff", "L_diff", "CET_t_Udiff", "CET_t_Ldiff", "PTS_t_Udiff", "PTS_t_Ldiff")
 
 
@@ -184,9 +193,26 @@ if (whole_period1){
 }else{
   pred = predict(est.data1, predict.spending = TRUE, prediction.end = end1)
 }
-pred
+#pred
 sum(pred$actual.x >= pred$CET)/nrow(pred) - alpha/2
 CET_upper = pred$CET
+
+# #########
+# for (i in 1:nrow(grid)){
+#   est.data1@prediction.params.model[1] = as.numeric(grid[i,2])
+#   est.data1@prediction.params.model[2] = as.numeric(grid[i,3])
+#   est.data1@prediction.params.model[3] = as.numeric(grid[i,4])
+#   est.data1@prediction.params.model[4] = as.numeric(grid[i,5])
+#   if (whole_period1){
+#     pred = predict(est.data1, predict.spending = TRUE)
+#   }else{
+#     pred = predict(est.data1, predict.spending = TRUE, prediction.end = end1)
+#   }
+#   #pred
+#   grid[i,5] = sum(pred$actual.x >= pred$CET)/nrow(pred) - alpha/2
+# }
+# 
+# #########
 
 # Lower CET
 min(abs(grid$CET_L_diff), na.rm = TRUE)
@@ -202,8 +228,9 @@ if (whole_period1){
 }else{
   pred = predict(est.data1, predict.spending = TRUE, prediction.end = end1)
 }
-sum(pred$actual.x + CET_tolerance <= pred$CET)/nrow(pred)
-pred$ok = pred$actual.x + CET_tolerance <= pred$CET
+pred$CET = (pred$CET < CET_tolerance) * 0 + (pred$CET > CET_tolerance) * pred$CET
+sum(pred$actual.x <= pred$CET)/nrow(pred)
+pred$ok = pred$actual.x <= pred$CET
 CET_lower = pred$CET
 
 # Upper PTS
@@ -237,8 +264,9 @@ if (whole_period1){
 }else{
   pred = predict(est.data1, predict.spending = TRUE, prediction.end = end1)
 }
-pred$ok = pred$actual.total.spending + PTS_tolerance <= pred$predicted.total.spending
-sum(pred$actual.total.spending + PTS_tolerance <= pred$predicted.total.spending)/nrow(pred)
+pred$ok = pred$actual.total.spending <= pred$predicted.total.spending
+pred$predicted.total.spending = (pred$predicted.total.spending < CET_tolerance) * 0 + (pred$predicted.total.spending > CET_tolerance) * pred$predicted.total.spending
+sum(pred$actual.total.spending <= pred$predicted.total.spending)/nrow(pred)
 PTS_lower = pred$predicted.total.spending
 
 intervals_QR = data.table("Id" = pred$Id,
@@ -246,18 +274,18 @@ intervals_QR = data.table("Id" = pred$Id,
                           "CET_upper" = CET_upper,
                           "CET_true" = pred$actual.x,
                           "CET_prediction" = results.data1$CET,
-                          "CET_covered" = results.data1$actual.x + CET_tolerance > CET_lower & results.data1$actual.x < CET_upper,
+                          "CET_covered" = results.data1$actual.x >= CET_lower & results.data1$actual.x < CET_upper,
                           "PTS_lower" = round(PTS_lower, 4),
                           "PTS_upper" = PTS_upper,
                           "PTS_true" = results.data1$actual.total.spending,
                           "PTS_pred" = results.data1$predicted.total.spending,
-                          "PTS_covered" = results.data1$actual.total.spending + PTS_tolerance > PTS_lower & results.data1$actual.total.spending < PTS_upper)
+                          "PTS_covered" = results.data1$actual.total.spending >= PTS_lower & results.data1$actual.total.spending < PTS_upper)
 
 mean(intervals_QR$CET_covered)
 mean(intervals_QR$PTS_covered)
 
 ######### Managerial version
-clv.data2 <- clvdata(data2,  
+clv.data2 <- clvdata(data2,
                      date.format="ymd", 
                      time.unit = "week",
                      estimation.split = splitweek2,
@@ -294,7 +322,8 @@ if (whole_period2){
 }else{
   pred = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
 }
-sum(pred$actual.x + CET_tolerance <= pred$CET)/nrow(pred)
+pred$CET = (pred$CET < CET_tolerance) * 0 + (pred$CET > CET_tolerance) * pred$CET
+sum(pred$actual.x <= pred$CET)/nrow(pred)
 CET_lower = pred$CET
 
 # PTS upper
@@ -320,20 +349,21 @@ if (whole_period2){
 }else{
   pred = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
 }
-sum(pred$actual.total.spending + PTS_tolerance <= pred$predicted.total.spending)/nrow(pred)
+pred$predicted.total.spending = (pred$predicted.total.spending < CET_tolerance) * 0 + (pred$predicted.total.spending > CET_tolerance) * pred$predicted.total.spending
+sum(pred$actual.total.spending <= pred$predicted.total.spending)/nrow(pred)
 PTS_lower = pred$predicted.total.spending
 
-intervals_QR_m = data.table("Id" = pred_PNBD$Id,
+intervals_QR_m = data.table("Id" = results_general$Id,
                           "CET_lower" = round(CET_lower, 4),
                           "CET_upper" = CET_upper,
                           "CET_true" = results_general$actual.x,
                           "CET_prediction" = results.data2$CET,
-                          "CET_covered" = results.data2$actual.x + CET_tolerance > CET_lower & results.data2$actual.x < CET_upper,
+                          "CET_covered" = results.data2$actual.x >= CET_lower & results.data2$actual.x < CET_upper,
                           "PTS_lower" = round(PTS_lower, 4),
                           "PTS_upper" = PTS_upper,
                           "PTS_true" = results_general$actual.total.spending,
                           "PTS_prediction" = results.data2$predicted.total.spending,
-                          "PTS_covered" = results.data2$actual.total.spending + PTS_tolerance > PTS_lower & results.data2$actual.total.spending < PTS_upper
+                          "PTS_covered" = results.data2$actual.total.spending >= PTS_lower & results.data2$actual.total.spending < PTS_upper
 )
 
 mean(intervals_QR_m$CET_covered)

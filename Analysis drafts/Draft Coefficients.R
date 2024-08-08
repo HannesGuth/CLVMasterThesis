@@ -32,10 +32,10 @@ while (nrow(estpnbd_cov_table) < n){
   #   estgg_cov_table = rbind(estgg_cov_table, row_gg)
   # }
 }
-hist(estpnbd_cov_table$r)
-hist(estpnbd_cov_table$alpha)
-hist(estpnbd_cov_table$s)
-hist(estpnbd_cov_table$beta)
+# hist(estpnbd_cov_table$r)
+# hist(estpnbd_cov_table$alpha)
+# hist(estpnbd_cov_table$s)
+# hist(estpnbd_cov_table$beta)
 
 # Build models and estimate CLVs for all the above created parameter realizations
 for (i in 1:n){
@@ -59,10 +59,10 @@ for (i in 1:n){
 }
 
 # Example histograms of the CLV distribution for the first 20 customers
-for (i in 1:20){
-  hist(unlist(m_CET[i,2:n]), breaks = 40)
-  hist(unlist(m_PTS[i,2:n]), breaks = 40)
-}
+# for (i in 1:20){
+#   hist(unlist(m_CET[i,2:n]), breaks = 40)
+#   hist(unlist(m_PTS[i,2:n]), breaks = 40)
+# }
 
 # Summarize the data in a datatable
 intervals_EN = data.table("Id" = results_general$Id,
@@ -80,10 +80,10 @@ intervals_EN = data.table("Id" = results_general$Id,
 
 # Get the intervals
 for (i in 1:nrow(pred_PNBD)){
-  intervals_EN[i,2] = quantile(unlist(m_CET[i,2:n]), probs = c(0.05,0.95), na.rm = TRUE)[1]
-  intervals_EN[i,3] = quantile(unlist(m_CET[i,2:n]), probs = c(0.05,0.95), na.rm = TRUE)[2]
-  intervals_EN[i,7] = quantile(unlist(m_PTS[i,2:n]), probs = c(0.05,0.95), na.rm = TRUE)[1]
-  intervals_EN[i,8] = quantile(unlist(m_PTS[i,2:n]), probs = c(0.05,0.95), na.rm = TRUE)[2]
+  intervals_EN[i,2] = quantile(unlist(m_CET[i,2:n]), probs = c(alpha/2,1-(alpha/2)), na.rm = TRUE)[1]
+  intervals_EN[i,3] = quantile(unlist(m_CET[i,2:n]), probs = c(alpha/2,1-(alpha/2)), na.rm = TRUE)[2]
+  intervals_EN[i,7] = quantile(unlist(m_PTS[i,2:n]), probs = c(alpha/2,1-(alpha/2)), na.rm = TRUE)[1]
+  intervals_EN[i,8] = quantile(unlist(m_PTS[i,2:n]), probs = c(alpha/2,1-(alpha/2)), na.rm = TRUE)[2]
 }
 
 intervals_EN$CET_covered = intervals_EN$CET_lower <= intervals_EN$CET_true & intervals_EN$CET_true <= intervals_EN$CET_upper
