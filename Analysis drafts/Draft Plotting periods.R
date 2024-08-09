@@ -1,7 +1,7 @@
-big_grid_gift = readRDS("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Backup/big_grid.RData")
-big_grid_el = readRDS("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Backup/big_grid_gift.RData")
+big_grid_gift = readRDS("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Backup/big_grid_gift_new.RData")
+big_grid_el = readRDS("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Backup/big_grid_el.RData")
 
-big_grid_gift = big_grid[CP_CET != 0]
+big_grid_gift = big_grid_gift[CP_CET != 0]
 
 ggplot(big_grid_gift) +
   # geom_density(aes(BS_CET, color = "BS")) +
@@ -13,13 +13,55 @@ ggplot(big_grid_gift) +
   scale_color_manual(values = c("BA" = "green", "CP" = "purple", "CR" = "orange", "QR" = "pink")) +
   xlim(0,1)
 
+# With all values
+
 big_grid_gift_long = reshape2::melt(big_grid_gift[,7:10])
+big_grid_el_long = reshape2::melt(big_grid_el[,7:10])
 
-ggplot(big_grid_gift_long, aes(x = variable, y = value)) +
-  geom_boxplot() +
-  theme_minimal() +
-  labs(x = "Columns", y = "Values", title = "Boxplots of the Four Columns")
+big_grid_gift_long$Dataset = "gift"
+big_grid_el_long$Dataset = "el"
 
+combined_long = rbind(big_grid_gift_long, big_grid_el_long)
+
+title = "Performance over different periods (all values)"
+ggplot(combined_long, aes(x = variable, y = value*100, fill = Dataset)) +
+  geom_boxplot(position = position_dodge(width = 0.75)) +
+  labs(x = "Methods", y = "Coverage in %", title = title) +
+  scale_fill_manual(values = c("gift" = "blue", "el" = "red")) +
+  scale_x_discrete(labels = c("BA", "QR", "CP", "CR"))
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+
+# Without splitweek1 = 20
+big_grid_gift = big_grid_gift[splitweek1 != 20,]
+
+big_grid_gift_long = reshape2::melt(big_grid_gift[,7:10])
+big_grid_el_long = reshape2::melt(big_grid_el[,7:10])
+
+big_grid_gift_long$Dataset = "gift"
+big_grid_el_long$Dataset = "el"
+
+combined_long = rbind(big_grid_gift_long, big_grid_el_long)
+
+title = "Performance over different periods (without low l1-values for gift)"
+ggplot(combined_long, aes(x = variable, y = value*100, fill = Dataset)) +
+  geom_boxplot(position = position_dodge(width = 0.75)) +
+  labs(x = "Methods", y = "Coverage in %", title = title) +
+  scale_fill_manual(values = c("gift" = "blue", "el" = "red")) +
+  scale_x_discrete(labels = c("BA", "QR", "CP", "CR"))
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+
+# Relation between period sum and coverage
+psc_gift_data = data.table("sum" = rowSums(big_grid_gift[,1:2]),
+                            "BA" = big_grid_gift$BA_CET,
+                            "QR" = big_grid_gift$QR_CET,
+                            "CP" = big_grid_gift$CP_CET,
+                            "CR" = big_grid_gift$CR_CET)
+
+psc_el_data = data.table("sum" = rowSums(big_grid_el[,1:2]),
+                         "BA" = big_grid_el$BA_CET,
+                         "QR" = big_grid_el$QR_CET,
+                         "CP" = big_grid_el$CP_CET,
+                         "CR" = big_grid_el$CR_CET)
 
 
 ############

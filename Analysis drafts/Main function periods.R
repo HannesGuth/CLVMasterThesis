@@ -7,6 +7,7 @@ library(rockchalk)
 library(doParallel)
 library(geomtextpath)
 library(dbscan)
+library(BTYDplus)
 
 #splitweek = 130 # 130 for gift2
 # Load data
@@ -15,7 +16,7 @@ library(dbscan)
 #source("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Draft Data preparation.r")
 
 rob_gift_list = list(data1 = gift1, data2 = gift2, s1 = c(20,60,160), s2 = c(40,60,120), pp = c(20,40,Inf), name = "gift")
-rob_el_list = list(data1 = el1, data2 = el2, s1 = c(20,50,150), s2 = c(20,50,100), pp = c(20,40,Inf), name = "el")
+rob_el_list = list(data1 = el1, data2 = el2, s1 = c(50,150), s2 = c(20,50,100), pp = c(20,40,Inf), name = "el")
 robustness_list = list(el = rob_el_list)
 
 for (rob_list in robustness_list){

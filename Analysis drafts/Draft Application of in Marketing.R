@@ -78,8 +78,35 @@ for (data_list in data_lists){
     hcw_data = hcw_data[order(-hcw_data$ratio)]
     perf_overview[run,10] = round(sum(hcw_data$CET_true[1:n])/perf_overview[run,3],2)
     
+    # Highest CET/width
+    lcw_data = application_data
+    lcw_data$width = lcw_data$CET_upper - lcw_data$CET_lower
+    lcw_data$ratio = lcw_data$CET_prediction / lcw_data$width
+    application_data$lcw = lcw_data$CET_prediction / lcw_data$width
+    lcw_data = lcw_data[order(lcw_data$ratio)]
+    perf_overview[run,11] = round(sum(lcw_data$CET_true[1:n])/perf_overview[run,3],2)
+    
+    # Highest frequency/width
+    hfw_data = application_data
+    hfw_data$width = hfw_data$CET_upper - hfw_data$CET_lower
+    hfw_data$ratio = hfw_data$Frequency / hfw_data$width
+    application_data$hfw = hfw_data$Frequency / hfw_data$width
+    hfw_data = hfw_data[order(-hfw_data$ratio)]
+    perf_overview[run,10] = round(sum(hfw_data$CET_true[1:n])/perf_overview[run,3],2)
+    
+    # Lowest frequency/width
+    lfw_data = application_data
+    lfw_data$width = lfw_data$CET_upper - lfw_data$CET_lower
+    lfw_data$ratio = lfw_data$Frequency / lfw_data$width
+    application_data$lfw = lfw_data$Frequency / lfw_data$width
+    lfw_data = lfw_data[order(-lfw_data$ratio)]
+    perf_overview[run,10] = round(sum(lfw_data$CET_true[1:n])/perf_overview[run,3],2)
+    
     app_data[[run]] = application_data[order(-application_data$Frequency)]
   }
 }
 
-
+for (i in app_data){
+  n_cust = ceiling(app)
+  upper_split = ceiling
+}
