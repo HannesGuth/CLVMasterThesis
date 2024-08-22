@@ -1,3 +1,6 @@
+method_colors_all = c("BS" = "black", "EN" = "grey", "BA" = "green", "CP" = "red", "CR" = "yellow", "QR" = "blue")
+method_colors_sel = c("EN" = "grey", "BA" = "green", "CP" = "red", "CR" = "yellow", "QR" = "blue")
+
 plot_coverage_data = merge(x = coverage_table[, c("Method", "PICP", "PIARW", "Data")], y = ranking_table[, c("Method", "Rank_PICP")], by = "Method")
 plot_coverage_data = plot_coverage_data[order(-Rank_PICP)]
 plot_coverage_data$Method <- factor(plot_coverage_data$Method, levels = unique(plot_coverage_data$Method))
@@ -12,15 +15,20 @@ ggplot(plot_coverage_data, aes(x = Method, y = PICP*100, shape = Data)) +
   labs(title = title,
        x = "Method",
        y = "PICP in %",
-       shape = "Data Set")
-ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+       shape = "Data Set") +
+  theme(legend.title = element_blank(),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=12),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        panel.grid.major = element_line(colour = "white", size = 0.5))
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
 
 title = "PICP and PIARW by Method and Data Set"
 ggplot(plot_coverage_data) +
   geom_point(aes(x = Method, y = PIARW*2, shape = Data), size = 2, color = "blue", position = position_nudge(0.15)) +  # Line for PIARW
   geom_point(aes(x = Method, y = PICP*100, shape = Data), size = 2, color = "black", position = position_nudge(-0.15)) +  # Set color for all points
   geom_hline(yintercept = 90, linetype = "dashed", color = "red") +  # Horizontal line at 90%
-  annotate("text", x = Inf, y = 90, label = "90%", hjust = 25, vjust = -0.5, color = "red") +  # Add label for horizontal line
+  annotate("text", x = Inf, y = 90, label = "90%", hjust = 13, vjust = -0.5, color = "red") +  # Add label for horizontal line
   scale_y_continuous(
     name = "PICP in %",
     sec.axis = sec_axis(~ ./2, name = "PIARW")  # Add a secondary axis for PIARW
@@ -31,8 +39,13 @@ ggplot(plot_coverage_data) +
   theme(
     axis.title.y = element_text(color = "black"),
     axis.title.y.right = element_text(color = "blue"),
-    axis.text.y.right = element_text(colour = "blue"))
-ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+    axis.text.y.right = element_text(colour = "blue"),
+    legend.title = element_blank(),
+    axis.text=element_text(size=12),
+    axis.title=element_text(size=12),
+    panel.background = element_rect(fill = "white", colour = "black"),
+    panel.grid.major = element_line(colour = "white", size = 0.5))
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
 
 ### Absolute numbers radar chart
 
@@ -41,8 +54,15 @@ averages_table_spider = averages_table[,1:11]
 averages_table_spider$ACE = abs(averages_table_spider$ACE)
 spider_data = as.data.frame(as.matrix(averages_table_spider[,2:11]))
 colnames(spider_data) = measure_list
+spider_data_copy = copy(spider_data)
+spider_data[1,] = spider_data_copy[2,]
+spider_data[2,] = spider_data_copy[5,]
+spider_data[3,] = spider_data_copy[1,]
+spider_data[4,] = spider_data_copy[6,]
+spider_data[5,] = spider_data_copy[3,]
+spider_data[6,] = spider_data_copy[4,]
 names(spider_data)[c(8,9)] = c("Upper c.","Lower c.")
-rownames(spider_data) = c("BA", "BS", "CP", "CR", "EN", "QR")
+rownames(spider_data) = methodlist
 spider_data$ACE = 1 - spider_data$ACE
 max_MSIS = max(spider_data$MSIS)
 min_MSIS = min(spider_data$MSIS)
@@ -61,11 +81,11 @@ spider_data$Time = max_time - spider_data$Time
 spider_data = rbind(c(1, 1, 1, max_PIARW-min_PIARW, max_PIARWW-min_PIARWW, max_MSIS, max_SWR, 1, 1, max_time),
                     c(0, 0, 0, 0, 0, 0, min_SWR, 0, 0, 0),
                     spider_data)
-spider_colors = c("green", "black", "red", "yellow", "grey", "blue")
-radarchart(spider_data, pcol = spider_colors, cglcol = "grey", vlcex = 1.8, title = title, plwd = 3)
-legend(x = "bottom", horiz = TRUE, y = -2.4, legend = c("BA", "BS", "CP", "CR", "EN", "QR"), bty = "n", pch=20 , col = spider_colors, text.col = "black", cex=1.5, pt.cex=3, x.intersp = 0.5, text.width = 0.1)
+spider_colors = c("black", "grey", "green", "blue", "red", "yellow")
+radarchart(spider_data, pcol = spider_colors, cglcol = "grey", vlcex = 1.8, plwd = 3)
+legend(x = -2.0, y = 0.4, horiz = FALSE, legend = methodlist, bty = "n", pch=20 , col = spider_colors, text.col = "black", cex=1.5, pt.cex=3, x.intersp = 0.5, text.width = 0.1)
 # save as image with 1000:...
-ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
 
 spider_data_gg = spider_data[3:nrow(spider_data),]
 spider_data_gg = cbind(Method = rownames(spider_data_gg), spider_data_gg)
@@ -109,9 +129,14 @@ for (data_list in data_lists){
         linewidth = 0.8) +
       geom_point(aes(y = True), color = "black") +
       labs(title = title, x = "Customer", y = "CET") +
-      scale_color_manual(values = c("BS" = "black", "EN" = "grey", "BA" = "green", "CP" = "purple", "CR" = "orange", "QR" = "pink")) +
-      scale_x_discrete(guide = guide_axis(n.dodge = 3))
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+      scale_color_manual(values = method_colors_all) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     cdev_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
                            "BS_covered" = ksmooth(all_res[[data_list$name]]$intervals_BS$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BS$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
@@ -127,27 +152,29 @@ for (data_list in data_lists){
     # Coverage development with CET
     title = paste("Coverage development with CET for", data_list$name)
     print(ggplot(data = cdev_data, aes(x = true_kernel)) +
-      geom_line(aes(y = BS_covered*100, color = "BS")) +
-      geom_line(aes(y = EN_covered*100, color = "EN")) +
-      geom_line(aes(y = BA_covered*100, color = "BA")) +
-      geom_line(aes(y = CP_covered*100, color = "CP")) +
-      geom_line(aes(y = CR_covered*100, color = "CR")) +
-      geom_line(aes(y = QR_covered*100, color = "QR")) +
-      scale_color_manual(values = c("BS" = "purple", 
-                                    "EN" = "yellow", 
-                                    "BA" = "black", 
-                                    "CP" = "green", 
-                                    "CR" = "orange",
-                                    "QR" = "red")) +
+            geom_line(aes(y = BS_covered*100, color = "BS")) +
+            geom_line(aes(y = EN_covered*100, color = "EN")) +
+            geom_line(aes(y = BA_covered*100, color = "BA")) +
+            geom_line(aes(y = CP_covered*100, color = "CP")) +
+            geom_line(aes(x = true_kernel + 0.05, y = CR_covered*100, color = "CR")) +
+            geom_line(aes(y = QR_covered*100, color = "QR")) +
+      scale_color_manual(values = method_colors_all) +
       labs(title = title,
            y = "Coverage in %",
-           x = "True",
+           x = "True transactions",
            color = "Method")) +
-      theme(axis.text.x = element_text(size=rel(2)),
-            axis.text.y = element_text(size=rel(2)),
-            axis.title.y = element_text(size=rel(2))
-            )
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+      theme(axis.text.x = element_text(size=rel(1.7)),
+            axis.text.y = element_text(size=rel(1.7)),
+            axis.title.x = element_text(size=rel(1.7)),
+            axis.title.y = element_text(size=rel(1.7)),
+            plot.title = element_text(size=rel(1.7)),
+            #legend.title = element_blank(),
+            legend.position="none",
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 4.5)
     
     # Relative error
     mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
@@ -164,8 +191,13 @@ for (data_list in data_lists){
       geom_point() +
       labs(title = title,
            x = "True",
-           y = "Relative error")
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           y = "Relative error") +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # Residuals
     res_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
@@ -194,19 +226,19 @@ for (data_list in data_lists){
       geom_density(aes(x = CP, color = "CP")) +
       geom_density(aes(x = CR, color = "CR")) +
       geom_density(aes(x = QR, color = "QR")) +
-      scale_color_manual(values = c("BS" = "purple",
-                                    "EN" = "yellow",
-                                    "BA" = "black",
-                                    "CP" = "green",
-                                    "CR" = "grey",
-                                    "QR" = "red")) +
+      scale_color_manual(values = method_colors_all) +
       xlim(0,2) +
       ylim(0, max_number * 1.4) +
       labs(title = title,
            x = "Scaled residual",
            y = "Frequency",
-           color = "Method"))
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           color = "Method")) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # Rectangles
     rec_data1 = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
@@ -228,9 +260,13 @@ for (data_list in data_lists){
       geom_rect(aes(xmin = 0.5, xmax = 6.5, ymin = 0, ymax = 1), alpha = 0.008) +
       geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
       labs(title = title,
-           y = "Position with respect to PI")) #+
-    #ylim(-0.25,1)
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           y = "Position with respect to PI")) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # BA, CP, CR, QR
     methods = c("BA","CP","CR","QR")
@@ -244,8 +280,13 @@ for (data_list in data_lists){
       geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
       labs(title = paste("Density covered by interval for", data_list$name),
            y = "Position with respect to PI") +
-      ylim(-0.25,1.5))
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+      ylim(-0.25,1.5)) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # Width-CET
     width_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
@@ -267,18 +308,23 @@ for (data_list in data_lists){
       geom_line(aes(y = CP_width, color = "CP")) +
       geom_line(aes(y = CR_width, color = "CR")) +
       geom_line(aes(y = QR_width, color = "QR")) +
-      scale_color_manual(values = c("BS" = "purple", 
-                                    "EN" = "yellow", 
-                                    "BA" = "black", 
-                                    "CP" = "green", 
-                                    "CR" = "orange",
-                                    "QR" = "red")) +
+      scale_color_manual(values = method_colors_all) +
       labs(title = title,
            y = "Width",
-           x = "CET",
-           color = "Method")) #+
-    #xlim(0,20)
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           x = "True transactions",
+           color = "Method")) +
+      theme(axis.text.x = element_text(size=rel(1.7)),
+            axis.text.y = element_text(size=rel(1.7)),
+            axis.title.x = element_text(size=rel(1.7)),
+            axis.title.y = element_text(size=rel(1.7)),
+            plot.title = element_text(size=rel(1.7)),
+            #legend.title = element_blank(),
+            legend.position="none",
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 4.5)
     
   }
   else{
@@ -318,9 +364,14 @@ for (data_list in data_lists){
         linewidth = 0.8) +
       geom_point(aes(y = True), color = "black") +
       labs(title = title, x = "Customer", y = "CET") +
-      scale_color_manual(values = c("EN" = "grey", "BA" = "green", "CP" = "purple", "CR" = "orange", "QR" = "pink")) +
-      scale_x_discrete(guide = guide_axis(n.dodge = 3))
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+      scale_color_manual(values = method_colors_sel) +
+      scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # Coverage development with CET
     cdev_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
@@ -333,27 +384,32 @@ for (data_list in data_lists){
                            "true_kernel" = ksmooth(all_res[[data_list$name]]$intervals_BA$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BA$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$x
     )
     
-    title = paste("Coverage development with CET", data_list$name)
+    title = paste("Coverage development with CET for", data_list$name)
     print(ggplot(data = cdev_data, aes(x = true_kernel)) +
       geom_line(aes(y = EN_covered*100, color = "EN")) +
       geom_line(aes(y = BA_covered*100, color = "BA")) +
       geom_line(aes(y = CP_covered*100, color = "CP")) +
-      geom_line(aes(y = CR_covered*100, color = "CR")) +
+        geom_line(aes(x = true_kernel + 0.05, y = CR_covered*100, color = "CR")) +
       geom_line(aes(y = QR_covered*100, color = "QR")) +
-      scale_color_manual(values = c("EN" = "yellow", 
-                                    "BA" = "black", 
-                                    "CP" = "green", 
-                                    "CR" = "orange",
-                                    "QR" = "red")) +
+      scale_color_manual(values = method_colors_sel) +
       labs(title = title,
-           y = "Coverage",
-           x = "True",
-           color = "Method")) +
-      theme(axis.text.x = element_text(size=rel(2)),
-            axis.text.y = element_text(size=rel(2)),
-            axis.title.y = element_text(size=rel(2))
-      )
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           y = "Coverage in %",
+           x = "True transactions",
+           color = "Method") +
+        theme(axis.text.x = element_text(size=rel(1.7)),
+              axis.text.y = element_text(size=rel(1.7)),
+              axis.title.x = element_text(size=rel(1.7)),
+              axis.title.y = element_text(size=rel(1.7)),
+              plot.title = element_text(size=rel(1.7)),
+              #legend.title = element_blank(),
+              legend.position="none",
+              axis.text=element_text(size=12),
+              axis.title=element_text(size=12),
+              panel.background = element_rect(fill = "white", colour = "black"),
+              panel.grid.major = element_line(colour = "white", size = 0.5))
+    )
+
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 4.5)
     
     # Model performance
     mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
@@ -370,8 +426,13 @@ for (data_list in data_lists){
       geom_point() +
       labs(title = title,
            x = "True",
-           y = "Relative error")
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           y = "Relative error") +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # Residuals
     res_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
@@ -397,17 +458,22 @@ for (data_list in data_lists){
       geom_density(aes(x = CP, color = "CP")) +
       geom_density(aes(x = CR, color = "CR")) +
       geom_density(aes(x = QR, color = "QR")) +
-      scale_color_manual(values = c("EN" = "yellow",
-                                    "BA" = "black",
-                                    "CP" = "green",
-                                    "QR" = "red")) +
+      scale_color_manual(values = c("EN" = "grey",
+                                    "BA" = "green",
+                                    "CP" = "red",
+                                    "QR" = "blue")) +
       xlim(0,2) +
       ylim(0, max_number * 1.4) +
       labs(title = title,
            x = "Scaled residual",
            y = "Frequency",
-           color = "Method"))
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           color = "Method")) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # Rectangles
     rec_data1 = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
@@ -428,9 +494,13 @@ for (data_list in data_lists){
       geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 1), alpha = 0.008) +
       geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
       labs(title = title,
-           y = "Position with respect to PI")) #+
-      #ylim(-0.25,1)
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           y = "Position with respect to PI")) +
+      theme(legend.title = element_blank(),
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
     
     # BA, CP, CR, QR
       methods = c("BA","CP","CR","QR")
@@ -444,8 +514,13 @@ for (data_list in data_lists){
         geom_half_violin(trim = TRUE, aes(fill = Method), side = "r", scale = 1.5) +
         labs(title = paste("Density covered by interval", data_list$name),
              y = "Position with respect to PI") +
-        ylim(-0.25,1.5))
-      ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+        ylim(-0.25,1.5)) +
+        theme(legend.title = element_blank(),
+              axis.text=element_text(size=12),
+              axis.title=element_text(size=12),
+              panel.background = element_rect(fill = "white", colour = "black"),
+              panel.grid.major = element_line(colour = "white", size = 0.5))
+      ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 3.5)
       
     # Width-CET
     width_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
@@ -465,36 +540,73 @@ for (data_list in data_lists){
       geom_line(aes(y = CP_width, color = "CP")) +
       geom_line(aes(y = CR_width, color = "CR")) +
       geom_line(aes(y = QR_width, color = "QR")) +
-      scale_color_manual(values = c("EN" = "yellow", 
-                                    "BA" = "black", 
-                                    "CP" = "green", 
-                                    "CR" = "orange",
-                                    "QR" = "red")) +
+      scale_color_manual(values = method_colors_sel) +
       labs(title = title,
            y = "Width",
-           x = "CET",
-           color = "Method")) #+
-    #xlim(0,20))
-    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
+           x = "True transactions",
+           color = "Method")) +
+      theme(axis.text.x = element_text(size=rel(1.7)),
+            axis.text.y = element_text(size=rel(1.7)),
+            axis.title.x = element_text(size=rel(1.7)),
+            axis.title.y = element_text(size=rel(1.7)),
+            plot.title = element_text(size=rel(1.7)),
+            #legend.title = element_blank(),
+            legend.position="none",
+            axis.text=element_text(size=12),
+            axis.title=element_text(size=12),
+            panel.background = element_rect(fill = "white", colour = "black"),
+            panel.grid.major = element_line(colour = "white", size = 0.5))
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/LaTeX", paste0(title,".png")), width = 7, height = 4.5)
   }
 }
 
 
 #############
 
-mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
-                        "Pred" = all_res[[data_list$name]]$intervals_EN$CET_prediction,
-                        "True" = all_res[[data_list$name]]$intervals_EN$CET_true,
-                        "True_rel" = (all_res[[data_list$name]]$intervals_EN$CET_true)/max(all_res[[data_list$name]]$intervals_EN$CET_true),
-                        "Diff_abs" = all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true,
-                        "Diff_rel" = (all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction,
-                        "Diff_rel_pos" = abs((all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction)
-                        )
-title = paste("Relative model error for", data_list$name)
-plot(mperf_data$True, mperf_data$Diff_rel_pos)
-ggplot(mperf_data, aes(x = True, y = Diff_rel_pos)) +
-  geom_point() +
-  labs(title = title,
-       x = "True",
-       y = "Relative error")
-  
+# mperf_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
+#                         "Pred" = all_res[[data_list$name]]$intervals_EN$CET_prediction,
+#                         "True" = all_res[[data_list$name]]$intervals_EN$CET_true,
+#                         "True_rel" = (all_res[[data_list$name]]$intervals_EN$CET_true)/max(all_res[[data_list$name]]$intervals_EN$CET_true),
+#                         "Diff_abs" = all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true,
+#                         "Diff_rel" = (all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction,
+#                         "Diff_rel_pos" = abs((all_res[[data_list$name]]$intervals_EN$CET_prediction - all_res[[data_list$name]]$intervals_EN$CET_true)/all_res[[data_list$name]]$intervals_EN$CET_prediction)
+#                         )
+# title = paste("Relative model error for", data_list$name)
+# plot(mperf_data$True, mperf_data$Diff_rel_pos)
+# ggplot(mperf_data, aes(x = True, y = Diff_rel_pos)) +
+#   geom_point() +
+#   labs(title = title,
+#        x = "True",
+#        y = "Relative error") +
+#   theme(legend.title = element_blank(),
+#         axis.text=element_text(size=12),
+#         axis.title=element_text(size=12),
+#         panel.background = element_rect(fill = "white", colour = "black"),
+#         panel.grid.major = element_line(colour = "white", size = 0.5))
+
+print(ggplot(data = cdev_data, aes(x = true_kernel)) +
+        geom_line(aes(y = BS_covered*100, color = "BS"), linewidth = 4) +
+        geom_line(aes(y = EN_covered*100, color = "EN"), linewidth = 4) +
+        geom_line(aes(y = BA_covered*100, color = "BA"), linewidth = 4) +
+        geom_line(aes(y = CP_covered*100, color = "CP"), linewidth = 4) +
+        geom_line(aes(x = true_kernel + 0.05, y = CR_covered*100, color = "CR"), linewidth = 4) +
+        geom_line(aes(y = QR_covered*100, color = "QR"), linewidth = 4) +
+        scale_color_manual(values = method_colors_all, 
+                           breaks = c("BS", "EN", "BA", "CP", "CR", "QR")) +
+        labs(title = title,
+             y = "Coverage in %",
+             x = "True",
+             color = "Method")) +
+  theme(axis.text.x = element_text(size=rel(2)),
+        axis.text.y = element_text(size=rel(2)),
+        axis.title.y = element_text(size=rel(2)),
+        legend.title = element_blank(),
+        legend.text=element_text(size=13),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=12),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        panel.grid.major = element_line(colour = "white", size = 0.5),
+        legend.position="bottom") +
+  guides(color = guide_legend(nrow = 1, override.aes = list(size = 10)))
+
+         

@@ -163,7 +163,7 @@ time_table = data.table("Method" = intervals_methods,
 times = c(0,0,0,0,0,0)
 all_res = list()
 
-data_lists2 = list(el_list = el_list, multi_list = multi_list, apparel_list = apparel_list)
+data_lists2 = list(gift_list = gift_list, el_list = el_list, multi_list = multi_list, apparel_list = apparel_list)
 for (data_list in data_lists2){
   print(data_list$name)
   data1 = data_list$data1

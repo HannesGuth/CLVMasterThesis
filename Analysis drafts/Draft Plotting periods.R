@@ -28,7 +28,18 @@ ggplot(combined_long, aes(x = variable, y = value*100, fill = Dataset)) +
   geom_boxplot(position = position_dodge(width = 0.75)) +
   labs(x = "Methods", y = "Coverage in %", title = title) +
   scale_fill_manual(values = c("gift" = "blue", "el" = "red")) +
-  scale_x_discrete(labels = c("BA", "QR", "CP", "CR"))
+  scale_x_discrete(labels = c("BA", "QR", "CP", "CR")) +
+  theme(axis.text.x = element_text(size=rel(1.7)),
+        axis.text.y = element_text(size=rel(1.7)),
+        axis.title.x = element_text(size=rel(1.7)),
+        axis.title.y = element_text(size=rel(1.7)),
+        plot.title = element_text(size=rel(1.7)),
+        #legend.title = element_blank(),
+        legend.position="none",
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=12),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        panel.grid.major = element_line(colour = "white", size = 0.5))
 ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
 
 # Without splitweek1 = 20
@@ -47,7 +58,18 @@ ggplot(combined_long, aes(x = variable, y = value*100, fill = Dataset)) +
   geom_boxplot(position = position_dodge(width = 0.75)) +
   labs(x = "Methods", y = "Coverage in %", title = title) +
   scale_fill_manual(values = c("gift" = "blue", "el" = "red")) +
-  scale_x_discrete(labels = c("BA", "QR", "CP", "CR"))
+  scale_x_discrete(labels = c("BA", "QR", "CP", "CR")) +
+  theme(axis.text.x = element_text(size=rel(1.7)),
+        axis.text.y = element_text(size=rel(1.7)),
+        axis.title.x = element_text(size=rel(1.7)),
+        axis.title.y = element_text(size=rel(1.7)),
+        plot.title = element_text(size=rel(1.7)),
+        #legend.title = element_blank(),
+        legend.position="none",
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=12),
+        panel.background = element_rect(fill = "white", colour = "black"),
+        panel.grid.major = element_line(colour = "white", size = 0.5))
 ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots", paste0(title,".png")), width = 7, height = 3.5)
 
 # Relation between period sum and coverage

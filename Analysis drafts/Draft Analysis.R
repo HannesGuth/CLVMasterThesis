@@ -47,3 +47,10 @@ ranking_table[, Rank_LowerCoverage := rank(-`Lower coverage`, ties.method = "min
 ranking_table[, Rank_Time := rank(Time, ties.method = "min")]
 
 ranking_table = ranking_table[,-(2:11)]
+
+path = "D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/averages_table.csv"
+write.csv(averages_table, path)
+path = "D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/ranking_table.csv"
+write.csv(ranking_table, path)
+path = "D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/cv_table.csv"
+write.csv(cv_table, path)

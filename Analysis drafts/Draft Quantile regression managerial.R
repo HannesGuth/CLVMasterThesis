@@ -322,6 +322,8 @@ if (whole_period2){
 }else{
   pred = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
 }
+
+CET_full_lower = pred$CET
 pred$CET = (pred$CET < CET_tolerance) * 0 + (pred$CET > CET_tolerance) * pred$CET
 sum(pred$actual.x <= pred$CET)/nrow(pred)
 CET_lower = pred$CET
@@ -349,17 +351,21 @@ if (whole_period2){
 }else{
   pred = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
 }
+
+PTS_full_lower = pred$predicted.total.spending
 pred$predicted.total.spending = (pred$predicted.total.spending < CET_tolerance) * 0 + (pred$predicted.total.spending > CET_tolerance) * pred$predicted.total.spending
 sum(pred$actual.total.spending <= pred$predicted.total.spending)/nrow(pred)
 PTS_lower = pred$predicted.total.spending
 
 intervals_QR_m = data.table("Id" = results_general$Id,
                           "CET_lower" = round(CET_lower, 4),
+                          "CET_lower_actual" = CET_full_lower,
                           "CET_upper" = CET_upper,
                           "CET_true" = results_general$actual.x,
                           "CET_prediction" = results.data2$CET,
                           "CET_covered" = results.data2$actual.x >= CET_lower & results.data2$actual.x < CET_upper,
                           "PTS_lower" = round(PTS_lower, 4),
+                          "PTS_lower_actual" = PTS_full_lower,
                           "PTS_upper" = PTS_upper,
                           "PTS_true" = results_general$actual.total.spending,
                           "PTS_prediction" = results.data2$predicted.total.spending,

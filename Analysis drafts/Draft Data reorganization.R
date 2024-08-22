@@ -38,3 +38,6 @@ for (i in 1:nrow(coverage_table_rounded)){
     coverage_table_rounded[i,j] = round(coverage_table_rounded[i,j],4)
   }
 }
+
+path = "D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/coverage_table.csv"
+write.csv(coverage_table, path)
