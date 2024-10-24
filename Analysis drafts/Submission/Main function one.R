@@ -13,10 +13,11 @@ library(BTYD)
 library(BTYDplus)
 library(fmsb)
 
+# Set working directory
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
 # Load data
 source(paste0(getwd(), "/Data preparation.r"))
-
-
 
 # Set defaults
 alpha = 0.1
@@ -62,6 +63,7 @@ for (data_list in data_lists2){
   
   if (data_list$BS){
     time1 = Sys.time()
+    set.seed(1)
     source(paste0(getwd(), "/BS.r"))
     time2 = Sys.time()
     times[1] = as.numeric(difftime(time2, time1, units = "secs"))
@@ -71,30 +73,36 @@ for (data_list in data_lists2){
   }
   print(paste("Bootstrapping done for", data_list$name))
   time1 = Sys.time()
+  set.seed(1)
   source(paste0(getwd(), "/EN.r"))
   time2 = Sys.time()
   times[2] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Ensemble done for", data_list$name))
   time1 = Sys.time()
+  set.seed(1)
   source(paste0(getwd(), "/BA.r"))
   time2 = Sys.time()
   times[3] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Bayesian appraoch done for", data_list$name))
   time1 = Sys.time()
+  set.seed(1)
   source(paste0(getwd(), "/QR.r"))
   time2 = Sys.time()
   times[4] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Quantile regression done for", data_list$name))
   time1 = Sys.time()
+  set.seed(1)
   source(paste0(getwd(), "/CP one.r"))
   time2 = Sys.time()
   times[5] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Conformal prediction one done for", data_list$name))
   time1 = Sys.time()
+  set.seed(1)
   source(paste0(getwd(), "/CR.r"))
   time2 = Sys.time()
   times[6] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Conformal prediction rep done for", data_list$name))
+  set.seed(1)
   source(paste0(getwd(), "/Benchmarking.r"))
   name = as.character(data_list$name)
   time_table[[name]] = times

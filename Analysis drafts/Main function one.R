@@ -12,6 +12,9 @@ library(gghalves)
 library(BTYD)
 library(BTYDplus)
 library(fmsb)
+library(rpart)
+library(gbm)
+library(neuralnet)
 
 #splitweek = 130 # 130 for gift2
 # Load data

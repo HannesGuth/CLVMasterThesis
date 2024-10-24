@@ -1,9 +1,9 @@
-;Metric;Old learning;Old holdout;Total old;New learning;New holdout;Total new
-1;Customers;0;0;814;0;0;2836
-2;Transactions;1725;3739;5464;5561;6789;12350
-3;Available timeframe and split in weeks;52;104;156;52;104;156
-4;Average number of purchases per customer;0.61;1.32;1.93;1.96;2.39;4.35
-5;Standard deviation of repeated purchases;1.62;2.75;3.76;1.58;2.82;3.66
-6;Zero repeaters;383;150;256;1545;544;904
-7;First entry date;0;0;01.01.2000;0;0;01.01.2003
-8;Last entry date;0;0;15.01.2000;0;0;15.01.2003
+"","Metric","Old learning","Old holdout","Total old","New learning","New holdout","Total new"
+"1","Customers","0","0","814","0","0","2836"
+"2","Transactions","1725","3739","5464","5561","6789","12350"
+"3","Available timeframe and split in weeks","52","104","156","52","104","156"
+"4","Average number of purchases per customer","0.61","1.32","1.93","1.96","2.39","4.35"
+"5","Standard deviation of repeated purchases","1.62","2.75","3.76","1.58","2.82","3.66"
+"6","Zero repeaters","383","150","256","1545","544","904"
+"7","First entry date","0","0","2000-01-01","0","0","2003-01-01"
+"8","Last entry date","0","0","2000-01-15","0","0","2003-01-15"

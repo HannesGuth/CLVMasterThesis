@@ -1,9 +1,9 @@
-;Metric;Old learning;Old holdout;Total old;New learning;New holdout;Total new
-1;Customers;0;0;3644;0;0;3885
-2;Transactions;7365;2143;9508;7632;839;8471
-3;Available timeframe and split in weeks;52;104;156;60;104;164
-4;Average number of purchases per customer;1.9;0.55;2.45;1.96;0.22;2.18
-5;Standard deviation of repeated purchases;1.92;2.6;2.44;1.97;1.75;2.23
-6;Zero repeaters;2020;212;1823;2223;138;2103
-7;First entry date;0;0;01.12.2005;0;0;01.12.2008
-8;Last entry date;0;0;31.12.2005;0;0;31.12.2008
+"","Metric","Old learning","Old holdout","Total old","New learning","New holdout","Total new"
+"1","Customers","0","0","3644","0","0","3885"
+"2","Transactions","7365","2143","9508","7632","839","8471"
+"3","Available timeframe and split in weeks","52","104","156","60","104","164"
+"4","Average number of purchases per customer","1.9","0.55","2.45","1.96","0.22","2.18"
+"5","Standard deviation of repeated purchases","1.92","2.6","2.44","1.97","1.75","2.23"
+"6","Zero repeaters","2020","212","1823","2223","138","2103"
+"7","First entry date","0","0","2005-12-01","0","0","2008-12-01"
+"8","Last entry date","0","0","2005-12-31","0","0","2008-12-31"
