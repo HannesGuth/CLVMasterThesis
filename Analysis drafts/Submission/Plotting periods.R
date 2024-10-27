@@ -1,5 +1,5 @@
 big_grid_gift = readRDS(paste0(getwd(), "/Results/big_grid_gift", ".RData"))
-big_grid_el = readRDS(paste0(getwd(), "/Results/big_el_gift", ".RData"))
+big_grid_el = readRDS(paste0(getwd(), "/Results/big_grid_el", ".RData"))
 
 big_grid_gift = big_grid_gift[CP_CET != 0]
 

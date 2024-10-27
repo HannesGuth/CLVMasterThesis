@@ -46,7 +46,9 @@ repeat {
     #########
     print(4)
     # Split the data set in training, validation and test
+    set.seed(1)
     smp = sample(customers, ntraining, replace = FALSE)
+    set.seed(1)
     train = data1[Id %in% smp,]
     test = data1[!(Id %in% smp),]
     

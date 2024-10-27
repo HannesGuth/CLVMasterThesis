@@ -12,7 +12,7 @@ est.pnbd = pnbd(clv.data = clv.data2, verbose = TRUE)
 
 estpnbd_cov_table = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))
 estpnbd_cov_table = estpnbd_cov_table[-1,]
-
+set.seed(1)
 # Create tables containing the parameter estimates that are supposed to follow a normal distribution considering the covariance matrix
 while (nrow(estpnbd_cov_table) < n){
   row_pnbd = data.table(t(mvrnorm(n = 1, as.numeric(est.pnbd@prediction.params.model), vcov(est.pnbd), tol = 1e-06, empirical = FALSE)))

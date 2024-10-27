@@ -1,4 +1,3 @@
-print("1")
 # data("apparelTrans")
 # tryCatch(
 #   {
@@ -6,8 +5,11 @@ print("1")
     colnames(datecustomer) = c("cust", "date")
     
     # Convert data into BTYD format
+    set.seed(1)
     data2cbs = elog2cbs(datecustomer, T.cal = min(datecustomer$date) + 7*splitweek2)
+    set.seed(1)
     params.pnbd = BTYD::pnbd.EstimateParameters(data2cbs[, c("x", "t.x", "T.cal")])
+    set.seed(1)
     BTYD::pnbd.cbs.LL(params.pnbd, data2cbs[, c("x", "t.x", "T.cal")])
     
     # Calculate CET
@@ -25,7 +27,9 @@ print("1")
     
     
     # Draw posterior parameter distribution and posterior predictive distribution
+    set.seed(1)
     pnbd.draws = pnbd.mcmc.DrawParameters(data2cbs) # gives an error
+    set.seed(1)
     pnbd.xstar.draws = mcmc.DrawFutureTransactions(data2cbs, pnbd.draws)
     
     # Collect the data

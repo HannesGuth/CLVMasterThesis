@@ -128,13 +128,13 @@ for (data_list in data_lists){
         aes(ymin = Low, ymax = High, color = Method),
         position = position_dodge(0.3),
         linewidth = 0.8) +
-      geom_point(aes(y = True), color = "black") +
+      geom_point(aes(y = True, color = "True"), position = position_dodge(0.3)) +
       labs(title = title, x = "Customer", y = "CET") +
-      scale_color_manual(values = method_colors_all) +
+      scale_color_manual(values = c(method_colors_all, "True" = "black")) +
       scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
       theme(legend.title = element_blank(),
-            axis.text=element_text(size=12),
-            axis.title=element_text(size=12),
+            axis.text = element_text(size = 12),
+            axis.title = element_text(size = 12),
             panel.background = element_rect(fill = "white", colour = "black"),
             panel.grid.major = element_line(colour = "white", size = 0.5))
     ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
