@@ -82,6 +82,7 @@ spider_data$Time = max_time - spider_data$Time
 spider_data = rbind(c(1, 1, 1, max_PIARW-min_PIARW, max_PIARWW-min_PIARWW, max_MSIS, max_SWR, 1, 1, max_time),
                     c(0, 0, 0, 0, 0, 0, min_SWR, 0, 0, 0),
                     spider_data)
+spider_data$Time = NULL
 spider_colors = c("black", "grey", "green", "blue", "red", "yellow")
 radarchart(spider_data, pcol = spider_colors, cglcol = "grey", vlcex = 1.8, plwd = 3)
 legend(x = -2.0, y = 0.4, horiz = FALSE, legend = methodlist, bty = "n", pch=20 , col = spider_colors, text.col = "black", cex=1.5, pt.cex=3, x.intersp = 0.5, text.width = 0.1)

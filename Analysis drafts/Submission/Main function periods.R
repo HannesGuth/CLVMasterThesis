@@ -13,8 +13,9 @@ library(BTYDplus)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 # Load data
-# source(paste0(getwd(), "/Data preparation.r"))
+source(paste0(getwd(), "/Data preparation.r"))
 
+alpha = 0.1
 rob_gift_list = list(data1 = gift1, data2 = gift2, s1 = c(20,60,160), s2 = c(40,60,120), pp = c(20,40,Inf), name = "gift")
 rob_el_list = list(data1 = el1, data2 = el2, s1 = c(50,150), s2 = c(20,50,100), pp = c(20,40,Inf), name = "el")
 robustness_list = list(gift = rob_gift_list, el = rob_el_list)
@@ -22,7 +23,6 @@ rob_data_list = c("gift", "el")
 
 for (dataset in rob_data_list){
   rob_list = robustness_list[[dataset]]
-  set.seed(1)
   print(rob_list$name)
   data1 = rob_list$data1
   data2 = rob_list$data2
@@ -71,7 +71,7 @@ for (dataset in rob_data_list){
       whole_period1 = ifelse(as.numeric(big_grid[run,3]) == Inf, TRUE, FALSE)
       whole_period2 = ifelse(as.numeric(big_grid[run,4]) == Inf, TRUE, FALSE)
       
-      clv.data2 <- clvdata(data2,
+      clv.data2 = clvdata(data2,
                            date.format="ymd",
                            time.unit = "week",
                            estimation.split = splitweek2,
@@ -80,14 +80,13 @@ for (dataset in rob_data_list){
                            name.price = "Price")
       
       # Estimate standard Pareto/NBD Model
-      est.data2 <- pnbd(clv.data = clv.data2, verbose = TRUE)
+      est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE)
       if (whole_period2){
-        results_general <- predict(est.data2, predict.spending = TRUE)
+        results_general = predict(est.data2, predict.spending = TRUE)
       }else{
-        results_general <- predict(est.data2, predict.spending = TRUE, prediction.end = end2)
+        results_general = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
       }
       
-      print(results_general)
       
       if (run == 1 || ((run > 1) & (big_grid[run-1,2] != big_grid[run,2]) || (big_grid[run-1,4] != big_grid[run,4]))){
         source(paste0(getwd(), "/BA.r"))
@@ -198,7 +197,7 @@ source(paste0(getwd(), "/Plotting periods.r"))
 #     whole_period1 = ifelse(as.numeric(big_grid[run,3]) == Inf, TRUE, FALSE)
 #     whole_period2 = ifelse(as.numeric(big_grid[run,4]) == Inf, TRUE, FALSE)
 #     
-#     clv.data2 <- clvdata(data2,
+#     clv.data2 = clvdata(data2,
 #                          date.format="ymd",
 #                          time.unit = "week",
 #                          estimation.split = splitweek2,
@@ -207,11 +206,11 @@ source(paste0(getwd(), "/Plotting periods.r"))
 #                          name.price = "Price")
 #     
 #     # Estimate standard Pareto/NBD Model
-#     est.data2 <- pnbd(clv.data = clv.data2, verbose = TRUE)
+#     est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE)
 #     if (whole_period2){
-#       results_general <- predict(est.data2, predict.spending = TRUE)
+#       results_general = predict(est.data2, predict.spending = TRUE)
 #     }else{
-#       results_general <- predict(est.data2, predict.spending = TRUE, prediction.end = end2)
+#       results_general = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
 #     }
 #     
 #     print(results_general)

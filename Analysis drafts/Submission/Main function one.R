@@ -125,3 +125,5 @@ for (data_list in data_lists2){
 source(paste0(getwd(), "/Data reorganization.r"))
 source(paste0(getwd(), "/Results analysis.r"))
 source(paste0(getwd(), "/Plotting.r"))
+source(paste0(getwd(), "/Application in Marketing.r"))
+source(paste0(getwd(), "/Comparison.r"))

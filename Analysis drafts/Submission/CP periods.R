@@ -154,7 +154,7 @@ clv.data2 <- clvdata(data2,
 est.data2 = pnbd(clv.data = clv.data2)
 
 if (whole_period2){
- results.data2 = predict(est.data2, predict.spending = TRUE)
+  results.data2 = predict(est.data2, predict.spending = TRUE)
 }else{
   results.data2 = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
 }

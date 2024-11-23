@@ -23,23 +23,22 @@ big_grid_el_long$Dataset = "el"
 
 combined_long = rbind(big_grid_gift_long, big_grid_el_long)
 
-title = "Performance over different periods (all values)"
+title = "Performance over different periods"
 ggplot(combined_long, aes(x = variable, y = value*100, fill = Dataset)) +
   geom_boxplot(position = position_dodge(width = 0.75)) +
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +  # Horizontal line at 90%
+  annotate("text", x = Inf, y = 90, label = "90%", hjust = 17.5, vjust = -0.5, color = "red") +  # Add label for horizontal line
   labs(x = "Methods", y = "Coverage in %", title = title) +
-  scale_fill_manual(values = c("gift" = "blue", "el" = "red")) +
+  scale_fill_manual(values = c("gift" = "green", "el" = "yellow")) +
   scale_x_discrete(labels = c("BA", "QR", "CP", "CR")) +
-  theme(axis.text.x = element_text(size=rel(1.7)),
-        axis.text.y = element_text(size=rel(1.7)),
-        axis.title.x = element_text(size=rel(1.7)),
-        axis.title.y = element_text(size=rel(1.7)),
-        plot.title = element_text(size=rel(1.7)),
-        #legend.title = element_blank(),
-        legend.position="none",
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=12),
-        panel.background = element_rect(fill = "white", colour = "black"),
-        panel.grid.major = element_line(colour = "white", size = 0.5))
+  coord_cartesian(xlim = c(0.7, length(unique(combined_long$variable)))) +
+  theme(
+    axis.title.y = element_text(color = "black"),
+    legend.title = element_blank(),
+    axis.text=element_text(size=12),
+    axis.title=element_text(size=12),
+    panel.background = element_rect(fill = "white", colour = "black"),
+    panel.grid.major = element_line(colour = "white", size = 0.5))
 ggsave(filename = file.path(paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
 
 # Without splitweek1 = 20
@@ -57,19 +56,18 @@ title = "Performance over different periods (without low l1-values for gift)"
 ggplot(combined_long, aes(x = variable, y = value*100, fill = Dataset)) +
   geom_boxplot(position = position_dodge(width = 0.75)) +
   labs(x = "Methods", y = "Coverage in %", title = title) +
-  scale_fill_manual(values = c("gift" = "blue", "el" = "red")) +
+  scale_fill_manual(values = c("gift" = "green", "el" = "yellow")) +
   scale_x_discrete(labels = c("BA", "QR", "CP", "CR")) +
-  theme(axis.text.x = element_text(size=rel(1.7)),
-        axis.text.y = element_text(size=rel(1.7)),
-        axis.title.x = element_text(size=rel(1.7)),
-        axis.title.y = element_text(size=rel(1.7)),
-        plot.title = element_text(size=rel(1.7)),
-        #legend.title = element_blank(),
-        legend.position="none",
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=12),
-        panel.background = element_rect(fill = "white", colour = "black"),
-        panel.grid.major = element_line(colour = "white", size = 0.5))
+  geom_hline(yintercept = 90, linetype = "dashed", color = "red") +  # Horizontal line at 90%
+  annotate("text", x = Inf, y = 90, label = "90%", hjust = 17.5, vjust = -0.5, color = "red") +  # Add label for horizontal line
+  coord_cartesian(xlim = c(0.7, length(unique(combined_long$variable)))) +
+  theme(
+    axis.title.y = element_text(color = "black"),
+    legend.title = element_blank(),
+    axis.text=element_text(size=12),
+    axis.title=element_text(size=12),
+    panel.background = element_rect(fill = "white", colour = "black"),
+    panel.grid.major = element_line(colour = "white", size = 0.5))
 ggsave(filename = file.path(paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
 
 # Relation between period sum and coverage
