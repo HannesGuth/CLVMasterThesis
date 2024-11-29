@@ -1,3 +1,4 @@
+all_res = readRDS(paste0(getwd(), "/Results - Kopie/all_res.RData"))
 path = paste0(getwd(), "/Data/durdata1_final.csv")
 el_cov = fread(path)
 el_cov$HOUSEHOLD_ID = as.character(el_cov$HOUSEHOLD_ID)
@@ -19,3 +20,19 @@ summary(mod)
 ggplot(el_cov, aes(x = GENDER_INDIVIDUAL, y = abs(diff))) +
   geom_point()
 
+ggplot(el_cov, aes(x = AGE_H_HEAD, y = abs(diff))) +
+  geom_point()
+
+el_cov[, avg_diff := sapply(AGE_H_HEAD, function(age) {
+  weights <- dnorm((AGE_H_HEAD - age) / bandwidth)
+  sum(weights * diff) / sum(weights)
+})]
+
+el_cov[, avg_diff_abs := sapply(AGE_H_HEAD, function(age) {
+  weights <- dnorm((AGE_H_HEAD - age) / bandwidth)
+  sum(weights * abs(diff)) / sum(weights)
+})]
+
+ggplot(el_cov) +
+  geom_point(aes(x = AGE_H_HEAD, y = avg_diff)) +
+  geom_line(aes(x = AGE_H_HEAD, y = avg_diff_abs))

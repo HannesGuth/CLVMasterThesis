@@ -1,3 +1,19 @@
+packages <- c(
+  "data.table", "compiler", "ggplot2", "profvis", 
+  "rockchalk", "doParallel", "geomtextpath", "dbscan", 
+  "tidyr", "gghalves", "BTYD", "BTYDplus", "fmsb"
+)
+
+packageurl = "https://cran.r-project.org/src/contrib/Archive/CLVTools/CLVTools_0.11.0.tar.gz"
+install.packages(packageurl, repos=NULL, type="source")
+
+for (pkg in packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+}
+
 library(CLVTools)
 library(data.table)
 library(compiler)
@@ -33,7 +49,7 @@ all_res = list()
 data_lists2 = list(gift_list = gift_list, el_list = el_list, multi_list = multi_list, apparel_list = apparel_list)
 for (data_list in data_lists2){
   set.seed(1)
-  print(data_list$name)
+  print(paste(data_list$name, "(Main function one)"))
   data1 = data_list$data1
   data2 = data_list$data2
   splitweek1 = data_list$l1
@@ -68,7 +84,7 @@ for (data_list in data_lists2){
     time2 = Sys.time()
     times[1] = as.numeric(difftime(time2, time1, units = "secs"))
   }else{
-    intervals_BS[,2:11]
+    #intervals_BS[,2:11]
     times[1] = NA #as.numeric(difftime(time2, time1, units = "secs"))
   }
   print(paste("Bootstrapping done for", data_list$name))

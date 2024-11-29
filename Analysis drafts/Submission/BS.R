@@ -11,9 +11,9 @@ est.data2 <- pnbd(clv.data = clv.data2, verbose = TRUE)
 
 # Bootstrapping to get prediction intervals
 if (whole_period2){
-  results_boots = predict(est.data2, uncertainty="boots")
+  results_boots = predict(est.data2, uncertainty="boots", num.boots = 100)
 }else{
-  results_boots = predict(est.data2, uncertainty="boots", prediction.end = end2)
+  results_boots = predict(est.data2, uncertainty="boots", prediction.end = end2, num.boots = 100)
 }
 
 intervals_BS = data.table("Id" = results_boots$Id,

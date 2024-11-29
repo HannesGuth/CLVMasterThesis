@@ -85,9 +85,9 @@ spider_data = rbind(c(1, 1, 1, max_PIARW-min_PIARW, max_PIARWW-min_PIARWW, max_M
 spider_data$Time = NULL
 spider_colors = c("black", "grey", "green", "blue", "red", "yellow")
 radarchart(spider_data, pcol = spider_colors, cglcol = "grey", vlcex = 1.8, plwd = 3)
-legend(x = -2.0, y = 0.4, horiz = FALSE, legend = methodlist, bty = "n", pch=20 , col = spider_colors, text.col = "black", cex=1.5, pt.cex=3, x.intersp = 0.5, text.width = 0.1)
-# save as image with 1000:...
-ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
+legend(x = 1.3, y = 0.9, horiz = FALSE, legend = methodlist, bty = "n", pch=20 , col = spider_colors, text.col = "black", cex=1.5, pt.cex=3, x.intersp = 0.5, y.intersp = 0.8, text.width = 0.1)
+# save as image with 1000:764
+# ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
 
 spider_data_gg = spider_data[3:nrow(spider_data),]
 spider_data_gg = cbind(Method = rownames(spider_data_gg), spider_data_gg)
@@ -138,7 +138,7 @@ for (data_list in data_lists){
             axis.title = element_text(size = 12),
             panel.background = element_rect(fill = "white", colour = "black"),
             panel.grid.major = element_line(colour = "white", size = 0.5))
-    ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
+    ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", gsub("%","",title), ".png")), width = 7, height = 3.5)
     
     cdev_data = data.table("Id" = all_res[[data_list$name]]$intervals_BS$Id,
                            "BS_covered" = ksmooth(all_res[[data_list$name]]$intervals_BS$CET_true, as.numeric(all_res[[data_list$name]]$intervals_BS$CET_covered), kernel = "normal", bandwidth = data_list$smoothwidth)$y,
@@ -370,16 +370,16 @@ for (data_list in data_lists){
         aes(ymin = Low, ymax = High, color = Method),
         position = position_dodge(0.3),
         linewidth = 0.8) +
-      geom_point(aes(y = True), color = "black") +
+      geom_point(aes(y = True, color = "black"), position = position_dodge(0.3)) +
       labs(title = title, x = "Customer", y = "CET") +
-      scale_color_manual(values = method_colors_sel) +
+      scale_color_manual(values = c(method_colors_sel, "True" = "black")) +
       scale_x_discrete(guide = guide_axis(n.dodge = 3)) +
       theme(legend.title = element_blank(),
             axis.text=element_text(size=12),
             axis.title=element_text(size=12),
             panel.background = element_rect(fill = "white", colour = "black"),
             panel.grid.major = element_line(colour = "white", size = 0.5))
-    ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
+    ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", gsub("%","",title), ".png")), width = 7, height = 3.5)
     
     # Coverage development with CET
     cdev_data = data.table("Id" = all_res[[data_list$name]]$intervals_EN$Id,
