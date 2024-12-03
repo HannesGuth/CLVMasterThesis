@@ -1,20 +1,38 @@
-clv.data2 <- clvdata(data2,
-                     date.format="ymd",
+clv.data2 = clvdata(data2,
+                     date.format = "ymd",
                      time.unit = "week",
                      estimation.split = splitweek2,
                      name.id = "Id",
                      name.date = "Date",
                      name.price = "Price")
 
-# Estimate standard Pareto/NBD Model
-est.data2 <- pnbd(clv.data = clv.data2, verbose = TRUE)
+results_boots = NULL
 
-# Bootstrapping to get prediction intervals
-if (whole_period2){
-  results_boots = predict(est.data2, uncertainty="boots", num.boots = 100)
-}else{
-  results_boots = predict(est.data2, uncertainty="boots", prediction.end = end2, num.boots = 100)
-}
+# Estimate standard Pareto/NBD Model
+tryCatch({
+  # Default estimation
+  set.seed(1)
+  est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE)
+  
+  # Prediction based on condition
+  if (whole_period2) {
+    results_boots = predict(est.data2, uncertainty = "boots", num.boots = 100) # Default
+  } else {
+    results_boots = predict(est.data2, uncertainty = "boots", prediction.end = end2, num.boots = 100) # Default
+  }
+}, error = function(e) {
+  message("Default method failed, attempting Nelder-Mead method")
+  # Alternative
+  set.seed(1)
+  est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE, optimx.args = list(method = "Nelder-Mead"))
+  
+  # Retry prediction with the alternative model
+  if (whole_period2) {
+    results_boots <<- predict(est.data2, uncertainty = "boots", num.boots = 100) # Alternative
+  } else {
+    results_boots <<- predict(est.data2, uncertainty = "boots", prediction.end = end2, num.boots = 100) # Alternative
+  }
+})
 
 intervals_BS = data.table("Id" = results_boots$Id,
                           "CET_lower" = results_boots$CET.CI.5,

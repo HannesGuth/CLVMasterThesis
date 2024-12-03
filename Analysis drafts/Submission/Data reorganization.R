@@ -23,9 +23,11 @@ for (name in names(all_res)){
   }
 }
 coverage_table$Time_rel = coverage_table$Time / (sort(coverage_table$Time)[2])
-coverage_table[13,3:length(coverage_table)] = NA
+# coverage_table[13,3:length(coverage_table)] = NA
 
-coverage_table = coverage_table[order(Method)]
+method_order = c("BS", "EN", "BA", "QR", "CP", "CR")
+coverage_table = coverage_table[order(factor(coverage_table$Method, levels = method_order)), ]
+# coverage_table = coverage_table[order(Method)]
 data_column = coverage_table$Data
 coverage_table$Data = coverage_table$Method
 coverage_table$Method = data_column
@@ -39,4 +41,5 @@ for (i in 1:nrow(coverage_table_rounded)){
   }
 }
 
+write.csv(coverage_table_rounded, paste0(getwd(), "/Results/coverage_table_rounded.csv"))
 write.csv(coverage_table, paste0(getwd(), "/Results/coverage_table.csv"))

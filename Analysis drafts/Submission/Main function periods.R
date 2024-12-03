@@ -1,13 +1,13 @@
-library(CLVTools)
-library(data.table)
-library(compiler)
-library(ggplot2)
-library(profvis)
-library(rockchalk)
-library(doParallel)
-library(geomtextpath)
-library(dbscan)
-library(BTYDplus)
+# library(CLVTools)
+# library(data.table)
+# library(compiler)
+# library(ggplot2)
+# library(profvis)
+# library(rockchalk)
+# library(doParallel)
+# library(geomtextpath)
+# library(dbscan)
+# library(BTYDplus)
 
 # Set working directory
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
@@ -141,7 +141,7 @@ for (dataset in rob_data_list){
 }
 
 source(paste0(getwd(), "/Plotting periods.r"))
-
+source(paste0(getwd(), "/Comparison.r"))
 
 # ###############
 # 

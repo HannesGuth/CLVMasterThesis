@@ -1,4 +1,4 @@
-packages <- c(
+packages = c(
   "data.table", "compiler", "ggplot2", "profvis", 
   "rockchalk", "doParallel", "geomtextpath", "dbscan", 
   "tidyr", "gghalves", "BTYD", "BTYDplus", "fmsb"
