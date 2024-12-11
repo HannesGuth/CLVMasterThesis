@@ -134,9 +134,9 @@ comp_perf_overview_cov = data.frame("Metric" = c("Better or equal", "Better", "W
                                 "ssq" = 0)
 
 for (i in 1:6){
-  comp_perf_overview_cov[1, (i+1)] = round(sum(perf_overview_cov[[i+5]] >= perf_overview_cov[[5]], na.rm = TRUE) / (nrow(perf_overview_cov) - 1),4)
-  comp_perf_overview_cov[2, (i+1)] = round(sum(perf_overview_cov[[i+5]] > perf_overview_cov[[5]], na.rm = TRUE) / (nrow(perf_overview_cov) - 1),4)
-  comp_perf_overview_cov[3, (i+1)] = round(sum(perf_overview_cov[[i+5]] < perf_overview_cov[[5]], na.rm = TRUE) / (nrow(perf_overview_cov) - 1),4)
+  comp_perf_overview_cov[1, (i+1)] = round(sum(perf_overview_cov[[i+5]] >= perf_overview_cov[[5]], na.rm = TRUE) / (nrow(perf_overview_cov)),4)
+  comp_perf_overview_cov[2, (i+1)] = round(sum(perf_overview_cov[[i+5]] > perf_overview_cov[[5]], na.rm = TRUE) / (nrow(perf_overview_cov)),4)
+  comp_perf_overview_cov[3, (i+1)] = round(sum(perf_overview_cov[[i+5]] < perf_overview_cov[[5]], na.rm = TRUE) / (nrow(perf_overview_cov)),4)
   comp_perf_overview_cov[4, (i+1)] = round(mean((perf_overview_cov[[i+5]] - perf_overview_cov[[5]]), na.rm = TRUE),4)
   comp_perf_overview_cov[5, (i+1)] = round(sd(perf_overview_cov[[i+5]] - perf_overview_cov[[5]], na.rm = TRUE),4)
 }
@@ -154,23 +154,6 @@ saveRDS(comp_perf_overview_cov, file = paste0(getwd(), "/Results/comp_perf_overv
 
 plot_selection_data = pivot_longer(perf_overview_cov, cols = hpp:ssq, names_to = "Metric", values_to = "Achieved_Number")
 
-# Plot
-method_colors = c("BS" = "pink", "EN" = "grey", "BA" = "green", "CP" = "red", "QR" = "blue")
-title = "Valuable customer selection by method and metric"
-ggplot(plot_selection_data, aes(x = Data, y = Achieved_Number, color = Method, shape = Metric)) +
-  geom_point(position = position_dodge(width = 0.5, preserve = "total"), size = 3,
-             aes(color = ifelse(Metric == "hpp", "black", Method), group = Method)) +
-  scale_color_manual(values = c(method_colors, "black" = "black"),
-                     breaks = c("BS", "EN", "BA", "QR", "CP"), name = "Method") +
-    theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=12),
-        panel.background = element_rect(fill = "white", colour = "black"),
-        panel.grid.major = element_line(colour = "white", size = 0.5)) +
-  scale_shape_manual(values = c("hpp" = 15, "hub" = 1, "hiw" = 16, "huu" = 3, "htp" = 4, "csw" = 17, "ssq" = 6),
-                     breaks = c("hpp", "hub", "hiw", "huu", "htp", "csw", "ssq")) +
-  labs(title = title, x = "Data", y = "Achieved Number", shape = "Metric")
-ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
-  
   
   
   

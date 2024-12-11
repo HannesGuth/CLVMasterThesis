@@ -134,9 +134,9 @@ comp_perf_overview = data.frame("Metric" = c("Better or equal", "Better", "Worse
                                 "ssq" = 0)
 
 for (i in 1:6){
-  comp_perf_overview[1, (i+1)] = round(sum(perf_overview[[i+5]] >= perf_overview[[5]], na.rm = TRUE) / (nrow(perf_overview) - 1),4)
-  comp_perf_overview[2, (i+1)] = round(sum(perf_overview[[i+5]] > perf_overview[[5]], na.rm = TRUE) / (nrow(perf_overview) - 1),4)
-  comp_perf_overview[3, (i+1)] = round(sum(perf_overview[[i+5]] < perf_overview[[5]], na.rm = TRUE) / (nrow(perf_overview) - 1),4)
+  comp_perf_overview[1, (i+1)] = round(sum(perf_overview[[i+5]] >= perf_overview[[5]], na.rm = TRUE) / (nrow(perf_overview)),4)
+  comp_perf_overview[2, (i+1)] = round(sum(perf_overview[[i+5]] > perf_overview[[5]], na.rm = TRUE) / (nrow(perf_overview)),4)
+  comp_perf_overview[3, (i+1)] = round(sum(perf_overview[[i+5]] < perf_overview[[5]], na.rm = TRUE) / (nrow(perf_overview)),4)
   comp_perf_overview[4, (i+1)] = round(mean((perf_overview[[i+5]] - perf_overview[[5]])/perf_overview[[5]], na.rm = TRUE),4)
   comp_perf_overview[5, (i+1)] = round(sd(perf_overview[[i+5]] - perf_overview[[5]], na.rm = TRUE),4)
 }
