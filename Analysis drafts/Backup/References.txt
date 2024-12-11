@@ -1,0 +1,711 @@
+@article{1L,
+  title={V (CLV): Examining variance in models of customer lifetime value},
+  author={McCarthy, Daniel and Fader, Peter and Hardie, Bruce},
+  journal={Available at SSRN 2739475},
+  year={2016}
+}
+
+@article{2L,
+  title={Forecast selection and representativeness},
+  author={Petropoulos, Fotios and Siemsen, Enno},
+  journal={Management Science},
+  volume={69},
+  number={5},
+  pages={2672--2690},
+  year={2023},
+  publisher={INFORMS}
+}
+
+@article{3L,
+author = {Fader, Peter and Hardie, Bruce and Shang, Jen},
+year = {2010},
+month = {11},
+pages = {1086-1108},
+title = {Customer-Base Analysis in a Discrete-Time Noncontractual Setting},
+volume = {29},
+journal = {Marketing Science},
+doi = {10.2139/ssrn.1373469}
+}
+
+@article{9L,
+    title = {Exploring the sources of uncertainty: Why does bagging for time series forecasting work?},
+    journal = {European Journal of Operational Research},
+    volume = {268},
+    number = {2},
+    pages = {545-554},
+    year = {2018},
+    issn = {0377-2217},
+    doi = {https://doi.org/10.1016/j.ejor.2018.01.045},
+    url = {https://www.sciencedirect.com/science/article/pii/S037722171830081X},
+    author = {Fotios Petropoulos and Rob J. Hyndman and Christoph Bergmeir},
+    keywords = {Forecasting, Bootstrapping, Aggregation, Uncertainty, Model combination}
+}
+
+@article{14L,
+  title={Customer lifetime value measurement},
+  author={Borle, Sharad and Singh, Siddharth S and Jain, Dipak C},
+  journal={Management science},
+  volume={54},
+  number={1},
+  pages={100--112},
+  year={2008},
+  publisher={INFORMS}
+}
+
+@article{16L,
+author = {Rust, Roland and Kumar, V. and Venkatesan, Rajkumar},
+year = {2011},
+month = {12},
+pages = {},
+title = {Will the frog change into a prince? Predicting future customer profitability},
+volume = {28},
+journal = {International Journal of Research in Marketing - INT J RES MARK},
+doi = {10.1016/j.ijresmar.2011.05.003}
+}
+
+@inbook{23L,
+author = {Castéran, Herbert and Meyer-Waarden, Lars and Reinartz, Werner},
+year = {2017},
+month = {04},
+pages = {1-33},
+title = {Modeling Customer Lifetime Value, Retention, and Churn},
+isbn = {978-3-319-05542-8},
+doi = {10.1007/978-3-319-05542-8_21-1},
+publisher = {Handbook of Market Research}
+}
+
+@article{20L,
+    author = {Sunil Gupta and Dominique Hanssens and Bruce Hardie and Wiliam Kahn and V. Kumar and Nathaniel Lin and Nalini Ravishanker and S. Sriram},
+    title = {Modeling Customer Lifetime Value},
+    journal = {Journal of Service Research},
+    volume = {9},
+    number = {2},
+    pages = {139-155},
+    year = {2006},
+    doi = {10.1177/1094670506293810},
+    URL = {https://doi.org/10.1177/1094670506293810},
+    eprint = {https://doi.org/10.1177/1094670506293810}
+}
+
+@article{24L,
+ ISSN = {07322399, 1526548X},
+ URL = {http://www.jstor.org/stable/183755},
+ author = {David C. Schmittlein and Robert A. Peterson},
+ journal = {Marketing Science},
+ number = {1},
+ pages = {41--67},
+ publisher = {INFORMS},
+ title = {Customer Base Analysis: An Industrial Purchase Process Application},
+ urldate = {2024-08-02},
+ volume = {13},
+ year = {1994}
+}
+
+@article{27L,
+author = {Rust, Roland and Lemon, Katherine and Zeithaml, Valarie},
+year = {2004},
+month = {01},
+pages = {109-127},
+title = {Return on Marketing: Using Customer Equity To Focus Marketing Strategy},
+volume = {68},
+journal = {Journal of Marketing - J MARKETING},
+doi = {10.1509/jmkg.68.1.109.24030}
+}
+
+@inproceedings{29L,
+ author = {Yania Souto and Ana Maria Moura and Fabio Porto},
+ title = { Managing Uncertainty in Spatio-Temporal Series},
+ booktitle = {Anais do IX Brazilian e-Science Workshop},
+ location = {Recife},
+ year = {2015},
+ keywords = {},
+ issn = {2763-8774},
+ pages = {31--40},
+ publisher = {SBC},
+ address = {Porto Alegre, RS, Brasil},
+ doi = {10.5753/bresci.2015.7204},
+ url = {https://sol.sbc.org.br/index.php/bresci/article/view/7204}
+}
+
+@article{33L,
+  title={Customer acquisition via display advertising using multi-armed bandit experiments},
+  author={Schwartz, Eric M and Bradlow, Eric T and Fader, Peter S},
+  journal={Marketing Science},
+  volume={36},
+  number={4},
+  pages={500--522},
+  year={2017},
+  publisher={INFORMS}
+}
+
+@article{34L,
+  title={The role of time-varying contextual factors in latent attrition models for customer base analysis},
+  author={Bachmann, Patrick and Meierer, Markus and N{\"a}f, Jeffrey},
+  journal={Marketing Science},
+  volume={40},
+  number={4},
+  pages={783--809},
+  year={2021},
+  publisher={INFORMS}
+}
+
+@article{21RU,
+  title={What uncertainties do we need in bayesian deep learning for computer vision?},
+  author={Kendall, Alex and Gal, Yarin},
+  journal={Advances in neural information processing systems},
+  volume={30},
+  year={2017}
+}
+
+@article{1CP,
+  title={A gentle introduction to conformal prediction and distribution-free uncertainty quantification},
+  author={Angelopoulos, Anastasios N and Bates, Stephen},
+  journal={arXiv preprint arXiv:2107.07511},
+  year={2021}
+}
+
+@book{8CP,
+  title={Algorithmic learning in a random world},
+  author={Vovk, Vladimir and Gammerman, Alexander and Shafer, Glenn},
+  volume={29},
+  year={2005},
+  publisher={Springer}
+}
+
+@article{9CP,
+  title={Conformal Prediction},
+  author={Tibshirani, Ryan},
+  journal={UC Berkeley},
+  year={2023}
+}
+
+@article{23CP,
+author = {Vovk, Volodya and Gammerman, Alex and Saunders, Craig},
+year = {1999},
+month = {06},
+pages = {},
+title = {Machine-Learning Applications of Algorithmic Randomness}
+}
+
+@article{24CP,
+  title={Transduction with confidence and credibility},
+  author={Saunders, Craig and Gammerman, Alex and Vovk, Volodya},
+  year={1999}
+}
+
+@inproceedings{26CP,
+  title={Inductive confidence machines for regression},
+  author={Papadopoulos, Harris and Proedrou, Kostas and Vovk, Volodya and Gammerman, Alex},
+  booktitle={Machine learning: ECML 2002: 13th European conference on machine learning Helsinki, Finland, August 19--23, 2002 proceedings 13},
+  pages={345--356},
+  year={2002},
+  organization={Springer}
+}
+
+@book{2PI,
+  title={Forecasting: principles and practice},
+  author={Hyndman, Rob J and Athanasopoulos, George},
+  year={2018},
+  publisher={OTexts}
+}
+
+@article{4PI,
+  title={Prediction intervals for time-series forecasting},
+  author={Chatfield, Chris},
+  journal={Principles of forecasting: A handbook for researchers and practitioners},
+  pages={475--494},
+  year={2001},
+  publisher={Springer}
+}
+
+@article{5PI,
+  title={25 years of time series forecasting},
+  author={De Gooijer, Jan G and Hyndman, Rob J},
+  journal={International journal of forecasting},
+  volume={22},
+  number={3},
+  pages={443--473},
+  year={2006},
+  publisher={Elsevier}
+}
+
+@article{6PI,
+  title={Point, interval, and density forecasts: Differences in bias, judgment noise, and overall accuracy},
+  author={Niu, Xiaoxiao and Harvey, Nigel},
+  journal={Futures \& Foresight Science},
+  volume={4},
+  number={3-4},
+  year={2022},
+  publisher={Wiley Online Library}
+}
+
+@article{9PI,
+  title={Do forecasts expressed as prediction intervals improve production planning decisions?},
+  author={Goodwin, Paul and {\"O}nkal, Dilek and Thomson, Mary},
+  journal={European Journal of Operational Research},
+  volume={205},
+  number={1},
+  pages={195--201},
+  year={2010},
+  publisher={Elsevier}
+}
+
+@article{11PI,
+  title={Beyond point forecasting: Evaluation of alternative prediction intervals for tourist arrivals},
+  author={Kim, Jae H and Wong, Kevin and Athanasopoulos, George and Liu, Shen},
+  journal={International Journal of Forecasting},
+  volume={27},
+  number={3},
+  pages={887--901},
+  year={2011},
+  publisher={Elsevier}
+}
+
+@article{12PI,
+  title={Calculating interval forecasts},
+  author={Chatfield, Chris},
+  journal={Journal of Business \& Economic Statistics},
+  volume={11},
+  number={2},
+  pages={121--135},
+  year={1993},
+  publisher={Taylor \& Francis}
+}
+
+@article{14PI,
+title = {Empirical prediction intervals revisited},
+journal = {International Journal of Forecasting},
+volume = {30},
+number = {2},
+pages = {217-234},
+year = {2014},
+issn = {0169-2070},
+doi = {https://doi.org/10.1016/j.ijforecast.2013.07.018},
+url = {https://www.sciencedirect.com/science/article/pii/S0169207013001313},
+author = {Yun Shin Lee and Stefan Scholtes}
+}
+
+@article{15PI,
+  title={A performance analysis of prediction intervals for count time series},
+  author={Homburg, Annika and Wei{\ss}, Christian H and Alwan, Layth C and Frahm, Gabriel and G{\"o}b, Rainer},
+  journal={Journal of Forecasting},
+  volume={40},
+  number={4},
+  pages={603--625},
+  year={2021},
+  publisher={Wiley Online Library}
+}
+
+@article{16PI,
+  title={Probabilistic prediction intervals of wind speed based on explainable neural network},
+  author={Huang, Haoqi and Hong, Yue and Wang, Huaizhi},
+  journal={Frontiers in Energy Research},
+  volume={10},
+  pages={934935},
+  year={2022},
+  publisher={Frontiers Media SA}
+}
+
+@article{20PI,
+  title={Optimal prediction intervals of wind power generation},
+  author={Wan, Can and Xu, Zhao and Pinson, Pierre and Dong, Zhao Yang and Wong, Kit Po},
+  journal={IEEE Transactions on Power Systems},
+  volume={29},
+  number={3},
+  pages={1166--1174},
+  year={2013},
+  publisher={IEEE}
+}
+
+@article{28PI,
+  title={Counting your customers: Who-are they and what will they do next?},
+  author={Schmittlein, David C and Morrison, Donald G and Colombo, Richard},
+  journal={Management science},
+  volume={33},
+  number={1},
+  pages={1--24},
+  year={1987},
+  publisher={INFORMS}
+}
+
+@article{31PI,
+  title={The M4 Competition: 100,000 time series and 61 forecasting methods},
+  author={Makridakis, Spyros and Spiliotis, Evangelos and Assimakopoulos, Vassilios},
+  journal={International Journal of Forecasting},
+  volume={36},
+  number={1},
+  pages={54--74},
+  year={2020},
+  publisher={Elsevier}
+}
+
+@book{32PI,
+  title={Forecasting: methods and applications},
+  author={Wheelwright, Steven and Makridakis, Spyros and Hyndman, Rob J},
+  year={1998},
+  publisher={John Wiley \& Sons}
+}
+
+@article{33PI,
+  title={Valid prediction intervals for regression problems},
+  author={Dewolf, Nicolas and Baets, Bernard De and Waegeman, Willem},
+  journal={Artificial Intelligence Review},
+  volume={56},
+  number={1},
+  pages={577--613},
+  year={2023},
+  publisher={Springer}
+}
+
+@article{35PI,
+  title={Construction of optimal prediction intervals for load forecasting problems},
+  author={Khosravi, Abbas and Nahavandi, Saeid and Creighton, Doug},
+  journal={IEEE Transactions on Power Systems},
+  volume={25},
+  number={3},
+  pages={1496--1503},
+  year={2010},
+  publisher={IEEE}
+}
+
+@article{36PI,
+  title={Strictly proper scoring rules, prediction, and estimation},
+  author={Gneiting, Tilmann and Raftery, Adrian E},
+  journal={Journal of the American statistical Association},
+  volume={102},
+  number={477},
+  pages={359--378},
+  year={2007},
+  publisher={Taylor \& Francis}
+}
+
+@article{38PI,
+  title={Pareto optimal prediction intervals of electricity price},
+  author={Wan, Can and Niu, Ming and Song, Yonghua and Xu, Zhao},
+  journal={IEEE Transactions on Power Systems},
+  volume={32},
+  number={1},
+  pages={817--819},
+  year={2016},
+  publisher={IEEE}
+}
+
+@article{39PI,
+  title={Treating and pruning: new approaches to forecasting model selection and combination using prediction intervals},
+  author={Meira, Erick and Oliveira, Fernando Luiz Cyrino and Jeon, Jooyoung},
+  journal={International Journal of Forecasting},
+  volume={37},
+  number={2},
+  pages={547--568},
+  year={2021},
+  publisher={Elsevier}
+}
+
+@article{45PI,
+  title={Practical confidence and prediction intervals},
+  author={Heskes, Tom},
+  journal={Advances in neural information processing systems},
+  volume={9},
+  year={1996}
+}
+
+@article{47PI,
+  title={Quantile regression},
+  author={Koenker, Roger and Hallock, Kevin F},
+  journal={Journal of economic perspectives},
+  volume={15},
+  number={4},
+  pages={143--156},
+  year={2001},
+  publisher={American Economic Association}
+}
+
+@article{51PI,
+  title={Uncertainty and inference for verification measures},
+  author={Jolliffe, Ian T},
+  journal={Weather and Forecasting},
+  volume={22},
+  number={3},
+  pages={637--650},
+  year={2007}
+}
+
+@article{54PI,
+ ISSN = {00129682, 14680262},
+ URL = {http://www.jstor.org/stable/1913643},
+ author = {Roger Koenker and Gilbert Bassett},
+ journal = {Econometrica},
+ number = {1},
+ pages = {33--50},
+ publisher = {[Wiley, Econometric Society]},
+ title = {Regression Quantiles},
+ urldate = {2024-08-14},
+ volume = {46},
+ year = {1978}
+}
+
+
+@article{55PI,
+  title={Two papers on the comparison of Bayesian and frequentist approaches to statistical problems of prediction: Bayesian tolerance regions},
+  author={Aitchison, J},
+  journal={Journal of the Royal Statistical Society: Series B (Methodological)},
+  volume={26},
+  number={2},
+  pages={161--175},
+  year={1964},
+  publisher={Wiley Online Library}
+}
+
+@unpublished{57PI,
+address = {Lancaster University Lancaster LA1 4YX UK},
+author = {Sventunkov, Ivan et al},
+institution = { The Department of Management Science Lancaster University Management School},
+series = {Working Paper of Department of Management Science},
+title = {Incorporating Parameters Uncertainty in ETS},
+year = {2023}
+}
+
+@article{58PI,
+  title={Learning with ensembles: How overfitting can be useful},
+  author={Sollich, Peter and Krogh, Anders},
+  journal={Advances in neural information processing systems},
+  volume={8},
+  year={1995}
+}
+
+@article{59PI,
+  title={Lower upper bound estimation method considering symmetry for construction of prediction intervals in flood forecasting},
+  author={Zhang, Hairong and Zhou, Jianzhong and Ye, Lei and Zeng, Xiaofan and Chen, Yufan},
+  journal={Water Resources Management},
+  volume={29},
+  pages={5505--5519},
+  year={2015},
+  publisher={Springer}
+}
+
+@article{60PI,
+  title={Efficient estimation of flood forecast prediction intervals via single-and multi-objective versions of the LUBE method},
+  author={Ye, Lei and Zhou, Jianzhong and Gupta, Hoshin V and Zhang, Hairong and Zeng, Xiaofan and Chen, Lu},
+  journal={Hydrological Processes},
+  volume={30},
+  number={15},
+  pages={2703--2716},
+  year={2016},
+  publisher={Wiley Online Library}
+}
+
+@inproceedings{61PI,
+  title={Prediction intervals for mechanical property forecasting with improved ANFIS},
+  author={Sun, Siyi},
+  booktitle={2020 International Conference on Computing and Data Science (CDS)},
+  pages={1--7},
+  year={2020},
+  organization={IEEE}
+}
+
+@article{15RU,
+  title={Efficiently irrational: deciphering the riddle of human choice},
+  author={Glimcher, Paul W},
+  journal={Trends in cognitive sciences},
+  volume={26},
+  number={8},
+  pages={669--687},
+  year={2022},
+  publisher={Elsevier}
+}
+
+@inproceedings{16RU,
+  title={The relationship between product quality, brand image, purchase decision, and repurchase intention},
+  author={Cuong, Dam Tri},
+  booktitle={Proceedings of International Conference on Emerging Technologies and Intelligent Systems: ICETIS 2021 (Volume 1)},
+  pages={533--545},
+  year={2022},
+  organization={Springer}
+}
+
+@techreport{17RU,
+  title={Rising import tariffs, falling export growth: When modern supply chains meet old-style protectionism},
+  author={Handley, Kyle and Kamal, Fariha and Monarch, Ryan},
+  year={2020},
+  institution={National Bureau of Economic Research}
+}
+
+@article{18RU,
+  title={Crisis protectionism: the observed trade impact},
+  author={Henn, Christian and McDonald, Brad},
+  journal={IMF Economic Review},
+  volume={62},
+  number={1},
+  pages={77--118},
+  year={2014},
+  publisher={Springer}
+}
+
+@book{19RU,
+  title={Marketing Management: A cultural perspective},
+  author={Peñaloza, Lisa and Toulouse, Nil and Visconti, Luca M.},
+  year={2012},
+  publisher={Routlegde}
+}
+
+@article{20RU,
+  title={Digital Twins: A Generative Approach for Counterfactual Customer Analytics},
+  author={Levy, Samuel},
+  year={2023}
+}
+
+@article{21RU,
+  title={What uncertainties do we need in bayesian deep learning for computer vision?},
+  author={Kendall, Alex and Gal, Yarin},
+  journal={Advances in neural information processing systems},
+  volume={30},
+  year={2017}
+}
+
+@book{22RU,
+  title={The market system: What it is, how it works, and what to make of it},
+  author={Lindblom, Charles Edward},
+  year={2002},
+  publisher={Yale University Press}
+}
+
+@Manual{CLVTools,
+    title = {CLVTools: Tools for Customer Lifetime Value Estimation},
+    author = {Patrick Bachmann and Niels Kuebler and Markus Meierer and Jeffrey Naef and E. Shin Oblander and Patrik Schilter},
+    year = {2023},
+    note = {R package version 0.10.1},
+    url = {https://github.com/bachmannpatrick/CLVTools},
+}
+
+@Manual{data.table,
+    title = {data.table: Extension of `data.frame`},
+    author = {Tyson Barrett and Matt Dowle and Arun Srinivasan and Jan Gorecki and Michael Chirico and Toby Hocking},
+    year = {2024},
+    note = {R package version 1.15.2},
+    url = {https://CRAN.R-project.org/package=data.table},
+}
+
+@Manual{compiler,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2024},
+    url = {https://www.R-project.org/},
+}
+
+@Book{ggplot,
+    author = {Hadley Wickham},
+    title = {ggplot2: Elegant Graphics for Data Analysis},
+    publisher = {Springer-Verlag New York},
+    year = {2016},
+    isbn = {978-3-319-24277-4},
+    url = {https://ggplot2.tidyverse.org},
+}
+
+@Manual{profvis,
+    title = {profvis: Interactive Visualizations for Profiling R Code},
+    author = {Winston Chang and Javier Luraschi and Timothy Mastny},
+    year = {2023},
+    note = {R package version 0.3.8},
+    url = {https://CRAN.R-project.org/package=profvis},
+}
+
+@Manual{rockchalk,
+    title = {rockchalk: Regression Estimation and Presentation},
+    author = {Paul E. Johnson},
+    year = {2022},
+    note = {R package version 1.8.157},
+    url = {https://CRAN.R-project.org/package=rockchalk},
+}
+
+@Manual{doParallel,
+    title = {doParallel: Foreach Parallel Adaptor for the 'parallel' Package},
+    author = {Microsoft Corporation and Steve Weston},
+    year = {2022},
+    note = {R package version 1.0.17},
+    url = {https://CRAN.R-project.org/package=doParallel},
+}
+
+@Manual{geomtextpath,
+    title = {geomtextpath: Curved Text in 'ggplot2'},
+    author = {Allan Cameron and Teun {van den Brand}},
+    year = {2024},
+    note = {R package version 0.1.4},
+    url = {https://CRAN.R-project.org/package=geomtextpath},
+}
+
+@Article{dbscan,
+title = {{dbscan}: Fast Density-Based Clustering with {R}},
+author = {Michael Hahsler and Matthew Piekenbrock and Derek Doran},
+journal = {Journal of Statistical Software},
+year = {2019},
+volume = {91},
+number = {1},
+pages = {1--30},
+doi = {10.18637/jss.v091.i01},
+}
+
+@Manual{tidyr,
+    title = {tidyr: Tidy Messy Data},
+    author = {Hadley Wickham and Davis Vaughan and Maximilian Girlich},
+    year = {2024},
+    note = {R package version 1.3.1},
+    url = {https://CRAN.R-project.org/package=tidyr},
+}
+
+@Manual{gghalves,
+    title = {gghalves: Compose Half-Half Plots Using Your Favourite Geoms},
+    author = {Frederik Tiedemann},
+    year = {2022},
+    note = {R package version 0.1.4},
+    url = {https://CRAN.R-project.org/package=gghalves},
+}
+
+@Manual{BTYD,
+    title = {BTYD: Implementing BTYD Models with the Log Sum Exp Patch},
+    author = {Lukasz Dziurzynski and Edward Wadsworth and Daniel McCarthy},
+    year = {2021},
+    note = {R package version 2.4.3},
+    url = {https://CRAN.R-project.org/package=BTYD},
+}
+
+@Manual{BTYDplus,
+    title = {BTYDplus: Probabilistic Models for Assessing and Predicting your Customer
+    Base},
+    author = {Michael Platzer},
+    year = {2021},
+    note = {R package version 1.2.0},
+    url = {https://CRAN.R-project.org/package=BTYDplus},
+}
+
+@Manual{fmsb,
+    title = {fmsb: Functions for Medical Statistics Book with some Demographic Data},
+    author = {Minato Nakazawa},
+    year = {2024},
+    note = {R package version 0.7.6},
+    url = {https://CRAN.R-project.org/package=fmsb},
+}
+
+@Misc{online1,
+  author = {{Collins dictionary}},
+  title = {Definition of 'uncertainty'},
+  howpublished = {https://www.collinsdictionary.com/dictionary/english/uncertainty},
+  urldate = {2024-08-12}
+}
+
+
+@Misc{online2,
+  author =   {{American Marketing Association}},
+  title =    {Definitions of Marketing},
+  howpublished = {https://www.ama.org/the-definition-of-marketing-what-is-marketing/},
+urldate = {2024-08-12}
+}
+
+
+@book{book1,
+  title={How to measure anything: Finding the value of intangibles in business},
+  author={Hubbard, Douglas W},
+  year={2014},
+  publisher={John Wiley \& Sons}
+}
