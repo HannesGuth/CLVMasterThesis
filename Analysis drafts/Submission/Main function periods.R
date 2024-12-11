@@ -62,7 +62,8 @@ for (dataset in rob_data_list){
   big_grid = big_grid[order(big_grid$splitweek2, big_grid$end2),]
   
   for (run in 1:nrow(big_grid)){
-    print(run)
+    print(paste("Run:", run))
+    print(paste("################ Done:", round(100 * run/nrow(big_grid)), "% ################"))
     if ((big_grid[run,2] + big_grid[run,4]) != 160){
       splitweek1 = as.numeric(big_grid[run,1])
       splitweek2 = as.numeric(big_grid[run,2])

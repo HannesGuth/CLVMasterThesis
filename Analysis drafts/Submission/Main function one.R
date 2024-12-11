@@ -1,11 +1,8 @@
 packages = c(
-  "data.table", "compiler", "ggplot2", "profvis", 
+  "CLVTools", "data.table", "compiler", "ggplot2", "profvis", 
   "rockchalk", "doParallel", "geomtextpath", "dbscan", 
-  "tidyr", "gghalves", "BTYD", "BTYDplus", "fmsb"
+  "tidyr", "gghalves", "BTYD", "BTYDplus", "fmsb", "bit64"
 )
-
-packageurl = "https://cran.r-project.org/src/contrib/Archive/CLVTools/CLVTools_0.11.0.tar.gz"
-install.packages(packageurl, repos=NULL, type="source")
 
 for (pkg in packages) {
   if (!require(pkg, character.only = TRUE)) {
@@ -28,6 +25,8 @@ library(gghalves)
 library(BTYD)
 library(BTYDplus)
 library(fmsb)
+library(bit64)
+library(scales)
 
 # Set working directory
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
@@ -59,7 +58,7 @@ for (data_list in data_lists2){
   whole_period1 = data_list$wp1
   whole_period2 = data_list$wp2
   
-  clv.data2 <- clvdata(data2,
+  clv.data2 = clvdata(data2,
                        date.format="ymd",
                        time.unit = "week",
                        estimation.split = splitweek2,
@@ -68,11 +67,11 @@ for (data_list in data_lists2){
                        name.price = "Price")
   
   # Estimate standard Pareto/NBD Model
-  est.data2 <- pnbd(clv.data = clv.data2, verbose = TRUE)
+  est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE)
   if (whole_period2){
-    results_general <- predict(est.data2, predict.spending = TRUE)
+    results_general = predict(est.data2, predict.spending = TRUE)
   }else{
-    results_general <- predict(est.data2, predict.spending = TRUE, prediction.end = end2)
+    results_general = predict(est.data2, predict.spending = TRUE, prediction.end = end2)
   }
   print(results_general)
   
@@ -140,6 +139,7 @@ for (data_list in data_lists2){
 
 source(paste0(getwd(), "/Data reorganization.r"))
 source(paste0(getwd(), "/Results analysis.r"))
+source(paste0(getwd(), "/Application in marketing.r"))
 source(paste0(getwd(), "/Plotting.r"))
-source(paste0(getwd(), "/Application in Marketing.r"))
+source(paste0(getwd(), "/Covariates simulated.r"))
 source(paste0(getwd(), "/Comparison.r"))

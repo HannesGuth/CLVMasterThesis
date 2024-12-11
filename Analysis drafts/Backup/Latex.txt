@@ -1,7 +1,6 @@
 \documentclass{article}
 
 % Language setting
-% Replace `english' with e.g. `spanish' to change the document language
 \usepackage[english]{babel}
 
 % Set page size and margins
@@ -31,36 +30,39 @@
 \usepackage{unicode-math}
 \usepackage{fancyhdr}
 \usepackage{float}
+\usepackage{placeins}
 \pagestyle{fancy}
 %\pagestyle{empty}
 \setcounter{secnumdepth}{5}
-\setcounter{tocdepth}{5}
+\setcounter{tocdepth}{3}
 
 \usepackage{lscape} % for landscape tables
 
 \title{Your Paper}
 \author{You}
-
 \begin{document}
 
 \tableofcontents
 
 \section{Introduction}
-The objective of every company is to maximize revenue and profits by using the least possible input. Hence, departments inside companies must compete for scarce resources, and so does marketing. Marketing managers have to provide success and justify their budget and their expenditures, e.g. for campaigns or special discounts. A good resource allocation is therefore essential and to achieve this, customers, their potential and uncertainty must be evaluated as accurate as possible. The Customer Lifetime Value, CLV, is a well-known concept and gives information about the potential revenue (and profit) to expect from a customer. However, it is unknown by definition and must therefore be modeled, e.g. with the so-called pnbd (Pareto Negative Binomial Distribution) model. As it is usually the case for models, it is subject to uncertainty in its point predictions what puts marketing managers at risk when blindfold trusting these predictions.\\
-This work will address this problem by introducing established methods to derive prediction intervals to the pnbd context and benchmarking them against the well-known Bootstrap method. The benchmarking will be done via several key metrics that are calculated for all methods for real-world data sets. The goal is to identify strengths and weaknesses of every method and assess their usefulness and reliability in practice. A special focus will be laid on Conformal prediction as a relatively young method that has gained a lot attention recently. As a final step, it will be assessed if the derived prediction intervals can help identify especially valuable customers, beyond their use in assessing the uncertainty that is connected with their point forecasts. Throughout the whole work, a proxy for the CLV, the CET (Conditional Expected Transactions) will be used, what can be justified as it is identified as the main driver of the CLV in \cite{1L}. \footnotemark{} \\
-This thesis can be seen in both, research and a managerial context.
+For successful businesses, it has always been important to understand their customers, their requirements, behavior or composition of the whole body of customers. Having this understanding provides a competitive advantage when planning marketing and pricing campaigns. To make such initiatives successful and claim necessary resources, it is essential for marketing managers to have an accurate understanding of the individual value of each customer, the Customer Lifetime Value (CLV). Widely used RFM models pose a partial solution to the problem as they order customers according to their predicted individual value but do not provide actual dollar predictions for single customers. More sophisticated tools like the PNBD model (1987) \cite{28PI} or BG/BB model (2010) \cite{3L} fill this gap as they do provide CLV prediction on an individual level. However, also these models are subject to uncertainty that needs to be assessed.\\
+Even though there has been a lot of research about model uncertainty in numerous scientific domains, there has unfortunately been little effort to apply these concepts in marketing models and especially CLV prediction. A closed-form expression of the variance of the CLV, V(CLV), has been derived for the BG/BB model on an individual customer level in \cite{1L}. However, they state that it would be far more complex to derive the same for the more broadly established PNBD model and it remained unclear whether a closed-form solution is at all possible for this model. The R package CLVTools \cite{CLVTools} provides a state-of-the-art implementation of the PNBD model that offers to generate prediction intervals (PIs) for individual CLVs, based on a bootstrap procedure.\\
+This work focuses on the PNBD model and PI-implementation in CLVTools and assesses the derived PIs. In addition, established methods and variations are implemented to benchmark the bootstrap approach of CLVTools and suggest alternatives. The core objective of this work is to introduce a valid option to correctly assess uncertainty coming from the PNBD model and fill this gap in research. Besides, this work includes an attempt to use the resulting PIs and their associated information about individual uncertainties to identify particularly valuable customers.\\
+To achieve these objectives and identify robust and applicable PI-deriving methods, a literature review across domains and scientific fields beyond marketing is conducted. These methods are deployed on four real-world datasets and their resulting PIs benchmarked against CLVTools' bootstrap implementation using several key metrics. The stability of method performance will be as well subject to scrutiny.\\
+
 \footnotetext{This change from CLV to CET has the reason that several methods that derive prediction intervals have in parts already been implemented in other R packages which are used in this work. Those do not include the prediction of spending (per transaction) which would be essential to calculate the CLV. In order to use these packages, this CET proxy is used. With respect to the implementation of the additional methods, this exchange makes not difference. In addition, the performance of the implemented methods to construct prediction intervals, which are not based on external packages, will be included for PTS (Predicted Total Spending) can be made available on request.}
 
 \section{Literature review}
 
-\subsection{Role of uncertainty in marketing}
-To get a broader view of uncertainty more general in marketing, the notations of “uncertainty” and “marketing”, both shall be defined first. While there are no generally recognized definitions, there are various attempts to provide a definition. Following Collin’s dictionary, then “Uncertainty is a state of doubt about the future or about what is the right thing to do.” \cite{online1} Hubbard states in the context of business “The lack of complete certainty, that is, the existence of more than one possibility. The 'true' outcome/state/result/value is not known.” (\cite{book1}, p. 84)  Both definitions agree on the presence of unknown information with respect to a current or potential future state and connected actions (to be taken). On the other hand, there is a similar situation for the definition of marketing, the AMA (American Marketing Association) defines it as follows: “Marketing is the activity, set of institutions, and processes for creating, communicating, delivering, and exchanging offerings that have value for customers, clients, partners, and society at large.” \cite{online2}  what makes it a very broad field but having a rough focus on the placement of offerings to clients or alike. The following paragraph shall introduce why uncertainty plays a vital role in marketing and why it needs to be taken into consideration.\\
-As its name suggests, Marketing is concerned with the placement of offerings on a market and here is where uncertainty comes into play because an important aspect is the uncertain prospective demand. A market is a place which is heavily concerned with and driven by the actions of its agents, i.e. “customers, clients, partners, and society at large” \cite{online2}, and their coordination. (\cite{22RU}, p. 35) All of those agents come with uncertainty in their actions as they are ruled by human beings who make (ir-) rational or at least (un-) predictable \cite{15RU} decisions, let it be a new product launch, the choice of a campaign, the location of new branch or simply a consumer’s unawareness of a competitor’s product which might be superior to their usual choice. Besides those human-driven uncertainties, estimating demand, and placing offerings successfully in the market is affected by some additional dimensions of uncertainty, e.g. own product quality \cite{16RU} that may vary by changing quality of delivered feedstocks. Competitors may bring unexpected technical advancements or the economic situation for the own product can change due to political conflicts and newly imposed taxes, to the good and bad, both. (\cite{17RU}, \cite{18RU}) Also, if a campaign was launched successfully in one region, it does not imply that it would also work out in another (\cite{19RU}, p. 2). This list could be continued nearly infinitely but should be sufficient to give motivation to why one wants generally to consider uncertainty in marketing decisions. It is obvious that, from a marketing perspective, it is desirable to keep uncertainty as low as possible to make best decisions. Therefore, being able to understand the uncertainty in the specific case, i.e. identify its sources and quantify its amount is essential. An established approach in numerous contexts across science is to make predictions about the future by constructing models which depict a picture of reality, incorporating important aspects and leaving out unimportant ones for simplification. One example is the pnbd which aims to predict future customers buying behavior and is the underlying model in this work.
-
-\subsection{Methodological literature overview}
-To continue the thought of the previous paragraph and connect it with the context of this work, first it is to determine where uncertainty may arise in the CET prediction.
+\subsection{Review on uncertainty}
+\subsubsection{The role of uncertainty in marketing}
+To offer a broader, more general view of uncertainty in marketing, the notations of “uncertainty” and “marketing”, are first clarified. While no generally recognized definitions exist, there are various attempts to articulate their meaning. Following Collin’s dictionary, then “Uncertainty is a state of doubt about the future or about what is the right thing to do.” \cite{online1} Hubbard states in the context of business “The lack of complete certainty, that is, the existence of more than one possibility. The 'true' outcome/state/result/value is not known.” (\cite{book1}, p. 84)  Both definitions agree on the presence of unknown information with respect to a current or potential future state and connected actions (to be taken). On the other hand, there is a similar situation for the definition of marketing. AMA (American Marketing Association) defines it as follows: “Marketing is the activity, set of institutions, and processes for creating, communicating, delivering, and exchanging offerings that have value for customers, clients, partners, and society at large.” \cite{online2}, what makes it a very broad field but having a rough focus on the placement of offerings to clients or alike. The following paragraph states why uncertainty plays a key role in marketing and why it needs to be considered.\\
+As its name suggests, Marketing is concerned with the placement of offerings on a market and here is where uncertainty comes into play because an important aspect is the uncertain prospective demand. A market is a place which is heavily concerned with and driven by the actions of its agents, i.e. “customers, clients, partners, and society at large” \cite{online2}, and their coordination. (\cite{22RU}, p. 35) All of those agents come with uncertainty in their actions as they are ruled by human beings who make (ir-) rational or at least (un-) predictable \cite{15RU} decisions, let it be a new product launch, the choice of a campaign, the location of new branch or simply a consumer’s unawareness of a competitor’s product which might be superior to their usual choice. Besides those human-driven uncertainties, estimating demand, and placing offerings successfully in the market is affected by some additional dimensions of uncertainty, e.g. own product quality \cite{16RU} that may vary by changing quality of the delivered feedstock. Competitors may bring unexpected technical advancements or the economic situation for the own product can change due to political conflicts and newly imposed taxes, to the good and bad, both. (\cite{17RU}, \cite{18RU}) Also, if a campaign was launched successfully in one region, it does not imply that it will also work out in another one (\cite{19RU}, p. 2). This list could be extended almost indefinitely but should suffice to illustrate why it is important to consider uncertainty in marketing decisions. It is obvious that, from a marketing perspective, it is desirable to keep uncertainty as low as possible to make optimal decisions. Therefore, being able to understand the uncertainty in the specific case, i.e. identify its sources and quantify its amount is essential. An established approach in numerous contexts across science is making predictions about the future by constructing models which depict a picture of reality, incorporating important aspects and leaving out unimportant ones for simplification. One example is the PNBD model which aims to predict customers buying behavior and serves as the central model in this work.
 
 \subsubsection{Sources of uncertainty}
+This section shall answer the question where uncertainty can arise in the context of CET prediction.\\
+
+The sources of uncertainty in models in general can be divided into aleatory and epistemic uncertainty \cite{21RU} what is also valid for the PNBD model. As there is, to my knowledge, no clear, distinct definition of these two notations, the idea behind them is briefly explained. Aleatory uncertainty refers to uncertainty coming from random events \cite{20RU}. It captures noise in the inherent observations and is therefore input dependent \cite{21RU}. Uncertainty that comes from inside the model, i.e. its parameters, is called epistemic uncertainty \cite{21RU}. In addition, it “[…] captures our ignorance about which model generated our collected data” (\cite{21RU}, p. 2). Aleatory uncertainty cannot be reduced by e.g. collecting more data while this would be possible for epistemic uncertainty \cite{21RU}.\\
 
 \begin{center}
     \hspace*{-1.8cm}
@@ -105,173 +107,174 @@ To continue the thought of the previous paragraph and connect it with the contex
     \end{tikzpicture}
 \end{center}
 
-The sources of uncertainty in models in general can be divided into aleatory and epistemic uncertainty \cite{21RU} which also applies to the pnbd model. As there is, to my knowledge , no clear, distinct definition of these two notations, the idea behind shall be briefly explained. Aleatory uncertainty refers to uncertainty coming from random events \cite{20RU}. It captures noise in the inherent observations and is therefore input dependent \cite{21RU}. The uncertainty that comes from inside the model, i.e. the parameters, is called epistemic uncertainty \cite{21RU}. In addition, it “[…] captures our ignorance about which model generated our collected data” (\cite{21RU}, p. 2). Aleatory uncertainty cannot be reduced by e.g. collecting more data while this would be possible for epistemic uncertainty \cite{21RU}.
-In the following, the sources will be discussed in more detail, starting with the aleatory side. Influences found in the literature that increase the uncertainty of customer behavior and hence the CLV do so because they are not fully considered in the model. Examples are campaigns of competitors, marketing contacts (in the past, presence and future) and state of the economy in a sense that people change their consumption behavior between recession and boom times. What is also a dominant issue that creates uncertainty is the possibility of a customer leaving the company forever either to switch to a competitor or stop consuming. The probability of being “alive” is included in the model but still, most customers won’t notify the company when they churn, so it stays a mere probability. The second part considers epistemic sources. Note that the papers quoted here are not necessarily concerned with CLV estimation but treat forecasting models in general or in other contexts, often time series or wind/energy forecasting. Nevertheless, since the pnbd model suffers from similar issues, these aspects are relevant here as well. Especially often addressed in the literature is the parameter estimation which comes with uncertainty. This issue will be addressed later in this work. Also often mentioned is data uncertainty. This part is to locate on the intersection because errors can appear in the data collection and processing (aleatory) and there is a of lack of knowledge about data errors and potential biases (epistemic).
+
+In the following, the sources will be discussed in more detail, starting with the aleatory side. Influences found in the literature that increase the uncertainty of customer behavior and hence CET do so because they are not or not completely considered in the model. Examples are campaigns of competitors, marketing contacts (in the past, presence and future) and state of the economy in a sense that people change their consumption behavior between recession and boom times. Another issue is the possibility of a customer leaving the company forever either to switch to a competitor or stop consuming. The probability of being “alive” is included in the model but still, most customers won’t notify the company when they churn, so it stays a mere probability. The second part considers epistemic sources. Note that the papers quoted here are not necessarily concerned with CET/CLV estimation but treat forecasting models in general or in a different context, often time series or wind/energy forecasting. Nevertheless, since the PNBD model suffers from similar issues, these aspects are relevant here as well. Particularly often addressed in the literature in association with uncertainty are parameter estimation and data uncertainty, which are both broad fields. The latter is located on the intersection as errors can appear in the data collection and processing (aleatory) and there are potential biases when using the data inside the model (epistemic).
 
 \subsubsection{The importance of prediction intervals}
-With these points raised, it is evident that mere point forecasts will be in most situations an insufficient indicator about the future values as they do not provide information about uncertainty (\cite{2PI},\cite{6PI},\cite{9PI},\cite{12PI}). Hence, point estimates are often accompanied or even replaced by so-called confidence intervals (for e.g. parameter estimation) and prediction intervals in the context of forecasts. \cite{5PI} The advantages are discussed in the following. An interval (forecast) is offering a range of possible values of future outcomes. \cite{11PI} This means that the true value of the prediction will fall into this declared interval with a specific probability of p\%. \cite{4PI} point out 4 main points, why interval forecasts, and therefore PIs as well, are of such importance.
+With these problems raised, it is evident that mere point forecasts will be in most situations an insufficient indicator for future values as they do not hold information about uncertainty (\cite{2PI},\cite{6PI},\cite{9PI},\cite{12PI}). Hence, they are often accompanied or even replaced by so-called confidence intervals (for e.g. parameter estimation) and prediction intervals (PIs) in the context of forecasts. \cite{5PI} An interval (forecast) is offering a range of possible values of (future) outcomes \cite{11PI} where the true value of the prediction will fall into this declared interval with a specified probability. \cite{4PI} point out 4 main points why interval forecasts and PIs are of such importance.
 
 \begin{enumerate}
     \item They “assess future uncertainty” (\cite{4PI}, p. 476)
-    \item They enable the user to plan “different strategies for the range of possible outcomes” (\cite{4PI}, p. 476). This means that one can prepare a strategy in case a high value inside the interval is realized and one for a low value, or the interval is so narrow and reliable that one can be sure with 95\% that one specific strategy will be appropriate. In the context of CLV, it could help discover customers with high variability in their CLV and therefore target them especially. There are 2 rationales behind this approach: First, \cite{16L} state that there is often a right tail distribution for CLV, and it hence makes sense to target a customer with high variability to realize that potential. Second, \cite{33L} state one should focus on those as it offers the opportunity to learn and reduce uncertainty.
+    \item They enable the user to plan “different strategies for the range of possible outcomes” (\cite{4PI}, p. 476). This means that one can prepare a strategy in case a high value inside the interval is realized and another one for a low value, or the interval is so narrow and reliable that one can be sure that with e.g. 90\% a specific strategy will be appropriate. In the context of CET, it is useful to discover customers with high variability in their CET and therefore target them in particular. There are 2 rationales behind this approach: First, \cite{16L} state that there is often a probability distribution for CLVs which has a long right tail.\footnotemark \hspace{2pt} That means that there is upward potential to be realized. Second, \cite{33L} state one should focus on those as it offers the opportunity to learn and reduce uncertainty. \footnotetext{And therefore, CET as main driver for CLV can be expected to be also right-tailed.}
     \item They “compare forecasts from different methods more thoroughly“ (\cite{4PI}, p. 476). This means that PIs provide information about the reliability of each method what can be valuable when choosing methods for specific situations.
-    \item PIs ”explore forecasts based on different assumptions more carefully“ (\cite{4PI}, p. 476). When there is for example a method that assumes normal distribution, and one that is similar but does not make this assumption, and they produce different interval lengths, one might want to re-assess a model’s assumptions.
+    \item PIs ”explore forecasts based on different assumptions more carefully“ (\cite{4PI}, p. 476). When there is for example a method that assumes normal distribution, and another method that is similar but does not make this assumption, and they produce different interval lengths, one may want to re-assess the model’s assumptions.
 \end{enumerate}
 
-\noindent Another point, made by \cite{32PI} (p. 52) “forecasts cannot be expected to be perfect, and intervals emphasize this” (alternatively: (2PI) 3.5.) which underlines maybe the most important power of PIs, namely pointing out to the user of forecasts that they are most probably wrong and hence treat them appropriately. Thinking one step beyond PIs, a more sophisticated option are density predictions, which are comparable with PIs, but they assign probabilities to each area in the interval and provide even more information about uncertainty. \cite{6PI}
+\noindent Another point, made by \cite{32PI} (p. 52): “forecasts cannot be expected to be perfect, and intervals emphasize this”, emphasizes perhaps the most important characteristic of prediction intervals, which is reminding forecast users that predictions are likely inaccurate and should be used with appropriate caution. Thinking one step beyond PIs, a more sophisticated option are density predictions, which are comparable with PIs, but assign probabilities to each area inside the interval and hence provide even more information about uncertainty. \cite{6PI}
 
-\subsubsection{Methods to derive prediction intervals}
-As the importance of PIs is justified now, it shall be introduced how they are obtained. First, it is important to note that different models and contexts can require different methods to derive PIs. In this work, the focus will be put on 33PI, who suggest 4 big classes of methods applicable in regression contexts: Bayesian approach, Ensembles, Direct interval estimation and Conformal prediction. These methods will be introduced in general in this chapter, explained with the concrete implementation in the CLV context in the next chapter and benchmarked against each other. The ensemble method will be implemented in connection with bootstrap which picks up the idea of ensemble methods but is too far away to be purely called “ensemble”. In addition, a pure Bootstrap method is used as benchmark. A special emphasis will be put on conformal prediction due to its recent raise in attention in the statistical community.
+\subsection{Methods to derive prediction intervals}
+As the importance of PIs has been outlined, the following sections will focus on their derivation. It is important to note that different models and contexts require different methods to derive PIs. This work will focus on 4 big classes of methods that are identified by \cite{33PI}: Bayesian approach, Ensembles, Direct interval estimation and Conformal prediction. These methods will be introduced in general in this section, explained with the concrete implementation in the CET context in the following section and subsequently benchmarked against each other. A special emphasis is put on conformal prediction due to its recent rise in attention in the statistical community.
 
-\paragraph{Bootstrap method}\mbox{}\\
-The Bootstrap method is the method which is used as a benchmark in this work. In this chapter, it will be explained in general before going into the concrete application for the CLV context.\\
-Bootstrap is a non-parametric and powerful approach to estimate statistics like a mean or quantiles of distribution and therefore as well PIs. The general approach to conduct a bootstrap is as follows.
+\subsubsection{Bootstrap method}
+The Bootstrap method is the method which is used as a benchmark in this work. In this chapter, it will be explained in general before going into the concrete application for the CET context.\\
+Bootstrap is a non-parametric and powerful approach to estimate statistics like the mean or quantiles of a distribution and therefore as well PIs. The general approach to conduct a bootstrap goes as follows.
 
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-    \item From a sample of data of size n, draw n times with replacement
+    \item From a sample of data of size n, draw n times an entry with replacement to create a new sample of size n
     \item Repeat 1. sufficiently often, e.g. 1000 times to create 1000 new samples
     \item For each of these new 1000 samples, calculate the desired metric.
-    \item From this distribution of the metric, take the central 90\% of predictions. This is the desired interval.
+    \item From this distribution of the metric, take the central x\% of predictions, resulting in the desired interval.
 \end{enumerate}
 
-\noindent The central assumptions for bootstrapping are the following: The initially sampled data, from which the new samples are created, must be representative for the whole population and independent from each other, i.e. they must be i.i.d.
+\noindent The central assumptions for bootstrapping are the following: The initially sampled data, from which the new samples are created, must be 1. representative for the whole population and 2. independent from each other, i.e. they must be i.i.d.
 
-\paragraph{Mini Bootstrap / Ensemble}\mbox{}\\
-Ensembles are in general a very straightforward method to derive prediction intervals. They can be described as follows: “An ensemble is a collection of a (finite) number of neural networks or other types of predictors that are trained for the same task. A combination of many different predictors can often improve predictions […]” (\cite{58PI}, p.190) When one has enough fitted models and therefore enough point predictions, one can construct naïve prediction intervals \cite{45PI} or calculate mean and variance, assume a (normal) distribution and derive PIs by calculating the respective z-values for desired quantile \cite{33PI}. \cite{57PI} suggest a special form of this approach, which has characteristics of both, Ensembles and Bootstrap.
+\subsubsection{Mini Bootstrap / Ensemble}\mbox{}\\
+Ensembles are in general a very straightforward method to derive prediction intervals. They can be described as follows: “An ensemble is a collection of a (finite) number of neural networks or other types of predictors that are trained for the same task. A combination of many different predictors can often improve predictions […]” (\cite{58PI}, p.190) When one has enough fitted models and therefore enough point predictions, one can 1. construct naïve prediction intervals \cite{45PI} or 2. calculate mean and variance, assume a (normal) distribution and derive PIs by calculating the respective z-values for desired quantile \cite{33PI}. \cite{57PI} suggest a special form of this approach, which has characteristics of both, Ensembles and Bootstrap.
 
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
     \item Fit 1 single model that has several parameters
     \item Derive the covariance matrix of the parameters of this fitted model
-    \item Derive a large number of parameter combinations that have the characteristics described in the covariance matrix (one has to make assumptions about their distribution)
+    \item Derive a large number, e.g. 100, of parameter combinations that, together, have the characteristics described in the covariance matrix (one has to make assumptions about their distribution)
     \item Treat these parameter combinations as independent models and make predictions with these models for each record of the data set
     \item Take the naïve prediction intervals for each record
 \end{enumerate}
 
-\noindent This approach has significant similarity with the previously described bootstrap approach and therefore, similar performance is to expect. In contrast, only 1 model is fitted and from there, all other models are derived by simply simulating parameters what makes it computationally more attractive.
+\noindent This approach has similarity with the previously described bootstrap approach and therefore, similar performance is to expect. In contrast, only 1 model is fitted and from there, all other models are derived by simply simulating parameters what makes it computationally more attractive.
 
-\paragraph{Bayesian method}\mbox{}\\
-The roots of Bayesian statistics go back to the 18th century, to Thomas Bayes, as the name suggests \cite{59PI}. Who was the first one to make use of this approach to construct PIs is hard to tell but one of the pioneers in this field was Aitchison in \cite{55PI} who introduced the idea of using the Bayesian Approach’s strength in forming tolerance regions. The idea is to derive a probability distribution over the parameter(s) and based on this, derive a distribution of the outcomes and take the desired statistics. The process is described in the following and is based on \cite{33PI}, \cite{51PI} and \cite{55PI}.
+\subsubsection{Bayesian method}
+The roots of Bayesian statistics go back to the 18th century, to Thomas Bayes, as the name suggests \cite{59PI}. It is hard to tell who was the first to make use of this approach to construct PIs but one of the pioneers in this field was John Aitchison in 1964 \cite{55PI} who introduced the idea of using the Bayesian Approach’s strength in forming tolerance regions. The idea is to derive a probability distribution over the parameter(s) and based on this, derive a distribution of the outcome and take the desired statistics from that outcome. The process is described in the following and is based on \cite{33PI}, \cite{51PI} and \cite{55PI}.
 
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-    \item Useful to have information about the parameter probability distribution (prior distribution) before the parameters are observed (or use an uninformative distribution) \cite{55PI}
-    \item Necessary to have a likelihood function that describes how likely it is to observe the data that are revealed step by step under the current parameter distribution \cite{33PI}
+    \item It is useful to have information about the parameter probability distribution (prior distribution) before the parameters are observed (or use an uninformative distribution) \cite{55PI}
+    \item It is necessary to have a likelihood function that describes how likely it is to observe the data that are revealed step by step under the current parameter distribution \cite{33PI}
     \item As more information (data) is revealed, update the prior parameter distribution with the new information to derive the posterior parameter distribution, using Bayes’ rule \cite{33PI}
-    \item Predict the outcomes based on the posterior parameter distribution to get a distribution of outcomes (predictive distribution)
-    \item Calculate the intervals based on this outcome distribution \cite{33PI}
+    \item Predict the outcome based on the posterior parameter distribution to get a distribution of the outcome (posterior predictive distribution)
+    \item Calculate the PIs based on this outcome distribution \cite{33PI}
 \end{enumerate}
 
-\noindent Therefore, the Bayesian Approach is a method to estimate parameters and at the same time delivers a distribution of outcomes from where one can derive the prediction interval. Both, the posterior parameter distribution and the posterior prediction distribution, can be retrieved approximately by applying the Markov Chain Monte Carlo Method.
+\noindent The Bayesian Approach is a method to estimate parameters and at the same time delivers a distribution of outcomes from where one can derive the PIs. Both, the posterior parameter distribution and the posterior predictive distribution, can be retrieved approximately by applying the Markov Chain Monte Carlo Method.
 
-\paragraph{Quantile regression}\mbox{}\\
-Quantile regression is the last method that shall be used in the course of this work. It was first introduced by \cite{54PI} in 1978 and is a form of direct interval estimation what means a method that does not model a distribution of outcomes but is designed to directly output an interval. \cite{33PI} \\
-Following the process described in (\cite{33PI}, \cite{47PI}, \cite{54PI}), Quantile regression works through optimizing the parameters of a model with respect to a loss function that is employed while fitting. The idea is that one combination of parameters yields a specific number of overestimations and underestimations of outcomes. Aiming e.g. for a symmetric distribution would mean 50\% overestimations and 50\% underestimations (assuming that point predictions never hit the target perfectly). \cite{47PI} state that this is possible with any quantile other than the 50\% quantile as well, as the same principle applies: The loss function penalizes deviation of the desired above-below ratio, which is 1:1 in the 50\% case. Targeting intervals, e.g. a symmetric 90\% interval, would require finding the 5\%- and 95\% quantile. Therefore, two parameter combinations must be found. Applying the same principle as above, the loss function would penalize according to the desired quantiles, yielding the parameter combinations that come closest to the objective.\\
-This approach requires interrupting and changing the model fitting procedure. As this would be out of scope for this work, a modified version will be implemented for the CLV context in the Applied Methods Chapter that keeps the core idea but simplifies the procedure. A step-by-step guide for the implementation will also be provided in this later chapter.
+\subsubsection{Quantile regression}
+Quantile regression was first introduced by Koenker and Basset in 1978 \cite{54PI} and is a form of direct interval estimation. That means that this method that does not model a distribution of outcomes but is designed to directly output an interval. \cite{33PI} \\
+Following the process described in (\cite{33PI}, \cite{47PI}, \cite{54PI}), Quantile regression works through optimizing the parameters of a model with respect to a loss function that is employed while fitting. The idea is that there is one combination of parameters that yields a specific number of overestimations and underestimations of the true outcomes. Aiming e.g. for a symmetric distribution would mean 50\% overestimations and 50\% underestimations (assuming a continuous distribution where point predictions never hit their targets perfectly). \cite{47PI} state that this is possible with any quantile other than the 50\% quantile as well, as the same principle applies: A loss function penalizes deviation from the desired above-below ratio, which is 1:1 in the 50\% case. Targeting intervals, e.g. a symmetric 90\% interval, would require finding the 5\%- and 95\% quantile. Therefore, two parameter combinations must be found. Applying the same principle as above, the loss function would penalize according to the desired quantiles, yielding the parameter combinations that come closest to the objective.\\
+This approach requires interrupting and changing the model fitting procedure. As this would be out of the scope for this work, a modified version will be implemented for the CET context that keeps the core idea but simplifies the procedure drastically. A step-by-step guide for the concrete implementation will be provided in section \ref{section:Quantile regression implementation}.
 
-\paragraph{Conformal prediction}\mbox{}\\
-Conformal prediction, or Conformal Inference is a relatively young method to derive prediction intervals with attractive empirical guarantees and few assumptions about the data and the model form to which it is applied. \cite{1CP} It was first introduced by \cite{23CP} and \cite{24CP} in 1999 and gained a lot of attention in recent years. Conformal prediction has two main forms of implementation, Full conformal prediction (Transductive Conformal Prediction) and Split Conformal prediction (Inductive Conformal Prediction) where Full CP has been developed first and Split CP has emerged as an important special case \cite{1CP} after being initially introduced by \cite{26CP} in 2002. The importance of the split version comes from the high computational costs associated with the full version but also sacrifices statistical efficiency \cite{1CP}. In this work, the focus will be exclusively put on the split version, because of the mentioned computational efficiency but also, which is crucial, because Full CP is not applicable for the pnbd-model. The reason for this shall be briefly outlined with a basic example outside of the pnbd-context, before going into detail with the applied split version.\\
-Full conformal prediction\\
-Following \cite{1CP} and \cite{9CP}, full conformal prediction is implemented as follows: Assume there are 250 records of a) predictors $X_{i}$ = 1:250 and b) observed outcomes $Y_{i}$ = 1:250. From these 250 records, 1 complete record is taken out. Assuming to not know what the true Y for this record is, one can only state that this outcome lives in the range of all possible future outcomes $\boldsymbol{Y}$. The approach is to take n values as possible outcomes out of $\boldsymbol{Y}$ and reunite each of these n "invented" records with the 249 unchanged ones, ending up again with n sets of records. For each set, a new model is fitted what is computationally costly. Predicting with each of these different models the value that was left out, and applying a score function to this outcome, one ends up with n score values. From here one would go on and create prediction intervals. However, in the context of the pnbd-model, it is not possible to continue because this model does not consider the true outcomes when fitting the model, as it is exclusively focused on the purchase history of customers. Therefore, fitting n models by supplying n different outcomes for Y would not lead to different models and would not allow to form PIs.\\\\
+\subsubsection{Conformal prediction} \label{section:Conformal Prediction General}
+Conformal prediction, or Conformal Inference, is a relatively young method to derive prediction intervals with attractive empirical guarantees and few assumptions about the data and the model form to which it is applied. \cite{1CP} It was first introduced by \cite{23CP} and \cite{24CP} and gained a lot of attention in recent years. Conformal prediction has two main forms of implementation, Full conformal Prediction (Transductive Conformal Prediction) and Split Conformal Prediction (Inductive Conformal Prediction). Full CP has been developed first and Split CP has emerged as an important special case \cite{1CP} after being initially introduced by \cite{26CP} in 2002. The importance of the split version comes from the high computational costs associated with the full version but also sacrifices statistical efficiency \cite{1CP}. In this work, the focus will be exclusively put on the split version, because of the mentioned computational efficiency but also, which is crucial, because Full CP is not applicable for the PNBD-model. The reason for this shall be outlined in section \ref{section:Conformal prediction implementation}.\\
+
 Split conformal prediction\\
 Even though CP is applicable to both, regression and classification problems, the focus of this work is by default exclusively on regression.\\
-General procedure for of split conformal prediction in regression, following \cite{26CP}, \cite{1CP}, \cite{9CP}:
+General procedure for split conformal prediction in regression, following \cite{1CP}, \cite{26CP}, \cite{9CP}:
 
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
     \item Split the data in training, calibration and test set
     \item Fit the prediction model on the training set
     \item Make predictions with this model on the calibration set
     \item “Identify a heuristic notion of uncertainty […]” (\cite{1CP}, p. 5), e.g. the absolute error of a prediction $|y_{i} - \hat{f}(x_{i})|$
-    \item Define a score function (A score function can be chosen arbitrarily if it has the right orientation, i.e. lower values are better) \cite{9CP} and apply this function to the forecasting errors
-    \item Compute the quantile as see \cite{1CP}, p.5 of the calibration scores
+    \item Define a score function (A score function can be chosen arbitrarily as long as it has the right orientation, i.e. lower absolute values are better) \cite{9CP} and apply this function to the forecasting errors of the calibration set
+    \item Take the desired (1-$\alpha$)-quantile of the scaled errors as defined in \cite{1CP}
+    \begin{equation}
+        \hat{q} = \lceil(n+1)(1-\alpha)\rceil/n \label{eq:1}
+    \end{equation}
     \item Make predictions on the test set
     \item Use the previously calculated quantile to form prediction intervals (add/subtract the quantile from the point predictions of the test set)
 \end{enumerate}
-Regardless of the score function, these intervals have the coverage guarantee, defined in \cite{23CP}, and the concrete formulation taken from \cite{1CP}, p.6
+Regardless of the score function, these intervals have the coverage guarantee, defined in \cite{23CP} (concrete formulation taken from \cite{1CP}, p.6)
 
 \begin{equation}
     P\left(Y_{test} \in \boldsymbol{C}(X_{test})\right) \ge 1-\alpha
 \end{equation}
 
-\noindent The only condition that must hold for this coverage guarantee is exchangeability \cite{1CP} in a sense that records, from training, validation and test (what is being predicted) are exchangeable which is weaker than i.i.d. because exchangeability can be expressed with the following formula, see \cite{9CP}, p.3.
+\noindent The only condition that must hold for this coverage guarantee is exchangeability \cite{1CP} in a sense that records, from training, validation and test (what is being predicted) are exchangeable which is weaker than i.i.d. because exchangeability can be expressed as follows (see \cite{9CP}, p.3.)
 \begin{equation}
-    \left(Y_{1},...,Y_{n+1}\right) \overset{d}{=} \left(Y_{\sigma(1)},...,Y_{\sigma(n+1)} \right), \hspace{5pt} for \hspace{2pt} all \hspace{2pt} permutations \hspace{2pt} \sigma
+    \left(Y_{1},...,Y_{n+1}\right) \overset{d}{=} \left(Y_{\sigma(1)},...,Y_{\sigma(n+1)} \right), \hspace{5pt} for \hspace{3pt} all \hspace{3pt} permutations \hspace{3pt} \sigma
 \end{equation}
 
-\noindent This implies that the distribution after splitting the data randomly is expected to be the same in each split.\\
-The concrete implementation of CP for the pnbd case will be done in the next chapter.
+\noindent It implies that the distribution after splitting the data randomly is expected to be the same in each split.\\
+The concrete implementation of CP for the PNBD model will be shown in the section \ref{section:Conformal prediction implementation}.
 
 
-\subsubsection{Measures to assess reliability and sharpness}
-The goal of this work is to assess different methods in their performance to derive prediction intervals and benchmark them against the Bootstrap approach. To fulfill this goal, several measures will be introduced in the following. They mainly address coverage, width and combined performance. The table below informs about recent works which employed these methods and how they are useful.
+\subsection{Measures to assess prediction intervals}
+One objective of this work is to assess the performance of prediction intervals derived from different methods and benchmark them against the Bootstrap approach. To achieve this goal, several measures will be introduced in the following. They mainly address coverage, width and combined performance. The table below informs about recent works which employed these methods and how they are useful.
 
-\paragraph{PICP (Prediction Interval Coverage Probability)} \footnotemark{} \mbox{}\\
+\subsubsection*{PICP (Prediction Interval Coverage Probability)} \footnote{Different names have been found in the literature for this measure: \cite{2L}: Coverage; \cite{15PI}: True coverage; \cite{16PI}, \cite{20PI}, \cite{35PI}: PICP; \cite{31PI}: Coverage rate; \cite{38PI}: ECP (Empirical coverage probability)} 
 This measure holds the percentage of cases when the true value lays inside the constructed PI.
 \begin{equation}
     PICP = \frac{1}{n} * \sum_{i=1}^{n} \mathbbm{1} (y_{i} \in PI_{i})
 \end{equation}
 
-\footnotetext{Different names have been found in the literature for this measure: \cite{2L}: Coverage; \cite{15PI}: True coverage; \cite{16PI}, \cite{20PI}, \cite{35PI}: PICP; \cite{31PI}: Coverage rate; \cite{38PI}: ECP (Empirical coverage probability)}
+\subsubsection*{ACE (Average Coverage Error)\footnotemark{}} 
+This measure indicates how much on average the Prediction Interval Nominal Confidence, PINC, i.e. 90\% and the actual coverage, PICP, differ.
 
-\paragraph{ACE (Average Coverage Error)} \footnotemark{} \mbox{}\\
-This measure indicates how much on average the Prediction Interval Nominal Confidence, PINC, i.e. 90\% and the true coverage, PICP, differ.
+\footnotetext{Different names have been found in the literature for this measure: \cite{16PI}, \cite{20PI}, \cite{38PI}: ACE; \cite{31PI}: ACD (absolute coverage difference)}
 
 \begin{equation}
     ACE = PINC - PICP
 \end{equation}
-\footnotetext{Different names have been found in the literature for this measure: \cite{16PI}, \cite{20PI}, \cite{38PI}: ACE; \cite{31PI}: ACD (absolute coverage difference)}
-\paragraph{PICPW (Prediction Interval Coverage Probability Weighted)}\mbox{}\\
-This measure assesses how the coverage develops for more valuable customers. It weighs the coverage with the number of true transactions and therefore overweighs important customers compared to the neutral PICP. E.g. if there were 1000 repeat purchases across all customers of a dataset, a customer has 15 purchases and the interval covers these 15, this “1” for “value covered” would be weighted with 15/1000. If in contrast a customer makes 0 transactions, it would not increase PICPW, regardless of the interval covering this value because its weight is 0/1000. Hence PICPW only measures if high value customers are identified and not if low value customers are identified. Obviously, it must be evaluated together with the width. Another interpretation of this measure is essentially the coverage of repurchases across the customer base.
+
+\subsubsection*{PICPW (Prediction Interval Coverage Probability Weighted)}
+It weighs the coverage by the number of true transactions and, therefore, overweighs important customers compared to the neutral PICP. For example, if there are 1,000 repeat purchases across all customers in a dataset, a customer with 15 purchases, whose interval covers these 15, would have this “1” for "True" or “value covered” weighted as 15/1,000. In contrast, if a customer made 0 transactions, it would not increase PICPW, regardless of whether the interval covers this value, because its weight is 0/1,000. Hence, PICPW measures whether high-value customers are identified, placing less importance on low-value customers. Another, more intuitive interpretation of this measure is that it essentially represents the coverage of repurchases across the customer base.
 
 \begin{equation}
     PICPW = \sum_{i=1}^{n} \mathbbm{1} (y_{i} \in PI_{i}) * \frac{y_{i}}{\sum_{j=1}^{n} y_{j}}
 \end{equation}
 
-\paragraph{PIARW (Prediction Interval Average Relative Width)}\mbox{}\\
-This measure assesses the interval width with respect to the level of the estimation. It takes account of the special CET situation where the predictions have significantly different values and hence, intervals must be assessed accordingly. E.g. an interval having the width of 4 is of different value for a prediction of 1.2 and a prediction of 50. The actual PIARW is the mean over all customers.
+\subsubsection*{PIARW (Prediction Interval Average Relative Width)}
+This measure assesses the interval width with respect to the level of the estimation. It takes into account the special CET situation where the predictions have significantly different values and hence, intervals must be assessed accordingly. E.g. an interval having the width of 4 is of different value for a prediction of 1 and a prediction of 50. The actual PIARW is the mean over all customers.
 
 \begin{equation}
     PIARW = \frac{1}{n} * \sum_{i=1}^{n} \frac{UL_{i}-LL_{i}}{est_{i}}
 \end{equation}
 
-\paragraph{PIARWW (Prediction Interval Average Relative Width Weighted)}\mbox{}\\
-This measure is the equivalent for PICPW but for PIARW.
+\subsubsection*{PIARWW (Prediction Interval Average Relative Width Weighted)}
+Like PICPW, PIARWW puts higher value to interval widths of more important customers. In contrast, all PIARWs of customers with >0 repurchases are considered, not just those which actually cover the true value.
 
 \begin{equation}
     PIARWW = \sum_{i=1}^{n} \frac{UL_{i}-LL_{i}}{est_{i}} * \frac{y_{i}}{\sum_{j=1}^{n} y_{j}}
 \end{equation}
 
-\paragraph{MSIS (Mean Scaled Interval Score)} \footnotemark{} \mbox{}\\
-The MSIS is based on the interval score, proposed by (36PI) but scaled by the estimation and averaged over all customers. In other time-series contexts, see the table below, the scaling is done with the seasonal differences which is not applicable here. This measure assesses reliability and sharpness at the same time because it penalized interval width and true values outside of the CI. A low value is therefore better than a higher one.
+\subsubsection*{MSIS (Mean Scaled Interval Score)}
+The MSIS is based on the interval score proposed by \cite{36PI}, but scaled by the prediction and averaged over all customers. In other time-series contexts, see table \ref{table:Measures}, the scaling is done with the seasonal differences which is not applicable here. This measure assesses reliability and sharpness at the same time because it penalizes interval width and true values outside of the PI. A lower value is therefore better than a higher one.
 \begin{equation}
     MSIS = \frac{1}{n} * \sum_{i=1}^{n} \frac{UL_{i} - LL_{i}}{est_{i}} + \frac{2}{\alpha} * \left(\mathbbm{1} (y_{i} > UL_{i}) * \frac{y_{i} - UL_{i}}{est_{i}} + \mathbbm{1} (y_{i} < LL_{i}) * \frac{LL_{i} - y_{i}}{est_{i}}\right)
 \end{equation}
-\footnotetext{In the works that used this measure before, it was in a time-series context and scaled by seasonal differences. In the CLV context, this scaling is not applicable and is replaced with a scaling by est.}
 
-\paragraph{SWR (Sharpness Width Ratio)}\mbox{}\\
-This measure evaluates coverage per width achieved by the intervals. A higher value is better than a lower.
+\subsubsection*{SWR (Sharpness Width Ratio)}
+This measure evaluates coverage per width achieved by the intervals. A higher value is better than a lower value.
 
 \begin{equation}
     SWR = \frac{PICP}{MSIW}
 \end{equation}
 
-\paragraph{Upper coverage}\mbox{}\\
+\subsubsection*{Upper coverage}
 This measure indicates the percentage of times the upper prediction limit was not exceeded by the true value.
 
 \begin{equation}
     Upper \hspace{3pt} coverage = \frac{1}{n} * \sum_{i=1}^{n} \mathbbm{1}(y_{i} \le UL_{i})
 \end{equation}
 
-\paragraph{Lower coverage}\mbox{}\\
-This measure indicates the percentage of times the lower prediction limit was smaller than the true value.
+\subsubsection*{Lower coverage}
+This measure indicates the percentage of times the lower prediction limit was lower than the true value.
 
 \begin{equation}
     Lower \hspace{3pt} coverage = \frac{1}{n} * \sum_{i=1}^{n} \mathbbm{1}(y_{i} \ge LL_{i})
 \end{equation}
 
-\paragraph{Computational time}\mbox{}\\
-This measure holds the time which was needed by a method to calculate the prediction intervals.
+\subsubsection*{Computational time}
+This measure holds the time taken by a method to calculate the PIs on a dataset. The time must be interpreted with caution because methods can be implemented with varying effort and precision, e.g. the bootstrap method can have 100 or 1000 bootstrap samples what changes the result a lot. More information on this will be provided in the Results section of this work.
 
-\paragraph{Summary}\mbox{}\\
-The following table is not exhaustive in a sense that it does not contain all papers that dealt with evaluating their PIs but contains a collection of recent studies that employed inter alia methods that are applicable for the CET context as well.
+\subsubsection*{Summary}
+The following table is not exhaustive in a sense that it does not contain all papers that dealt with evaluating their PIs but contains a collection of recent studies that employed inter alia methods that are applicable for the CET context as well. On the right part, the targeted characteristics of each measure are indicated.
 
 \begin{table}[!ht]
     \centering
@@ -281,7 +284,7 @@ The following table is not exhaustive in a sense that it does not contain all pa
     \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
     \hline
         ~ & 
-        \cite{2L} & \cite{15PI} & \cite{16PI} & \cite{20PI} & \cite{31PI} & \cite{35PI} & \cite{36PI} & \cite{60PI} & \cite{60PI} & \cite{38PI} & \cite{59PI} & \cite{39PI} & 
+        \cite{2L} & \cite{15PI} & \cite{16PI} & \cite{20PI} & \cite{31PI} & \cite{35PI} & \cite{36PI} & \cite{60PI} & \cite{38PI} & \cite{59PI} & \cite{39PI} & 
         \rotatebox{90}{This work} & 
         \rotatebox{90}{\makecell[l]{Reliability \\ and Sharpness}} & 
         \rotatebox{90}{Reliability} & 
@@ -290,154 +293,184 @@ The following table is not exhaustive in a sense that it does not contain all pa
         \rotatebox{90}{\makecell[l]{Upside \\ potential}} & 
         \rotatebox{90}{\makecell[l]{Context \\ independent \\ Generalizability}} \\ \hline
         
-        PICP & x & x & x & x & x & x & ~ & x & x & x & x & ~ & x & ~ & x & ~ & ~ & ~ & x \\ \hline
-        ACE[3] & ~ & ~ & x & x & x & ~ & ~ & ~ & ~ & x & ~ & ~ & x & ~ & x & ~ & ~ & ~ & x \\ \hline
-        PICPW & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & ~ & x & x \\ \hline
-        PIARW & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & x & ~ & x & ~ & x & ~ & ~ & x & ~ & ~ & ~ \\ \hline
-        PIARWW & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & ~ & x & ~ & ~ & ~ \\ \hline
-        MSIS[1] & x & ~ & ~ & ~ & x & ~ & x & ~ & ~ & ~ & ~ & x & x & x & ~ & ~ & ~ & ~ & ~ \\ \hline
-        SWR & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & x & ~ & ~ & ~ & ~ & x \\ \hline
-        Upper coverage & x & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & ~ & x & x \\ \hline
-        Lower coverage & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & x & ~ & x \\ \hline
-        Comp. time & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & ~ & ~ & ~ & ~ & x \\ \hline
+        PICP & x & x & x & x & x & x & ~ & x & x & x & ~ & x & ~ & x & ~ & ~ & ~ & x \\ \hline
+        ACE[3] & ~ & ~ & x & x & x & ~ & ~ & ~ & x & ~ & ~ & x & ~ & x & ~ & ~ & ~ & x \\ \hline
+        PICPW & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & ~ & x & x \\ \hline
+        PIARW & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & x & ~ & ~ & x & ~ & ~ & ~ \\ \hline
+        PIARWW & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & ~ & x & ~ & ~ & ~ \\ \hline
+        MSIS[1] & x & ~ & ~ & ~ & x & ~ & x & ~ & ~ & ~ & x & x & x & ~ & ~ & ~ & ~ & ~ \\ \hline
+        SWR & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & x & ~ & ~ & ~ & ~ & x \\ \hline
+        Upper coverage & x & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & ~ & x & x \\ \hline
+        Lower coverage & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & x & ~ & x & ~ & x \\ \hline
+        Comp. time & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & ~ & x & ~ & ~ & ~ & ~ & ~ & x \\ \hline
     \end{tabular}
     \end{adjustbox}
+    \caption{Measures to asses PIs}
+    \label{table:Measures}
 \end{table}
 
 
 \section{Main part}
 
-\subsection{Applied methods}
-In this chapter, it will be explained how the previously introduced methods to derive PIs are concretely implemented in the pnbd context.\\
+\subsection{Application of PI-generating methods}
+In this chapter, it will be explained how the previously introduced methods are implemented for the specific PNBD model to derive prediction intervals for a "current" customer cohort. The data sets on which the methods are applied and which are used for benchmarking will be introduced in section \ref{section:Data}.\\
 A few notes to make before going into detail with the single methods:
 \begin{itemize}
-    \item For Bootstrap, Mini bootstrap / Ensemble and the Bayesian method, only customer data from the current cohort are used without explicitly mentioning it.
-    \item For Quantile regression and Conformal prediction, in addition to the current cohort \footnotemark{}, and old cohort is necessary. It will be clearly indicated at any point which cohort is meant.
-    \item Each cohort has a holdout and a prediction period that is the same across methods but can differ across data sets. Find more information on the cohorts in tables \ref{gift data information} to \ref{apparel data information}.
-    \item This work uses $\alpha = 0.1$, therefore 90\% prediction intervals. Any other quantile is possible as well.
+    \item For Bootstrap, Mini bootstrap / Ensemble and the Bayesian method, only customer data from a current customer cohort are used without explicitly mentioning it.
+    \item For Quantile regression and Conformal prediction, in addition to the current cohort \footnotemark{}, an old cohort is necessary. It will be clearly indicated at any point which cohort is meant.
+    \item Each cohort has a holdout and a prediction period that is the same across methods but differs across data sets. Find more information on the cohorts in tables \ref{table:gift data} to \ref{table:apparel data}.
+    \item This work uses $\alpha = 0.1$, therefore 90\% prediction intervals are targeted. Any other quantile would be possible as well.
 \end{itemize}
-\footnotetext{In practice, the true cohort is the cohort of customers which joined 1 or 2 years ago and for whom their future behavior shall be predicted. In this work, also the current cohorts lay in the past for all data sets so that it can be checked if the methods really form PIs that cover the true data.}
+\footnotetext{In practice, the current cohort is the cohort of customers which joined 1 or 2 years ago and for whom the future behavior will be predicted. In this work, also the current cohorts lay in the past for all data sets, so that it can be assessed if the methods really form PIs that cover the true data.}
 
 \subsubsection{Bootstrap}
-The bootstrap approach is used as benchmark for all other methods to be introduced later, as it is the most established method, spread in all scientific domains and straight-forward to implement and understand. The procedure goes as follows.
+The bootstrap approach is used as main benchmark for all other methods, as it is the most established method, spread in all scientific domains and straight-forward to implement and understand. The procedure is implemented within CLVTools and works as follows.
 
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-    \item Create n bootstrap samples of the customers (and their respective transactions)
-    \item For each bootstrap sample, fit a new pnbd-model on the training period
-    \item With each model, estimate the CET for all customers for the holdout period
-    \item Take the central 90\% confidence interval of all predictions for each customer
+    \item Of a customer base of length n, sample n times a customer ID with their respective transactions.
+    \item Repeat Step 1 m times to receive m bootstrap samples
+    \item For each bootstrap sample, fit a new PNBD-model on the training period (leaving all setting constant, e.g. start parameters)
+    \item With each model, predict the CET for all customers for the holdout period
+    \item Take the $\frac{\alpha}{2}$ and $1-\frac{\alpha}{2}$ quantiles of these predictions to receive the PI boundaries on an individual customer level
 \end{enumerate}
 
-\noindent This approach has not been implemented as part of this work but is generally implemented in the R package CLVTools \cite{CLVTools}. For more detailed information regarding this procedure, refer to this package. 
+\noindent For more detailed information regarding this procedure, refer to this package the R package CLVTools \cite{CLVTools}. 
 
 \subsubsection{Mini bootstrap / Ensemble}
-As the name suggests, this method is a combination of several methods. Its idea has been introduced by \cite{57PI} and the implementation in the pnbd context follows their approach. 
+As the name suggests, this method is a combination of two methods. Its idea has been initially introduced by \cite{57PI} and the implementation in the PNBD context follows their approach. 
 
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-    \item Fit one single pnbd model on the training period of all customers
-    \item Receive parameter estimates and the respective covariance matrix
-    \item From these estimates and the covariance matrix, simulate n draws of the parameters, assuming the parameters to be multivariate normal distributed
+    \item Fit one single PNBD model on the training period of all customers
+    \item Receive parameter estimates and their respective covariance matrix
+    \item With the information about estimates and covariance matrix, simulate n draws of parameters, assuming the parameters to be multivariate normal distributed, so that the totality of simulations mimics the the initial estimates and the covariance matrix.
     \item Each draw of this parameter simulation is the basis for a new model
     \item Run the prediction for the holdout period with each of these new models
     \item Receive n values for the CET
-    \item Take the central 90\% interval of the predictions for each customer
+    \item Take the $\frac{\alpha}{2}$ and $1-\frac{\alpha}{2}$ quantiles of these CET predictions to receive the PI boundaries on an individual customer level
 \end{enumerate}
-Its great advantage compared to the bootstrap is that requires only a single model fit.
+Its great advantage compared to the pure bootstrap is that it requires only a single model fit and is hence less computationally intense.
 
 \subsubsection{Bayesian method}
-This approach requires to fit the whole pnbd model with the Bayesian approach and then take the intervals from the posterior predictive distribution. As it would be out of scope for this work to re-estimate the model with the Bayesian approach, the existing implementation from the BTYDplus package \cite{BTYDplus} in R was used. Therefore, only a rough explanation how the Bayesian model fitting works will be given. For more detailed information, refer to the mentioned package.
+This approach requires to fit the PNBD model with the Bayesian approach and then take the intervals from a posterior predictive distribution. As re-estimating the model with the Bayesian approach would be out of scope for this work, the existing implementation within the BTYDplus package \cite{BTYDplus} in R is used. Therefore, only a rough explanation how the Bayesian model fitting works will be given. For more detailed information, refer to the mentioned package.
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-    \item Estimate the pnbd model with the Bayesian approach: (BTYDplus package)
+    \item Estimate the PNBD model with the Bayesian approach: (BTYDplus package)
     \begin{itemize}
         \item No previous information about the parameter distribution is given
         \item Use the mcmc method to get the posterior parameter distribution
-        \item From this distribution, use again the mcmc method to get the draws of the posterior predictive distribution
+        \item From this distribution, use again the mcmc method to get the draws of the posterior predictive CET distribution
     \end{itemize}
-    \item Take the central 90\% quantile of the posterior predictive CET distribution for each customer
+    \item Take the $\frac{\alpha}{2}$ and $1-\frac{\alpha}{2}$ quantiles of the posterior predictive CET distribution to receive the PI boundaries on an individual customer level
 \end{enumerate}
 
-\subsubsection{Quantile regression}
-As indicated before, the implementation of Quantile regression will be modified from the “original” approach but keeps the idea of direct interval estimation. To avoid introducing an optimization in the model fitting process, the optimization is 1. Conducted after the model fitting and 2. Broken down into to a grid search. In addition, for this method to work, it is necessary to have an old and a current cohort, each with a training and a holdout period. The reason for this issue will be more cleared in the following procedure and the explanation below.\\\\
-This first part is conducted on the old cohort.
+\subsubsection{Quantile regression} \label{section:Quantile regression implementation}
+As indicated before, the implementation of Quantile regression will be modified from the “original” approach but keeps the idea of direct interval estimation. To avoid introducing an optimization within the model fitting process, the optimization is 1. Conducted after the model fitting and 2. Broken down into to a grid search. In addition, for this method to work, it is necessary to have an old and a current cohort, each with a training and a holdout period. The reason for this issue will be clarified in the following procedure and the explanation below.\\\\
+This first part is conducted on an old cohort.
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
     \item Build a grid of potential parameter combinations \emph{1:M}
-    \item Each parameter combination $m$ is the basis for a new model
-    \item Predict the CET for each customer with every new model
-    \item Each model $m$ will predict a certain amount of overestimations and underestimations, while it is the objective to find those combinations that yield 5\% and 95\% overpredictions. To assess how good each parameter combination $m$ performs, introduce a distance measure what serves as a loss function for the
+    \item Each parameter combination is the basis for a new model $m$
+    \item Predict the CET for each customer with every new model $m$
+    \item Each model will create a certain amount of overestimations and underestimations, while it is the objective to find those models that yield $\frac{\alpha}{2}*100$\% and $(1-\frac{\alpha}{2})*100$\% overpredictions. To assess how good each model performs, introduce a distance measure that serves as a loss function for the
     \begin{itemize}
-        \item Upper bound parameters (only $\frac{\alpha}{2}$ of the true values should be \emph{above} the predictions)\\
+        \item Upper boundary parameters (only $\frac{\alpha}{2}$ of the true values should be \emph{above} the predictions)\\
         \begin{equation}
-            loss\_upper_m = \left( \frac{1}{n} \sum_{i=1}^{n} \mathbbm{1} (y_{i} \ge est_{i}) \right) - \frac{\alpha}{2}
+            loss\_upper_m = \left| \left( \frac{1}{n} \sum_{i=1}^{n} \mathbbm{1} (y_{i} \ge est_{i,m}) \right) - \frac{\alpha}{2} \right|
         \end{equation}
-        \item Lower bound parameters (only $\frac{\alpha}{2}$\ of the true values should be \emph{below} the predictions)\\
+        \item Lower boundary parameters (only $\frac{\alpha}{2}$\ of the true values should be \emph{below} the predictions)\\
         \begin{equation}
-            loss\_lower_m = \left( \frac{1}{n} \sum_{i=1}^{n} \mathbbm{1} (y_{i} \le est_{i}) \right) - \frac{\alpha}{2}
+            loss\_lower_m = \left| \left( \frac{1}{n} \sum_{i=1}^{n} \mathbbm{1} (y_{i} \le est_{i,m}) \right) - \frac{\alpha}{2} \right|
         \end{equation}
         The first part of the equations measures exactly the coverage and then $\frac{\alpha}{2}$ is deducted.
     \end{itemize}
-    \item Collect these calculated differences
-    \item Select the parameter combinations $m_{1},m_{2}$ that yield the lowest absolute differences, one combination for the upper, one combination for the lower bound.
+    \item Collect the calculated differences
+    \item Select the parameter combinations $m_{u},m_{l}$ that yield the lowest absolute differences, one combination for the upper, one combination for the lower boundary.
 \end{enumerate}
-It is apparent that the true values $y_{i}$ are required in this method in order to calculate the coverage of each combination. In reality, one does either not have these values (because they lay in future, and they shall be predicted) or they are known because they lay in the past. Then, there would be no point in predicting them. To overcome this issue, the previous procedure was carried out on an old data set and now one assumes that customer behavior for one firm will not change a lot over time. In this case, there is no reason to assume that the optimal parameter combinations that yield the desired quantiles would change. So, the first part is run on old data of the company to figure out the optimal parameter combination for each limit and then use those on the new, interesting data to construct prediction intervals.\\
+It is apparent that the true values $y_{i}$ are required in this method in order to calculate the coverage each model yields. In reality, one does either not have these values (because they lay in the future, and they shall be predicted) or they are known because they lay in the past. Then, there would be no point in predicting them. To overcome this issue, the previous procedure was carried out on an old data set and now one assumes that customer behavior for one firm or dataset will not change a lot over time. In this case, there is no reason to assume that the optimal parameter combinations, which yield the desired quantiles, would change. In summary, the first part is run on old data of the company to figure out the optimal parameter combination for each boundary and then use those on the new, interesting data to construct prediction intervals.\\
 This second part is conducted on the new cohort.
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
     \item Fit a model on the training period
-    \item Make predictions an holdout (unknown) period
-    \item Make also predictions using the 2 parameter combinations that were derived before as models
-    \item These predictions are the upper and lower intervals limits
+    \item Make predictions for a holdout (unknown) period
+    \item Make also predictions using the 2 optimal models $m_{u},m_{l}$ that had been derived before
+    \item The resulting predictions from Step 3 are the upper and lower interval boundaries
 \end{enumerate}
 
-A few notes on the first part of the procedure:
+A few notes on modifications departing from the general description for the first part of the procedure:
 \begin{itemize}
-    \item For setting up the grid, it is helpful to have some prior knowledge where parameters should be located approximately. This step was done manually, running several attempts by hand for a rough orientation and then giving several alternative values around. It turns out that, regardless of the dataset (and in the next chapter, regardless of the learning and holdout period lengths), nearly the same parameters are selected. This is a very convenient situation for the application in practice as the combinations do not need to be identified anymore and one can run the approach on a smaller grid.
-    \item Many customers do not buy again after their initial purchase. Regardless, which parameter combination is selected, the model will never predict exactly 0, i.e. for the lower boundary, but something very close to 0. It makes sense to introduce a small tolerance and set those predictions to 0 which are reasonably close to 0 to give method a chance to perform well. This seems arbitrary but in practice, one could argue that a managerial decision for a customer will barely differ if CET = 0 or CET = 0.1 (what is the used tolerance). Also, one could argue that it is “unfair” against the other methods. Quantile regression is the only method that suffers from this issue and adding this tolerance increases at the same time the QR-interval’s width, so it comes at a cost. Doing this trade-off for other methods would not increase their performance.
+    \item For setting up the grid as narrow as possible and by this minimizing computational effort, it is helpful to have some prior knowledge where parameters should be located approximately. This step was done manually, running several attempts by hand for a rough orientation and then providing alternative values in this area. It turns out that, regardless of the dataset (and in the next chapter, regardless of the learning and holdout period lengths), nearly the same parameters are selected. This is a very convenient situation for the application in practice as the combinations do not need to be identified over and over again or one can run the approach on a smaller grid.
+    \item Many customers have no repurchases after their initial purchase. Regardless, which parameter combination is selected, the model will never predict exactly 0 (or negative) repurchases, what causes an issue for the lower boundary, which can only come very close to 0 but will never include 0. It makes sense to introduce a small tolerance and set those predictions to 0 which are reasonably close to 0 to give the method a chance to perform well. This seems arbitrary but in practice, one could argue that a managerial decision regarding a customer will barely differ if CET = 0 or CET = 0.1 (what is the used tolerance). Also, one could claim that it would be “unfair” to the other methods. Quantile regression is the only method that suffers from this problem and adding this tolerance increases at the same time the QR-interval’s width, so it comes at a cost. Doing this trade-off for other methods would not increase their performance.
 \end{itemize}
 
-\subsubsection{Conformal prediction}
-As indicated before, only Split Conformal prediction will be implemented. The implementation follows in principle the steps from the general description but there are several modifications to be made.
+\subsubsection{Conformal prediction} \label{section:Conformal prediction implementation}
+As indicated before, only Split Conformal prediction will be implemented because the full version is computationally much more intense and not applicable for the PNBD model. The following paragraph outlines why by the help of a basic example:\\\\
+Full conformal prediction\\
+Following \cite{1CP} and \cite{9CP}, full conformal prediction is implemented as follows: Assume there are 250 records of a) predictors $X_{i}$ = 1:250 and b) observed outcomes $Y_{i}$ = 1:250. From these 250 records, 1 complete record is taken out. Assuming to not know what the true Y for this record is, one can only state that this outcome lives in the range of all possible future outcomes $\boldsymbol{Y}$. The approach is to take n values as possible outcomes out of $\boldsymbol{Y}$ and reunite each of these n "invented" records with the 249 unchanged ones, ending up again with n sets of records. For each set, a new model is fitted what is computationally costly. Predicting with each of these different models the value that was left out, and applying a score function to this outcome, one ends up with n score values. From here one would go on and create prediction intervals. However, in the context of the PNBD-model, it is not possible to continue because it does not consider the true outcomes when fitting the model, as it is exclusively focused on the purchase history of customers. Therefore, fitting n models by supplying n different outcomes for Y would not lead to different models and would in turn not allow to form PIs.\\\\
+
+The implementation of Split CP follows in principle the steps from the general description but there are several modifications to be made.
 \begin{enumerate}
-    \item Heteroskedasticity of the outcomes: It appears that customers have a very different repurchasing behavior and might buy again 0 or 50 times. When the model is off by 3, say for the first customer ($y_{1}$ = 0), it predicts 3 and for the second customer ($y_{2}$ = 50) it predicts 53, the absolute delta would be equal, but the model would have done a bad job for the first customer and good job for the second customer. Assuming that model is equally good at all levels, it is reasonable to employ prediction intervals that are adaptive. Otherwise, the method would suffer from over coverage for small and under coverage for large values. A solution to that issue is given in \cite{1CP} \& \cite{9CP}, as they suggest scaling the residuals by their standard deviation, “studentization”. The approximate standard deviation for customers of one company can be approximated as a linear function of their CET level, retrieving $sd(CET_{i})$. This process is conducted on the old cohort can be summarized as
+    \item Heteroskedasticity of the outcomes: It appears that customers have a very different repurchasing behavior and might buy again 0 or 50 times within the same dataset. When the model is off by 3, say for the first customer ($y_{1}$ = 0), it predicts 3 and for the second customer ($y_{2}$ = 50) it predicts 53, the absolute delta will be equal, but the model would have done a bad job for the first customer and good job for the second customer. Assuming that the absolute error is increasing with the CET level, it is reasonable to employ prediction intervals that are adaptive. Otherwise, the method would suffer from over coverage for small and under coverage for large CET values. A possible solution is given in \cite{1CP} \& \cite{9CP}, as they suggest scaling the residuals by e.g. their standard deviation, “studentization”. For reasons of simplicity, the used scale will be the expected absolute difference between true value and prediction (prediction error), depending exclusively on the level of the prediction.\footnote{This is a strong assumption but reasonable to some extent, see figure \ref{fig:Rel. model error gift} - \ref{fig:Rel. model error apparel}, especially without a valid alternative.} The process of deriving the model that predicts the error is conducted on the old cohort and is straight forward:
     \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-        \item Fit pnbd-model on the training data
+        \item Fit PNBD-model on the training data
         \item Make predictions on the holdout period
-        \item Get the absolute differences for each prediction to their true value
-        \item Fit a linear model \(absolute\_difference(CET_{i}) \sim CET_{i}\)
+        \item Get the absolute differences for each prediction and its true value
+        \item Fit a linear model: \(absolute\_difference(CET_{i}) \sim CET_{i}\)
     \end{enumerate}
-    For every CET, there is now a reasonable scale.
-    \item As it was the problem with Quantile regression before, Conformal prediction needs the true data as well, not only for the standard deviation but the actual method functionality. Again, one could make the assumption that customers’ behavior for one firm is approximately constant over time. The whole process of model fitting, and derivation of the quantile and standard deviation could therefore be conducted on the old cohort where the true transactions are known. Quantile and standard deviation are then forwarded to the current cohort.
-    \item Compared to the standard procedure, described in the previous chapter, it is not necessary to use a validation set to get the quantiles. In the standard procedure, a model is fitted on training data and if the quantiles were taken from the predictions on these known training data, one would expect them to be too small because the model knows those data and would overfit compared to unknown data. This is not the case in the pnbd model because, in order to predict the CET of the new cohort, a new model is fitted on exactly those new customers. Therefore, it is expected that the quantiles fitted on the "known" training customers will be adequate for customers which are known to the new model. In other words, the model used to get the quantile knows its customers and the model on which the quantiles are applied, knows its customers as well, hence the quantiles should be adequate from this point of view.
+    For every CET, there is now a reasonable scale available.
+    \item As it was the problem with Quantile regression before, Conformal prediction needs the true data as well, not only for the scaling but the actual method functionality, too. Again, one could make the assumption that customers’ behavior for a firm is approximately constant over time. The whole process of model fitting, and derivation of the quantile and scaling is therefore conducted on the old cohort where the true transactions are known. The quantile and standard deviation model are then forwarded to the current cohort.
+    \item In contrast to the standard procedure in \ref{section:Conformal Prediction General}, it is not necessary to use a validation set to get the quantiles. In the standard procedure, a model is fitted on training data and the quantile is derived from a validation set. If the quantile were taken from predictions on the known training data, they would be too small because the model knows these data, leading to underfitting on unknown data. This is not the case in the PNBD model because, in order to predict the CET of the new cohort, a new model is fitted on exactly those new customers. Therefore, it is expected that the quantiles fitted on the "known" training customers will be adequate for customers which are known to the new model. In other words, the model used to get the quantile knows its customers and the model on which the quantiles are applied, knows its customers as well, hence the quantiles should be adequate from this point of view.
 \end{enumerate}
-Assuming that the linear model for the standard deviation has been derived already, the whole process can be summarized:\\\\
+Assuming that the linear model for the standard deviation has been derived already, the whole process is summarized in the following:\\\\
 For the old cohort
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
     \item Split the data set into a training and a test set (split customer wise)
-    \item Train the pnbd-model on the training set
+    \item Train the PNBD-model on the training set
     \item Make point predictions on this training and test set
-    \item Take the absolute deviations from the training set's true values and scale them (divide by the customers' respective estimated standard deviation from the previously fitted linear model)
-    \item Take the desired x\%-quantile of the scaled residuals (formula)
-    \item For each customer in the \textbf{test set}, rescale the quantile by multiplying with the individual linearly estimated standard deviation for each customer
+    \item Take the absolute differences between the predictions from the training set and their true values.
+    \item Scale the differences (divide by the customers' respective estimated absolute difference from the previously fitted linear model)
+    \item Take the desired (1-$\alpha$)-quantile of the scaled residuals with equation \ref{eq:1} as defined in \cite{1CP}
+        $\hat{q} = \lceil(n+1)(1-\alpha)\rceil/n$
+    \item For each customer in the \textbf{test set}, rescale the quantile by multiplying with the individual linearly estimated absolute difference for each customer
     \item Add and subtract these individually scaled quantiles to/from the point predictions on the test set
-    \item Evaluate the average coverage on the test set
+    \item Evaluate the coverage on the test set
 \end{enumerate}
 Theoretically, it is not necessary to split the old data set and make this test from step 5 to step 7, but it is reasonable to check if the quantile works at least with old data before transferring it to the new data.\\\\
 For the new cohort
 \begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
-    \item Train the pnbd-model on the new training data
+    \item Train the PNBD-model on the new training data
     \item Make point predictions for the holdout (unknown) period
-    \item Rescale the quantile from the old cohort with the predicted standard deviation for each customer $i$: $quantile * sd(CET_{i})$
-    \item Subtract and add the individually scaled quantile for each point prediction
+    \item Rescale the quantile from the old cohort with the estimated absolute difference for each customer $i$: $quantile * sd(CET_{i})$
+    \item Subtract/add the individually scaled quantile from/to each customers' point prediction to get the lower and upper interval boundaries
 \end{enumerate}
 
+\textbf{Conformal prediction Repeated, CR}\\
+To overcome a potential bias, when splitting into training and test set, a second version of CP is implemented in this work. It will be called Conformal prediction Repeated, CR. It is basically the same procedure but the splitting into training and testing and the connected quantile generation is repeated n times. Subsequently, the average over all n quantiles is taken to avoid the previously mentioned potential bias. This is only a side implementation and shall not be discussed any further but might become relevant for applications with a very limited database.\\
 
-Important remark for Quantile regression and Conformal prediction: When assuming the temporal consistency of parameters (QR) and quantiles (CP), this is valid for both directions. This means that for long time customers, for whom there don't exist any previous cohort, the parameters/quantile taken from a new cohort should be valid as well when estimating their CET uncertainty. One might legitimately argue that their behavior is not expected to be the same like for new customers as we know that those 1. have been loyal for a long time and 2. might indeed physically die when considering they have been customers in e.g. a pharmacy for 40 years.
+Important remark for Quantile regression and Conformal prediction: When assuming temporal consistency of parameters (QR) and quantiles (CP), this is valid for both directions. This means that for long time customers, for whom there is no previous cohort, the parameters/quantile taken from a newer cohort should be valid as well when estimating their CET uncertainty. One might justifiably argue that their behavior cannot be expected to be the same as for new customers as we know that they 1. have been loyal for a long time already and 2. might indeed have a higher likelihood to physically die when considering they have been customers in e.g. a pharmacy for 40 years.
 
 \subsubsection{Conceptual comparison of the methods}
+The following table gives an overview about the general characteristics and assumptions of the single introduced approaches.
 
-\subsection{Data}
-The introduced methods will be deployed on 4 data sets, containing transactions from customers of different retailing industries. As QR, CP and CR need an old cohort with training and prediction period to work, from all data sets an old cohort and a new cohort will be taken, each with fixed training and prediction periods that are equal for all methods. The learning periods for all data sets and cohorts are approximately 1 year. The holdout period for the gift and electronics data set are also 1 year for each cohort and for the multi-channel retailer and the apparel retailer, the holdout periods are 2 years. For more details regarding the data sets, see the tables below. The tables follow mainly the data descriptions in \cite{34L}.
+\begin{table}[!h]
+\centering
+    \setlength{\tabcolsep}{2pt} % Adjust space between columns
+    \renewcommand{\arraystretch}{1.5} % Adjust row height
+    \begin{adjustbox}{width=\textwidth}
+        \begin{tabular}{|>{\raggedright\arraybackslash}m{1cm}>{\raggedright\arraybackslash}m{1.5cm}|>{\raggedright\arraybackslash}m{2cm}|>{\raggedright\arraybackslash}m{3.6cm}|>{\raggedright\arraybackslash}m{2cm}|>{\raggedright\arraybackslash}m{2cm}|>{\raggedright\arraybackslash}m{2cm}|}
+        \hline
+        \multicolumn{2}{|m{4cm}|}{Method} & Focused uncertainty & Assumptions made & True values needed & Approach complexity & Frequentist approach \\ \hline
+        \multicolumn{2}{|m{4cm}|}{Bootstrap} & Epistemic & In this context none & No & Medium & Yes \\ \hline
+        \multicolumn{2}{|m{4cm}|}{Ensemble} & Epistemic & Normal distribution of re-sampled parameters & No & Low & Yes \\ \hline
+        \multicolumn{2}{|m{4cm}|}{Bayesian} & Epistemic, Aleatory & None but knowledge about prior parameter distribution can enhance results & No & High & No \\ \hline
+        \multicolumn{2}{|m{4cm}|}{Quantile regression} & Epistemic, Aleatory & None & Yes & Medium & Yes \\ \hline
+        \multicolumn{1}{|m{2cm}|}{\multirow{2}{*}{\begin{tabular}[c]{@{}m{4cm}@{}}Conformal\\ prediction\end{tabular}}} & CP & Epistemic, Aleatory & Exchangeability & Yes & Medium & Yes \\ %\cline{2-8} 
+        \multicolumn{1}{|m{2cm}|}{} & CR & Epistemic, Aleatory & Exchangeability & Yes & Medium & Yes \\ \hline
+    \end{tabular}
+    \end{adjustbox}
+\end{table}
 
-Gift
-\begin{table}[!ht]
+\subsection{Data} \label{section:Data}
+The introduced methods will be deployed on 4 real-world data sets, containing transactions from customers of different retailers. As QR, CP and CR require an old cohort with training and prediction period, an old cohort and a new cohort will be created for all data sets, each with training and prediction periods that are equal for all methods. The learning periods for all data sets and cohorts are approximately 1 year. The holdout period for the gift and electronics data set are also 1 year for each cohort and 2 years for the multi-channel and the apparel retailer. For more details regarding the data sets, see the tables below. These tables follow mainly the data presentations in \cite{34L}.
+
+\subsubsection*{Gift retailer}
+\begin{table}[H]
     \centering
     \begin{adjustbox}{width=\textwidth}
     \begin{tabular}{|l|l|l|l|l|l|l|}
@@ -454,11 +487,11 @@ Gift
     \end{tabular}
     \end{adjustbox}
     \caption{Gift retailer data set}
-    \label{gift data information}
+    \label{table:gift data}
 \end{table}
 
-el
-\begin{table}[!ht]
+\subsubsection*{Electronics retailer}
+\begin{table}[H]
     \centering
     \begin{adjustbox}{width=\textwidth}
     \begin{tabular}{|l|l|l|l|l|l|l|}
@@ -475,11 +508,11 @@ el
     \end{tabular}
     \end{adjustbox}
     \caption{Electronics retailer data set}
-    \label{el data information}
+    \label{table:el data}
 \end{table}
 
-multi
-\begin{table}[!ht]
+\subsubsection*{Multichannel retailer}
+\begin{table}[H]
     \centering
     \begin{adjustbox}{width=\textwidth}
     \begin{tabular}{|l|l|l|l|l|l|l|}
@@ -496,11 +529,11 @@ multi
     \end{tabular}
     \end{adjustbox}
     \caption{Multi-channel retailer data set}
-    \label{multi data information}
+    \label{table:multi data}
 \end{table}
 
-Apparel
-\begin{table}[!ht]
+\subsubsection*{Apparel retailer}
+\begin{table}[H]
     \centering
     \begin{adjustbox}{width=\textwidth}
     \begin{tabular}{|l|l|l|l|l|l|l|}
@@ -517,36 +550,16 @@ Apparel
     \end{tabular}
     \end{adjustbox}
     \caption{Apparel retailer data set}
-    \label{apparel data information}
+    \label{table:apparel data}
 \end{table}
-
-\begin{table}[]
-\centering
-    \setlength{\tabcolsep}{2pt} % Adjust space between columns
-    \renewcommand{\arraystretch}{1.5} % Adjust row height
-    \begin{adjustbox}{width=\textwidth}
-        \begin{tabular}{|>{\raggedright\arraybackslash}m{1.5cm}>{\raggedright\arraybackslash}m{1cm}|>{\raggedright\arraybackslash}m{2cm}|>{\raggedright\arraybackslash}m{3cm}|>{\raggedright\arraybackslash}m{2cm}|>{\raggedright\arraybackslash}m{2.5cm}|>{\raggedright\arraybackslash}m{2cm}|>{\raggedright\arraybackslash}m{2cm}|}
-        \hline
-         \multicolumn{2}{|m{4cm}|}{Method} & Focused uncertainty & Assumptions & True values needed & Computational effort & Approach complexity & Frequentist approach \\ \hline
-        \multicolumn{2}{|m{4cm}|}{Bootstrap} & Epistemic & In this context none & No & Medium & Low & Yes \\ \hline
-        \multicolumn{2}{|m{4cm}|}{Ensemble} & Epistemic & Normal distribution of re-sampled parameters & No & Low & Low & Yes \\ \hline
-        \multicolumn{2}{|m{4cm}|}{Bayesian} & Epistemic, Aleatory & None but knowledge about prior parameter distr. can enhance results & No & High & High & No \\ \hline
-        \multicolumn{2}{|m{4cm}|}{Quantile regression} & Epistemic, Aleatory & None & Yes & Depends on prior knowledge on parameters & Medium & Yes \\ \hline
-        \multicolumn{1}{|m{2cm}|}{\multirow{2}{*}{\begin{tabular}[c]{@{}m{4cm}@{}}Conformal\\ prediction\end{tabular}}} & CP & Epistemic, Aleatory & Exchangeability & Yes & Low & Medium & Yes \\ \cline{2-8} 
-        \multicolumn{1}{|m{2cm}|}{} & CR & Epistemic, Aleatory & Exchangeability & Yes & High & High & Yes \\ \hline
-    \end{tabular}
-    \end{adjustbox}
-\end{table}
-
 
 \subsection{Results}
 
-\subsubsection{Methods' performances and benchmarking the bootstrap approach}
-In the course of this work, all  methods are applied to all datasets and evaluated with the measures that were introduced above. The following table contains these results, which shall be subject to some deeper analyses.
+\subsubsection{General method performances}
+The performance of all methods across datasets and metrics is summarized in table \ref{Overall results} below and analyzed in the following sections.
 
-\paragraph{General performance}
 \begin{landscape}
-    \begin{table}[!ht]
+    \begin{table}[H]
     \centering
     \setlength{\tabcolsep}{3pt} % Adjust the horizontal spacing between columns
     \renewcommand{\arraystretch}{1.2} % Adjust the vertical spacing between rows
@@ -586,11 +599,12 @@ In the course of this work, all  methods are applied to all datasets and evaluat
             \hline
         \end{tabular}
         \caption{Results table with grouped method rows using multirow.}
+        \label{Overall results}
 \end{table}
 \end{landscape}
-\noindent The results table from the previous page have been summarized by every method by averaging over the respective results and a ranking of these averages has been produced. The following insights in the method performance are to be noted.
+\noindent The results table from the previous page is summarized by every method by averaging the respective results across datasets (table \ref{Averages table}) and a ranking of these averages (table \ref{Ranking table}).
 
-\begin{table}[h!]
+\begin{table}[H]
     \centering
      % Shift the table 1cm to the left
     \setlength{\tabcolsep}{4pt} % Adjust column separation
@@ -615,6 +629,7 @@ In the course of this work, all  methods are applied to all datasets and evaluat
         \end{tabular}
     \end{adjustbox}{}    
     \caption{Averages table}
+    \label{Averages table}
 \end{table}
 
 \begin{table}[h!]
@@ -635,74 +650,77 @@ In the course of this work, all  methods are applied to all datasets and evaluat
         \end{tabular}
     \end{adjustbox}{}    
     \caption{Ranking table}
+    \label{Ranking table}
 \end{table}
 
 \noindent Major findings
 \begin{enumerate}
-    \item The 2 bootstrap-based methods deliver consistently under coverage across data sets (BS, EN) while the 4 other methods deliver roughly the desired or even over coverage (BA, CP, CR, QR).
+    \item The 2 bootstrap-based methods (BS, EN) deliver consistently undercoverage across data sets while the 4 other methods (BA, QR, CP, CR) deliver roughly the desired or even over coverage.
     \item The widths of the 2 underperforming methods are significantly lower than the widths of the other 4 methods.
-    \item There is not trade-off method that combines both strengths and finds a compromise. This is visualized in graphics…
+    \item There is no trade-off method that combines both strengths and finds a compromise.
     \item CP and EN are significantly faster than all other methods, BA is the most time consuming.
 \end{enumerate}
 
-\noindent Other findings
+\noindent Additional findings
 \begin{enumerate}
-    \item When over weighing more important customers, generally decreases the the coverage, meaning that all methods perform better with important customers. The 4 satisfyingly covering methods range roughly between 50\% and 70\% with BA leading with 68.9\% over the next closest, QR with 58.4\%. The 2 bootstrap-based methods give relatively signifantly better results than without the weighing but are both still below 3\%.
-    \item Regarding the width, EN and BS have the by far lowest width with the respect to the prediction, followed by BA, CR and CP, serving a middle way. QR has in 2 data sets comparable values to these 3 methods but in the electronics and the multichannel case, it develops very far intervals, resulting in a very high average. One can infer for that the performance of QR has higher variability and dependence of the data set.
-    \item Intervals for all methods shrink in relation to CET. This can be mostly explained by not scaling with excessively small numbers.
-    \item The combined assessment of sharpness and width sees BS and EN on the lower rank, due to the penalization of non-coverages. The rest of the methods have roughly the same performance regarding MSIS with a slight disadvantage for BA.
+    \item Overweighting high value customers decreases the performance of the four methods with good overall coverage (BA, QR, CP, CR) significantly in absolute and relative numbers. \footnote{Roughly between 50\% and 70\% of overall transactions have been covered, to employ the 2nd interpretation.} For BS and EN, it enhances their performance but their coverage remains very low.
+    \item EN and BS have the by far lowest width with the respect to the prediction, followed by BA, CR and CP, serving a middle way. QR has in 2 data sets comparable values to these 3 methods but in the electronics and the multichannel case, it produces very wide intervals, resulting in a high average. It seems that the performance of QR has higher variability and dependency on the data set.
+    \item The scaled interval width PIARW shrinks in tendency for all methods for more valuable customers. That observation might be partially driven by the lower likelihood of customers having a high amount of actual transactions while having a very small CET, by which the interval is scaled.
+    \item The combined assessment of sharpness and width sees BS and EN on the lower rank, mainly due to the penalization of non-coverages. The rest of the methods have roughly the same performance regarding MSIS with a slight disadvantage for BA.
     \item The same picture can be seen in SWR. The 4 reliable methods have around 2-3x more coverage per width than BS and EN.
-    \item CP and CR hit the desired 90\% the most accurate. (least over or under covering)
-    \item BS and EN have, scaled to their actual performance, a high variability (coefficient of variation) in reliability measures across data sets. For sharpness measures, all methods have comparable variability across data sets, see variation table (table \ref{Variation table} in the appendix which contains the coefficient of variation across datasets for each method and measure.
+    \item CP and CR hit the desired 90\% the most accurate. (least over- or undercoverage)
+    \item The reliable methods, except BA, produce wider intervals for the electronics data set while not achieving a higher coverage at the same time, what leads to the conclusion that their performance is to some extent data set dependent.
+    \item BS and EN have a very high variability (coefficient of variation) in reliability measures. For sharpness measures, all methods have comparable variability, see variation table (table \ref{fig:Variation table} in the appendix which contains the coefficient of variation across datasets for each method and measure.
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}[!h]
     \centering
     \includegraphics[width=\linewidth]{Plots/PICP and PIARW by Method and Data Set.png}
-    \caption{Distribution of amount of transactions}
-    \label{fig:enter-label}
+    \caption{PICP and PIARW by Method and data Set}
+    \label{fig:PICP and PIARW by Method and data Set}
 \end{figure}
 
-\noindent One can clearly observe the two different types of methods, the bootstrap-based on the left with low coverage and small intervals on the left and the other methods on the right, delivering the desired coverage at the cost of wider intervals. What is also interesting to note is that data sets cause either wider or shorter intervals across CR, CP and QR. This means that the methods realize model uncertainty or inaccuracy and react to it, as the widen the intervals to consistently deliver the desired coverage (what is what they are optimizing for). This can also be observed for EN and BS but in another order, surprisingly.
+\noindent One can clearly observe the two different types of methods, the bootstrap-based with low coverage and short intervals on the left and the other methods on the right, delivering the desired coverage at the cost of wider intervals. Across methods, there is no common sense which data set or its respective results contain most uncertainty, i.e. which need the widest intervals. However, every method delivers consistent PICP across data sets.
 
-\begin{figure}
+\clearpage
+\begin{figure}[!h]
     \centering
     \includegraphics[width=\linewidth]{Plots/90 PIs apparel_results.png}
-    \caption{Distribution of amount of transactions}
-    \label{fig:enter-label}
+    \caption{90\% PIs apparel results}
+    \label{fig:90 PIs apparel results}
 \end{figure}
 
-\noindent This graph shows the concrete lengths of prediction intervals for concrete customers and the true number of transactions exemplary for the apparel data set (see in the appendix the graphs for the other data sets). Again, one can observe the small ranges that are covered by EN and BS and the wide spread of true observations that show how unlikely it is for these methods to cover a true point. The other methods capture the uncertainty appropriately and (in this case at least) cover all true points. For this data set and selected range of CET, BA has the longest intervals, but this is not representative for the rest of the data sets and ranges of CET as the overview table shows and as can be seen below.\\
-\\
-Summary\\
-There are two types of methods, those width wide intervals and appropriate coverage and those with narrow intervals and low coverage. In combined measures of reliability and sharpness, usually the methods with high coverage outperform the other two. These domains of method expertise are visualized in the radar chart below.
+\noindent Figure \ref{fig:90 PIs apparel results} shows the concrete lengths of prediction intervals and the true number of transactions exemplary for selected customers from the apparel data set. Again, one can observe the small ranges that are covered by BA and EN and the wide spread of true observations that show how unlikely it is for these methods to cover a true value. The other methods capture the uncertainty appropriately and (in this selection at least) cover all true points. For this data set and selected range of CET, BA has the longest intervals, but that is not representative for the rest of the data sets and ranges of CET as the overview table shows. In this plot, only customers with a very similar CET were selected to ensure a reasonable scaling on the y-axis. This mentioned, except BA, all methods produce across customers very similar intervals that appear to exclusively depend on the CET, what is valid for all data sets, see also figures \ref{fig:90 PIs gift_results} - \ref{fig:90 PIs multi_results}. That finding raises concerns about how individual the PIs are formed for each customer. More on this topic in chapter \ref{section:Application in marketing}.\\
 
-\begin{figure}
+\noindent Summary\\
+There are two types of methods, those with wide intervals and appropriate coverage and those with narrow intervals and low undercoverage. In combined measures of reliability and sharpness, usually the methods with high coverage outperform the other two. Find a metric-wise visualization in figure \ref{fig:Method characteristics compared} below.
+
+\begin{figure}[!h]
     \centering
     \includegraphics[width=\linewidth]{Plots/Radar chart.png}
-    \caption{Distribution of amount of transactions}
-    \label{fig:enter-label}
+    \caption{Method characteristics compared}
+    \label{fig:Method characteristics compared}
 \end{figure}
 
-\paragraph{PICP and width across CET levels} \mbox{}\\
-In the general insights section, it was already mentioned that methods might perform differently at different levels of CET. This shall be examined more in-depths.
+\subsubsection{PICP and width across CET levels}
+In the previous section, it was mentioned that methods might perform differently at different levels of CET. This will be examined more in-depths.
 
-\subparagraph{PICP}\mbox{}\\
-As the coverage develops across different CET levels, this development is not quite the same for different data sets, therefore see below this development for all data sets. The following graphs smooth the coverage across CET by the help of a kernel with normal distribution.\\
-Across all data sets, BA has the highest coverage what is not surprising because is has the highest over coverage. EN and BS have the lowest coverage, close to 0, across all levels. The second note to make is generally a downward tendency that is approximately true for all methods on all data sets. This means that the intervals are less likely to include the true value if it is high. After the analysis of PICPW, this comes with no surprise but poses an issue as it is exactly this segment that marketers are interested in. The high coverage rate at lower values comes from many true values being 0 and usually intervals are covering 0 either by nature or by the small tolerance that was given in case of QR. The lower coverage on high values is visible across methods what leads to the conclusion that the model might be less accurate in this area. Indeed, the relative error \(\left(\frac{|CET_{i}-y_{i}|}{CET_{i}}\right)\) for higher true values is a lot higher than for smaller values (see figure \ref{Relative model error} in the appendix). In the methods, this behavior is not covered and hence explains as well the downward trend.
+\paragraph*{PICP}\mbox{}\\
+The graphs smooth coverage across CET by the help of a kernel with normal distribution. As the coverage develops with CET, this development is not quite the same for different data sets. \\
+However, across all data sets, BA has the highest coverage what is not surprising because is has the highest over coverage. EN and BS have the lowest coverage, close to 0, at all levels. The second note to make is generally a downward tendency that is approximately true for all methods on all data sets. This means that the intervals are less likely to include the true value if it is high. After the analysis of PICPW, this comes with no surprise but poses an issue as it is exactly this segment that marketers are interested in. The high coverage rate at lower values comes from many true values being 0 and usually intervals are covering 0 either by nature or by the small tolerance that was given in case of QR. The lower coverage on high values is visible across methods what leads to the conclusion that the model might be less accurate in this area. Indeed, the relative error \(\left(\frac{|CET_{i}-y_{i}|}{CET_{i}}\right)\) for higher true values is by tendency higher than for smaller values (see figure \ref{Relative model error} in the appendix). In the methods, this behavior is not covered and hence explains as well the downward trend.
 
 \begin{figure}[htp]
 \centering
 
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Coverage development with CET for gift_results.png}
+\includegraphics[width=\textwidth]{Plots/PICP development with CET for gift_results.png}
 \caption{}
 \label{fig:time1}
 \end{subfigure}\hfill
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Coverage development with CET for el_results.png}
+\includegraphics[width=\textwidth]{Plots/PICP development with CET for el_results.png}
 \caption{}
 \label{fig:time2}
 \end{subfigure}
@@ -711,13 +729,13 @@ Across all data sets, BA has the highest coverage what is not surprising because
 
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Coverage development with CET for multi_results.png}
+\includegraphics[width=\textwidth]{Plots/PICP development with CET for multi_results.png}
 \caption{}
 \label{fig:time3}
 \end{subfigure}\hfill
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Coverage development with CET for apparel_results.png}
+\includegraphics[width=\textwidth]{Plots/PICP development with CET for apparel_results.png}
 \caption{}
 \label{fig:time4}
 \end{subfigure}
@@ -738,21 +756,21 @@ Across all data sets, BA has the highest coverage what is not surprising because
 
 
 
-\subparagraph{Width} \mbox{}\\
-Considering PICP across CET levels, it must be seen in connection with the respective width development. The situation across data sets is very heterogeneous but also here, there is generally a downward trend visible, while either BA or QR delivering the widest intervals and BS and EN delivering across all levels intervals with a length of nearly 0. The downward trend is not as dominant as for PICP but still visible. A lot of this phenomenon can be explained by dividing “normal”-sized intervals at lower levels by very small predictions, delivering relatively wider intervals. The key insight therefore is that a decreasing PICP with increasing customer value is first and foremost not the responsibility of relatively narrowing PIs. Nevertheless, it is arguable that more sophisticated methods should realize the differentiated model performance and adapt their PIs accordingly.
+\paragraph*{Width}\mbox{}\\
+Considering PICP across CET levels, it must be seen in connection with the respective width development. The situation across data sets is again very heterogeneous but also, there is generally a downward trend visible, while either BA or QR delivering the widest intervals and BS and EN delivering across all levels intervals with a length of nearly 0. The downward trend is not as dominant as for PICP but still visible. A lot of this phenomenon can be explained by dividing “normal”-sized intervals at lower levels by very small predictions, delivering relatively wider intervals. The key insight therefore is that a decreasing PICP with increasing customer value is first and foremost not the responsibility of relatively narrowing PIs.
 
 \begin{figure}[h]
 \centering
 
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Width development with CET gift_results.png}
+\includegraphics[width=\textwidth]{Plots/Relative width development with CET gift_results.png}
 \caption{}
 \label{fig:time1}
 \end{subfigure}\hfill
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Width development with CET el_results.png}
+\includegraphics[width=\textwidth]{Plots/Relative width development with CET el_results.png}
 \caption{}
 \label{fig:time2}
 \end{subfigure}
@@ -761,13 +779,13 @@ Considering PICP across CET levels, it must be seen in connection with the respe
 
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Width development with CET multi_results.png}
+\includegraphics[width=\textwidth]{Plots/Relative width development with CET multi_results.png}
 \caption{}
 \label{fig:time3}
 \end{subfigure}\hfill
 \begin{subfigure}{0.49\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/Width development with CET apparel_results.png}
+\includegraphics[width=\textwidth]{Plots/Relative width development with CET apparel_results.png}
 \caption{}
 \label{fig:time4}
 \end{subfigure}
@@ -781,84 +799,84 @@ Considering PICP across CET levels, it must be seen in connection with the respe
 \label{fig:time5}
 \end{subfigure}
 
-\caption{Boxplots}
-\label{fig:time}
-
 \end{figure}
 
-\subparagraph{Summary} \hbox{}\\
+
+\subsubsection{Performance over varying training and prediction periods} \hbox{}\\
+Motivation\\
+The analysis so far has held the learning and prediction period for each data set constant and examined how performance measures vary across methods and CET levels. This chapter will deal with the case when the periods for learning and prediction are varied and assess how the PICP is influenced. This scrutiny is mainly motivated by the methods QR, CP and CR which use data from a previous cohort. Those data exist in the case of this work and the used data sets, but in reality, a lack of past data is not unrealistic and might cause problems. I.e. the data could be biased (e.g. from a too short time period) so that inappropriate quantiles (CR and CP) are learnt, or the wrong parameters are selected (QR). As this topic is not the core of this work, it will be held concise and concentrate on the most central insights.\\
+
+Implementation\\
+Due to computational reasons, the analysis will be limited to the electronics and gift data sets and the bootstrap based methods will be left out because only coverage is assessed here and a loss in this area is more relevant to BA, QR, CP and CR. For both data sets, around 50 combinations of learning and prediction times for the old and the new cohorts are used. For each period combination, a model is fitted, predictions are made, and prediction intervals are derived and assessed regarding coverage on the current cohort. The following graph resulted from this procedure.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{Plots/Performance over different periods.png}
+    \caption{Distribution of amount of transactions}
+    \label{fig:enter-label}
+\end{figure}
 
 \begin{table}[h!]
     \centering
     % Shift the table 1cm to the left
     \setlength{\tabcolsep}{4pt} % Adjust column separation
-    \renewcommand{\arraystretch}{1.2} % Adjust row separation
+    \renewcommand{\arraystretch}{1.9} % Adjust row separation
     \begin{adjustbox}{width=\textwidth}
-    \begin{tabular}{|p{1.5cm}|p{1cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.3cm}|p{1.2cm}|p{1.2cm}|}
+    \begin{tabular}{|p{1.5cm}|p{1cm}|p{2.1cm}|p{1.3cm}|p{1.5cm}|p{1.3cm}|p{1.2cm}|p{1.2cm}|}
     \hline
         {\makecell[l]{Method}} & 
         \rotatebox{90}{\makecell[l]{Adequate \\ coverage}} & 
-        \rotatebox{90}{\makecell[l]{Consistent coverage \\ across outcomes \\ (CET, PTS)}} & 
-        \rotatebox{90}{\makecell[l]{Consistent coverage \\ across outcome \\ levels}} & 
-        \rotatebox{90}{\makecell[l]{Consistent \\ performance \\ across data sets}} & 
-        \rotatebox{90}{\makecell[l]{Works in all \\ examined datasets}} & 
+        \rotatebox{90}{\makecell[l]{Consistent coverage \\ across CET levels}} &
+        \rotatebox{90}{\makecell[l]{Consistent width \\ (relative) across \\ CET levels}} & 
+        \rotatebox{90}{\makecell[l]{Consistent \\ performance \\ across data sets}} &
+        \rotatebox{90}{\makecell[l]{PICP independent \\ from learning and \\ prediction periods}} & 
         \rotatebox{90}{\makecell[l]{Usefulness}} & 
         \rotatebox{90}{\makecell[l]{Computational \\ intensity}} \\ \hline
-        Bootstrap & No & Not tested & No & Yes & No & Low & High  \\ \hline
-        Ensemble & No & Yes & No & Yes & Yes & Low & Low  \\ \hline
-        Bayesian & Yes & Not tested & No & Yes & Yes & Medium & High  \\ \hline
-        CP & Yes & Yes & No & Yes & Yes & Medium & Low  \\ \hline
-        CR & Yes & Yes & No & Yes & Yes & Medium & Medium  \\ \hline
-        Quantile regression & Yes & often under coverage for PTS \footnotemark{} & No & Coverage yes, but not width & Yes & Medium & Medium  \\ \hline
+        Bootstrap & No & Yes (but low) & Yes & Yes & Not tested & Low & High  \\ \hline
+        Ensemble & No & Yes (but low) & Yes & Yes & Not tested & Low & Low  \\ \hline
+        Bayesian & Yes & No & No & Yes & Yes & Medium & High  \\ \hline
+        CP & Yes & No & No & Yes & No & Medium & Low  \\ \hline
+        CR & Yes & No & No & Yes & No & Medium & Medium  \\ \hline
+        Quantile regression & Yes & No & No & PICP yes, width no & Yes & Medium & Medium  \\ \hline
     \end{tabular}
-    \end{adjustbox}    
+    \end{adjustbox}
     \caption{Results summary table}
+    \label{table:Results summary table}
 \end{table}
-\footnotetext{Detailed results for PTS can be made available on request.}
 
-\subsubsection{Performance over varying training and prediction periods} \hbox{}\\
-Motivation\\
-The analysis so far has held constant the learning and prediction period for each data set and examined how different performance measures vary across methods and CET levels. This chapter will deal with the cases when the periods for learning and prediction are varied and assess how the overall coverage is influenced. This scrutiny is mainly motivated by the methods QR, CP and CR which use old data from previous periods. Those data exist in the case of this work and the used data sets, but in reality, a lack of past data is not unrealistic and might cause problems. I.e. the data could be biased so that inappropriate quantiles (CR and CP) are learnt, or the wrong parameters are selected (QR). Another issue is that the model has difficulty to be fitted due to the lack of data and inherently loses predictive power. As this topic is not the core of this work, it will be held concise and concentrate on the most central insights.\\
-Implementation\\
-Due to computational reasons, the analysis will be limited to the electronics and gift data sets and the bootstrap based methods will be left out because only coverage is assessed here and a loss in this area is more relevant to BA, QR, CP and CR. For both data sets, around 50 combinations of learning and prediction times for the old and the new cohorts are used. For each period combination, a model is fitted, predictions are made, and prediction intervals are derived and assessed regarding coverage. The following graph resulted from the results of this procedure which are available on request.
+BA and QR are, regarding coverage, not affected by changing period lengths or data sets and deliver constantly around 90\% coverage. In contrast, the performance of the conformal prediction implementations suffer for the gift data set a lot while delivering decent results for the electronics data set. Looking directly gives several insights but no definite explanation for the underperformance and especially not for the difference between the two data sets. Typically, low values resulted from short learning or prediction periods for the old cohort, what makes intuitively sense as it is here where the quantiles are derived. On the other hand, one can also observe cases in which all periods, for both cohorts have been low which performed decently. It suggests that, when both cohorts have been treated equally in terms of model fitting and quantile forming conditions, the system works properly.\\
+The motivation for this chapter was to give an intuition how stable the methods are and if managers can apply them safely. BA and QR seem to work stable, regardless of data set or learning and prediction time. The conformal prediction-based methods seem to suffer on some dataset but work well on the other one. The reasoning behind it cannot be clarified absolutely but tendencies are observable. It will be necessary to use more runs and data sets to get deeper insights for all methods but one should be especially careful to use CP or CR with short periods.
 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{Plots/Periods.png}
-    \caption{Distribution of amount of transactions}
-    \label{fig:enter-label}
-\end{figure}
+\subsection{Application in marketing} \label{section:Application in marketing}
+In this final chapter, it will be discussed how the results can be used beyond the assessment of model uncertainty. Can prediction intervals help identify valuable customers? To answer this question, different metrics which incorporate the additional information from previously derived intervals are applied across all customers in the introduced data sets.\\\\
 
-BA and QR were, regarding coverage, not affected by changing period lengths or data set and deliver constantly around the desired 90\% quantile. In contrast, the performance of the conformal prediction implementations suffer for the gift data set a lot while delivering decent results for the electronics data set. Looking directly gives several insights but no definite explanation for the underperformance and especially not for the difference between the two data sets. Typically, low values resulted from short learning or prediction periods for the old cohort, what makes intuitively sense as it is here where the quantiles are derived. On the other hand, one can also observe cases in which all periods, for both cohorts have been low which performed decently. It suggests that when both cohorts have been treated equally in terms of model fitting and quantile forming conditions, the system works properly.
-The motivation for this chapter was to give an intuition how stable the methods are and if managers can apply them safely. QA and QR seem to work stable, regardless of data set or learning or prediction time. The Conformal prediction-based methods seem to suffer on some datasets but work well on other ones. The reasoning behind it cannot be clarified absolutely but tendencies are observable. It will be necessary to use more runs and data sets to get deeper results for all methods but one should be especially careful to use CP or CR with short periods.
-
-\subsubsection{Application in marketing}
-In this final chapter, the usefulness of the results beyond the assessment of the model uncertainty will be discussed. In particular, it shall be examined if and how prediction intervals can help to identify valuable customers. There have been numerous studies about how to identify valuable customers, amongst others the so-called RFM analysis where Recency, Frequency and the Monetary value of transactions. In this study the focus is laid on how the additional information about uncertainty can improve a rating of customers that is only done with the point predictor which is taken as a benchmark. \\
-Implementation\\
-\begin{enumerate}
-    \item Train the model and make predictions for each data set using the above mentioned learning and holdout periods
-    \item Calculate prediction intervals with all methods for all data sets
-    \item Apply different strategies / metrics to the outcomes and rate customers with them
-    \item Order the customers according to these metrics
-    \item Pick the top x\%\footnotemark \hspace{2pt} of the customers according to the respective metric and compare the selected customers with the actual top performing customers.
-    \footnotetext{The target is to pick the 10\% customers with the highest true value.This is not always realizable because the number of purchases made has few possible outcomes, so that after the last customer at 10\% has 4 purchases and the next one, outside these 10\%, also has 4 purchases. It would not be reasonable to include one and exclude the other, so that 10\% cannot be perfectly achieved and the closest number is taken.}
+\subsubsection{Basic approach} \label{section:Basic approach}
+\textbf{Implementation}
+\begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
+    \item Define appropriate metrics to rank customers, incorporating new information coming from intervals
+    \item Apply these metrics to customers across all methods and data sets
+    \item Rank customers for each metric, method and data set
+    \item Pick the top x\%\footnotemark \hspace{2pt} of the customers according to the respective metric
+    \item Compare the selected customers with the actual top performing customers
+    \footnotetext{The target is in this work to pick the 10\% customers with the highest true value. That is not always possible because the number of purchases has few possible outcomes, so that e.g. the last customer at 10\% has 4 purchases and the next one, outside these 10\%, also has 4 purchases. It would not be reasonable to include one and exclude the other. So, 10\% cannot always be perfectly achieved and the respectively closest realizable number is taken as approximation and reported in the overview.}
 \end{enumerate}
 
-\noindent For this, the following metrics have been implemented.
+
+\noindent The following metrics are implemented.
 \begin{enumerate}[label=Metric \arabic*:, leftmargin=2cm]
-    \item \textbf{Benchmark} hpp: Highest Point Predictor (CET)
-    \item hul: Highest Upper Limit
-    \item hiw: Highest interval width
+    \item \textbf{Benchmark} hpp: Highest Point Predictor (CET) coming directly from the PNBD model
+    \item hub: Highest Upper Boundary
+    \item hiw: Highest Interval Width
     \item huu: Highest Upwards Uncertainty (the difference between the CET and the upper interval limit)
     \item htp: Highest Three-Point Estimate: The lower limit, the CET and the upper limit are weighted equally \(\left(\frac{1}{3}* (LL_{i} + CET_{i} + UL_{i})\right)\)
     \item csw: The CET is squared and divided by the interval width \(\left( \frac{CET_{i}^2}{UL_{i}-LL{i}}\right)\)
-    \item ssq: The CET is squared and divided by the square root of the width \(\left(\frac{CET_{i}^2}{\sqrt{UL_{i}-LL_{i}}}\right)\)
+    \item ssq: The CET is squared and divided by the square root of the interval width \(\left(\frac{CET_{i}^2}{\sqrt{UL_{i}-LL_{i}}}\right)\)
 \end{enumerate}
 
 \noindent The following table shows the results for each data set, method and metric.\\
 Note: max\_rel states how much \% of the customers are considered \emph{Top-customers}, which should be ideally close to 10\%. max\_abs is the actual number of \emph{Top-customers} in the respective dataset. All values for the previously introduced methods tell how much percent of respective \emph{Top-customers} have been identified by the metric. Example: For the gift data set, 6\% of all customers were identified as \emph{Top-customers} and hpp managed to identify 22.61\% of those 6\%.
 
-\begin{table}[!ht]
+\begin{table}[!h]
     \centering
     \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
     \hline
@@ -884,6 +902,8 @@ Note: max\_rel states how much \% of the customers are considered \emph{Top-cust
         apparel & QR & 0.12 & 332 & 0.3996 & 0.3996 & 0.3996 & 0.0441 & 0.3996 & 0.4026 & 0.4026  \\ \hline
         apparel & CP & 0.12 & 332 & 0.3996 & 0.3996 & 0.3996 & 0.3996 & 0.3996 & 0.3996 & 0.3996  \\ \hline
     \end{tabular}
+    \caption{Benchmarking the highest point predictor hpp against other metrics to identify especially valuable customers}
+    \label{table:Benchmarking identifying especially valuable customers}
 \end{table}
 
 \noindent For more visibility, the results are summarized as follows:
@@ -897,12 +917,156 @@ Note: max\_rel states how much \% of the customers are considered \emph{Top-cust
         Better & 0.3158 & 0.2632 & 0.1053 & 0.2632 & 0.1579 & 0.3684  \\ \hline
         Worse & 0.1579 & 0.4211 & 0.6842 & 0.2632 & 0.3684 & 0.3158  \\ \hline
         Mean advantage (rel) & 0.0037 & -0.043 & -0.1627 & 0.001 & -0.0483 & -0.001  \\ \hline
-        Sd of advantages & 0.0185 & 0.038 & 0.0843 & 0.0063 & 0.0686 & 0.0626  \\ \hline
     \end{tabular}
+    \caption{Summary of table \ref{table:Benchmarking identifying especially valuable customers}}
+    \label{table:Summary of table without individual quantiles}
 \end{table}
 
-\noindent The results are throughout all metrics, and the benchmark not very satisfying. The best metrics usually identify between 20\% and 40\% of the top-customers. These best metrics are in most of the cases the benchmark (highest point predictor hpp), the highest upper limit hul, and the three-point estimate htp. The latter 2 metrics beat the benchmark in 32\% and 26\% of the cases but by very little so that speaking about a true advantage would be misleading. The results from csw and ssq vary more and beat the benchmark in 1 case significantly but also lose significantly in another one without any recognizable pattern. It is noteworthy that all metrics, except the previously mentioned 2 cases, perform equally good (bad) across methods what was not to expect, regarding the severe differences in coverage power of the methods. \footnotemark{}
-\footnotetext{This can be explained because the methods measure rather the uncertainty from all data and then apply it to single predictions to construct intervals. Therefore, the PIs do not hold a genuine uncertainty of a specific customer. The difference between BS and EN and the rest of the methods is that they are much a lot shorter what causes their low PICP but still, higher CETs will get longer intervals than lower ones. Therefore, when calculating e.g. hul, higher CET values will still have the highest upper limit, regardless of the method and the performance is similar across methods.}
+\noindent The results are throughout all metrics and the benchmark not satisfying. The best metrics usually identify between 20\% and 40\% of the top-customers. Those metrics are in most of the cases the benchmark (highest point predictor hpp), the highest upper boundary hub, and the three-point estimate htp. The latter 2 metrics beat the benchmark in 32\% and 26\% of the cases but by very little so that speaking about a true advantage would be misleading. The results from csw and ssq vary more and beat the benchmark in 1 case significantly but also lose significantly in another one without any recognizable pattern. It is noteworthy that all metrics, except the previously mentioned 2 cases, perform equally good (bad) across methods what was not to expect, regarding the difference in coverage power of the methods.\\\\
+
+\textbf{Explanation}\\
+The PI generating methods incorporate the uncertainty from the whole data set and then apply it to single predictions to construct intervals. This holds for all methods, regardless of their performance in terms of coverage or width. Especially,
+\begin{itemize}
+    \item \textbf{BS}: The Bootstrap method is focused on capturing parameter uncertainty which is not customer-specific. With each bootstrap sample, a new model with new parameters is derived but it will be driven from the entirety of customers in the sample and will not hold any individual information about a customer. The resulting quantiles are based on these bootstrap predictions and hold therefore no customer-specific information.
+    \item \textbf{EN}: In the Ensemble method, first there is 1 “root” model to be fitted which has exactly 1 covariance matrix that represents the amount of uncertainty within the parameter estimates. This uncertainty comes from all customers and is therefore not unique to any single customer and neither are the models that imitate this uncertainty. The resulting intervals will not contain any individual uncertainty.
+    \item \textbf{BA}: The intervals using BA come from the posterior predictive distribution of outcomes which is derived from the posterior distribution of model parameters. The latter is for sure based on the data that came from the customers, but it does not hold any information about individual customers anymore.
+    \item \textbf{QR}: A similar situation can be diagnosed for QR. The whole information about uncertainty of customers is summarized by 8 parameters, 4 for the lower and 4 for the upper boundary. It is not possible to retrieve information for individual customers from this point.
+    \item \textbf{CP/CR}: Here, all the information about uncertainty from an old cohort is summarized by a single quantile which is then applied to new customers and scaled by their individual CET. This procedure does by definition not include any information about individual uncertainty, except the level of a point prediction, which is not helpful at all when the goal is to differentiate between customers with similar point predictions.
+\end{itemize}
+
+\subsubsection{Approach using covariates}
+Following the argumentation in the previous section, then intervals do not help to identify especially valuable customers because the do not hold information about uncertainty associated with individual customers. They rather represent the uncertainty coming from a whole data set and its predictions and apply it to individual customers.\\
+Hence, this problem could be alleviated by introducing a covariate, that informs about the model uncertainty for individual customers, and incorporating it in PI construction. In this concrete context, individual uncertainty can be understood as difference between CET (model prediction) and the true number of repurchases, which, i.e. PIs attempt to cover. Another, more intuitive, wording for this individual customer uncertainty is therefore \textit{the deviation between a customers expected behavior and their actual behavior}. For this approach to succeed, it is essential to have a covariate that represents, at least partially, this deviation. Unfortunately, none of the used data sets includes such a covariate and it needs to be simulated what makes this section rather a proof of concept than an actual application. Regarding the concrete implementation, see the following procedure for all methods and data sets.
+
+\begin{enumerate}[label=Step \arabic*:, leftmargin=2cm]
+    \item Simulate the covariate
+    \begin{enumerate}[label=Step \arabic{enumi}.\arabic*:, leftmargin=1cm]
+        \item Calculate the absolute difference between the CET and actual number of repurchases
+        \item Pick a level of correlation between the difference and the prospective covariate \footnote{The higher, the better the results will be, but also the harder it will be in practice to find such a covariate.}
+        \item Simulate a numeric\footnote{In theory, also other types like categorical should work but they would require a different approach.} covariate that is correlated with the absolute difference at the level set in Step 1.2
+    \end{enumerate}
+    \item Reconstruct the PIs, incorporating the new covariate
+    \begin{enumerate}[label=Step \arabic{enumi}.\arabic*:, leftmargin=1cm]
+        \item Calculate the median of the covariate
+        \item Create a scale by dividing every customer's individual covariate by the median, resulting in a smaller scale for customers with lower deviation and a higher scale for customers with higher deviation
+        \item Multiply each customer's initial interval width with the individual scale to get the new interval length that incorporates the individual uncertainty
+        \item Divide it by 2 and add/subtract it to the point prediction what gives the new individual interval
+    \end{enumerate}
+    \item With the newly created intervals, conduct the steps from \ref{section:Basic approach} again
+\end{enumerate}
+
+This procedure is very straight-forward, easy to implement for different methods and offers several options for adaptations within the process, e.g simulating the covariate differently, conducting the scaling differently or including tolerances\footnote{A potentially useful tolerance could be to set the new lower boundary to 0 if it close to 0. Many customers will have 0 repurchases and if the model predicts something close to 0, the interval will be scaled down, causing the 0 to fall below the lower boundary what distorts method performance in terms of PICP. That should not be an issue in a real world application when the covariate is not simulated. \label{footnote:BA underperformance}}. Also, there might be ways to directly include a covariate in the original PI fitting procedures what could be subject to future research.\\
+
+\textbf{General PI performance}\\
+Besides the application in identifying especially valuable customers, it is interesting to see how the additional uncertainty information impact the overall performance of PIs, compared to the regular version. 
+
+The overall performance looks very similar to the regular PIs' performance in terms of PICP and PIARW, see figure \ref{fig:PICP and PIARW by Method and data Set (cov)}. EN and BS keep their clear undercoverage while also the other methods produce nearly as reliable intervals as before. However, the picture looks a bit more scattered for 4 reliable methods, in particular for BA where the electronics data set falls considerably below 90\% coverage, due to reason raised in the previous section, see footnote \ref{footnote:BA underperformance}. A second insight to be noted concerns the widths. BS and EN remain with their very short intervals while the four other methods produce clearly shorter intervals. This shows a distinct advantage of incorporating knowledge about individual uncertainty, as shorter intervals with approximately are preferred over wider intervals with approx. constant coverage.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{Plots/PICP and PIARW by Method and Data Set (cov).png}
+    \caption{PICP and PIARW by Method and data Set}
+    \label{fig:PICP and PIARW by Method and data Set (cov)}
+\end{figure}
+
+The motivation behind this section is to see how the introduction of individual uncertainty information can change the previously calculated PIs and if they can be used later on to identify especially valuable customers. In figure \ref{fig:90 PIs apparel_results (cov)} the first part can be observed. The new, individual intervals have varying length for the same method and for customers of similar CET, what is pre-requisite, when differentiating customers customers beyond their point predictor.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{Plots/90 PIs apparel_results (cov).png}
+    \caption{PICP and PIARW by Method and data set}
+    \label{fig:90 PIs apparel_results (cov)}
+\end{figure}
+\\
+\textbf{Customer selection}\\
+In this final section, it will be evaluated if the newly individualized intervals can indeed help identify particularly valuable customers. The exact same approach as in section \ref{section:Basic approach} is used to ensure comparability and hence, the analysis will be the same as well.
+
+\begin{table}[!h]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|}
+    \hline
+        Data & Method & max\_rel & max\_abs & hpp & hul & hiw & huu & htp & csw & ssq  \\ \hline
+        gift & BS & 0.06 & 127 & 0.2261 & 0.2584 & 0.2907 & 0.2907 & 0.2261 & 0.0161 & 0.113  \\ \hline
+        gift & EN & 0.06 & 127 & 0.2261 & 0.2503 & 0.3149 & 0.3149 & 0.2261 & 0.0404 & 0.1534  \\ \hline
+        gift & BA & 0.06 & 127 & 0.2261 & 0.3391 & 0.3391 & 0.323 & 0.3068 & 0.0807 & 0.1696  \\ \hline
+        gift & QR & 0.06 & 127 & 0.2261 & 0.3472 & 0.3472 & 0.3795 & 0.323 & 0.113 & 0.2019  \\ \hline
+        gift & CP & 0.06 & 127 & 0.2261 & 0.323 & 0.323 & 0.3068 & 0.3149 & 0.113 & 0.2019  \\ \hline
+        el & BS & 0.22 & 1088 & 0.2414 & 0.2414 & 0.2124 & 0.2124 & 0.2414 & 0.2376 & 0.2423  \\ \hline
+        el & EN & 0.22 & 1088 & 0.2414 & 0.2404 & 0.203 & 0.203 & 0.2414 & 0.2423 & 0.2442  \\ \hline
+        el & BA & 0.22 & 1088 & 0.2414 & 0.2152 & 0.2152 & 0.2058 & 0.2217 & 0.3929 & 0.3929  \\ \hline
+        el & QR & 0.22 & 1088 & 0.2414 & 0.2283 & 0.2142 & 0.2348 & 0.232 & 0.2414 & 0.2432  \\ \hline
+        el & CP & 0.22 & 1088 & 0.2414 & 0.2236 & 0.2236 & 0.2198 & 0.2273 & 0.2442 & 0.2423  \\ \hline
+        multi & BS & 0.08 & 313 & 0.296 & 0.296 & 0.3121 & 0.3121 & 0.296 & 0.2767 & 0.2928  \\ \hline
+        multi & EN & 0.08 & 313 & 0.296 & 0.296 & 0.4472 & 0.4472 & 0.296 & 0.2831 & 0.2928  \\ \hline
+        multi & BA & 0.08 & 313 & 0.296 & 0.3282 & 0.3282 & 0.3153 & 0.3185 & 0.0676 & 0.0676  \\ \hline
+        multi & QR & 0.08 & 313 & 0.296 & 0.3764 & 0.3764 & 0.4376 & 0.3571 & 0.2928 & 0.2928  \\ \hline
+        multi & CP & 0.08 & 313 & 0.296 & 0.3314 & 0.3314 & 0.3604 & 0.3185 & 0.2928 & 0.2928  \\ \hline
+        apparel & BS & 0.12 & 332 & 0.3996 & 0.3996 & 0.3144 & 0.3144 & 0.3996 & 0.3144 & 0.3673  \\ \hline
+        apparel & EN & 0.12 & 332 & 0.3996 & 0.3996 & 0.3232 & 0.3232 & 0.3996 & 0.3262 & 0.3761  \\ \hline
+        apparel & BA & 0.12 & 332 & 0.3996 & 0.3879 & 0.3791 & 0.3996 & 0.3996 & 0.3673 & 0.3908  \\ \hline
+        apparel & QR & 0.12 & 332 & 0.3996 & 0.4114 & 0.3732 & 0.3849 & 0.4055 & 0.3702 & 0.3937  \\ \hline
+        apparel & CP & 0.12 & 332 & 0.3996 & 0.4114 & 0.3849 & 0.3791 & 0.4026 & 0.3644 & 0.3908  \\ \hline
+    \end{tabular}
+    \caption{Benchmarking the highest point predictor hpp against other metrics to identify especially valuable customers with individualized quantiles}
+    \label{table:Benchmarking identifying especially valuable customers cov}
+\end{table}
+
+In this new approach, it is by far more likely for several metrics and methods to beat the benchmark hpp. While hub, hiw, huu and htp perform nearly always better or equal than the benchmark, except the electronics data set and the bootstrap-based methods in the apparel data set, it is the opposite case for csw and ssq which only perform well, across methods in the electronics data set. It is hard to tell why exactly this is but in figure \ref{fig:PICP and PIARW by Method and data Set} and figure \ref{fig:PICP and PIARW by Method and data Set (cov)}, it has always been the this data set which had the longest intervals but not necessarily a higher coverage. The findings in this section confirm that the PIs and their further application seem to struggle with this particular data set. See the results summarized in table \ref{table:Summary of table with individual quantiles}.
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{|l|l|l|l|l|l|l|}
+    \hline
+        Metric & hul & hiw & huu & htp & csw & ssq  \\ \hline
+        Better or equal & 0.7895 & 0.5263 & 0.5789 & 0.8947 & 0.2105 & 0.2632   \\ \hline
+        Better & 0.5263 & 0.5263 & 0.5263 & 0.4211 & 0.1579 & 0.2632   \\ \hline
+        Worse & 0.2632 & 0.5263 & 0.4737 & 0.1579 & 0.8421 & 0.7895   \\ \hline
+        Mean advantage (rel) & 0.0245 & 0.0219 & 0.0275 & 0.0169 & -0.0569 & -0.0227   \\ \hline
+    \end{tabular}
+    \caption{Summary of table \ref{table:Benchmarking identifying especially valuable customers cov}}
+    \label{table:Summary of table with individual quantiles}
+\end{table}
+
+The results can be seen in figure \ref{fig:Customer identification with and without individualized PIs}. Without using a covariate (left), only very few exemptions are able to beat the benchmark and this rather by chance than with a recognizable pattern. The likelihood of selecting an adverse combination of method and metric and falling below the benchmark appears higher than picking a helpful combination. This is because the all metrics only include information from the upper and lower boundary and the hpp itself, where the hpp is the only ingredient that holds individual information. Therefore, only few deviations from the benchmark are visible. For the apparel, electronics and multi data set, the benchmark is barely beaten at all. When using individualized quantiles, the picture is slightly better for the apparel and electronics data set but still, it is barely possible to beat the pure point predictor, here. In contrast, for the gift and multichannel data set, one can observe a significant spread of achieved values, coming from more available information to differentiate customers. While csw and ssq are loosing significantly for the gift data set across methods, there are numerous opportunities to be better than hpp and for the multichannel data set, nearly all combinations of metrics and data sets are comparable with hpp or distinct better.\\
+
+What is a good strategy for marketing managers in a real-world scenario?\\
+
+\begin{itemize}
+    \item Without covariate
+    \begin{itemize}
+        \item Figure \ref{fig:Identifying without individualization}) and table \ref{table:Benchmarking identifying especially valuable customers} apply
+        \item Chances are low to pick a metric and method that beat the benchmark significantly. Downside risks exist and are more likely to be realized than upside potential.
+        \item Without further information, it is reasonable to stay with the point predictor or decide for hul (with anything but QR), hiw (with QR or CP), huu (with CP) or htp (with BS, EN, CP) while none of the strategies is expected to bring significant advantage over hpp.
+    \end{itemize}
+    \item With covariate
+    \begin{itemize}
+        \item Figure \ref{fig:Identifying with individualization}) and table \ref{table:Benchmarking identifying especially valuable customers cov} apply
+        \item It can be beneficial to use alternatives to hpp but which to choose strongly depends on risk aversion, data set and the possible experience with past data
+        \item Conservative: hul usually outperforms hpp on 3 out of 4 examined data sets so that gains are more significant than losses on the remaining data set. htp has a similar behavior like hul but is in most cases equal or inferior
+        \item Risk-taking: hiw and huu offer with BA, QR and CP a similar overall perfomance as hul but have a greater variance, hence more upside potential but also downside risk
+        \item Special cases: When one knows exactly which methods work well for the own business, it can make sense to use special combinations like csw and ssq with QR as that is the only way to beat the benchmark for the electronics data set, or similar hiw and huu with EN as they can beat the benchmark on the multichannel data set more distinct than others
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}
+\centering
+\hspace*{-2.3cm}\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1.3\linewidth]{Plots/Valuable customer selection by method and metric.png}
+  \caption{Without covariate}
+  \label{fig:Identifying without individualization}
+\end{subfigure}%
+\hspace*{+1.3cm}\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1.3\linewidth]{Plots/Valuable customer selection by method and metric (covariates).png}
+  \caption{With covariate}
+  \label{fig:Identifying with individualization}
+\end{subfigure}
+\caption{Identifying valuable customers with and without individualized PIs across methods and metrics}
+\label{fig:Customer identification with and without individualized PIs}
+\end{figure}
+
+
 
 \section{Discussion and conclusion}
 Placeholder
@@ -916,22 +1080,22 @@ Placeholder
 \centering
 \includegraphics[width=\textwidth]{Plots/90 PIs gift_results.png}
 \caption{}
-\label{fig:time1}
+\label{fig:90 PIs gift_results}
 \end{subfigure}\hfill
 \begin{subfigure}{0.5\columnwidth}
 \centering
 \includegraphics[width=\textwidth]{Plots/90 PIs el_results.png}
 \caption{}
-\label{fig:time2}
+\label{fig:90 PIs el_results}
 \end{subfigure}
 
 \medskip
 
 \begin{subfigure}{0.5\columnwidth}
 \centering
-\includegraphics[width=\textwidth]{Plots/90 PIs for multi_results.png}
+\includegraphics[width=\textwidth]{Plots/90 PIs multi_results.png}
 \caption{}
-\label{fig:time3}
+\label{fig:90 PIs multi_results}
 \end{subfigure}
 
 \caption{Boxplots}
@@ -942,20 +1106,21 @@ Placeholder
 
 %%%%%%%%
 
-\begin{figure}[htp]
+% Relative model error
+\begin{figure}[!h]
 \centering
 
 \begin{subfigure}{0.49\columnwidth}
 \centering
 \includegraphics[width=\textwidth]{Plots/Relative model error for gift_results.png}
 \caption{gift data set}
-\label{fig:time1}
+\label{fig:Rel. model error gift}
 \end{subfigure}\hfill
 \begin{subfigure}{0.49\columnwidth}
 \centering
 \includegraphics[width=\textwidth]{Plots/Relative model error for el_results.png}
 \caption{electronics data set}
-\label{fig:time2}
+\label{fig:Rel. model error el}
 \end{subfigure}
 
 \medskip
@@ -964,13 +1129,13 @@ Placeholder
 \centering
 \includegraphics[width=\textwidth]{Plots/Relative model error for multi_results.png}
 \caption{multichannel data set}
-\label{fig:time3}
+\label{fig:Rel. model error multi}
 \end{subfigure}\hfill
 \begin{subfigure}{0.49\columnwidth}
 \centering
 \includegraphics[width=\textwidth]{Plots/Relative model error for apparel_results.png}
 \caption{apparel data set}
-\label{fig:time4}
+\label{fig:Rel. model error apparel}
 \end{subfigure}
 
 \caption{Relative model error}
@@ -978,8 +1143,118 @@ Placeholder
 
 \end{figure}
 
+% PICP development for BS and EN
 
+\begin{figure}[!h]
+\centering
 
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/PICP development with CET (BS, EN) for gift_results.png} % Reduced figure scaling
+\caption{\footnotesize gift data set} % Smaller caption
+\label{fig:Rel. model error gift}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/PICP development with CET (BS, EN) for el_results.png} % Reduced figure scaling
+\caption{\footnotesize electronics data set} % Smaller caption
+\label{fig:Rel. model error el}
+\end{subfigure}
+
+\medskip
+
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/PICP development with CET (BS, EN) for multi_results.png} % Reduced figure scaling
+\caption{\footnotesize multichannel data set} % Smaller caption
+\label{fig:Rel. model error multi}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/PICP development with CET (BS, EN) for apparel_results.png} % Reduced figure scaling
+\caption{\footnotesize apparel data set} % Smaller caption
+\label{fig:Rel. model error apparel}
+\end{subfigure}
+
+\caption{\small Relative model error} % Smaller main caption
+\label{Relative model error}
+
+\end{figure}
+
+% Absolute width development
+\begin{figure}[!h]
+\centering
+
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width development with CET gift_results.png} % Reduced figure scaling
+\caption{\footnotesize gift data set} % Smaller caption
+\label{fig:Rel. model error gift}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width development with CET el_results.png} % Reduced figure scaling
+\caption{\footnotesize electronics data set} % Smaller caption
+\label{fig:Rel. model error el}
+\end{subfigure}
+
+\medskip
+
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width development with CET multi_results.png}
+\caption{\footnotesize multichannel data set}
+\label{fig:Rel. model error multi}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width development with CET apparel_results.png} % Reduced figure scaling
+\caption{\footnotesize apparel data set} % Smaller caption
+\label{fig:Rel. model error apparel}
+\end{subfigure}
+
+\caption{\small Relative model error} % Smaller main caption
+\label{Relative model error}
+
+\end{figure}
+
+% Asbolute width development only for BS and EN
+
+\begin{figure}[!h]
+\centering
+
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width dev. with CET (BS, EN) gift_results.png} % Reduced figure scaling
+\caption{\footnotesize gift data set} % Smaller caption
+\label{fig:Rel. model error gift}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width dev. with CET (BS, EN) el_results.png} % Reduced figure scaling
+\caption{\footnotesize electronics data set} % Smaller caption
+\label{fig:Rel. model error el}
+\end{subfigure}
+
+\medskip
+
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width dev. with CET (BS, EN) multi_results.png}
+\caption{\footnotesize multichannel data set}
+\label{fig:Rel. model error multi}
+\end{subfigure}\hfill
+\begin{subfigure}{0.48\columnwidth} % Reduced width slightly
+\centering
+\includegraphics[width=0.95\textwidth]{Plots/Abs. width dev. with CET (BS, EN) apparel_results.png} % Reduced figure scaling
+\caption{\footnotesize apparel data set} % Smaller caption
+\label{fig:Rel. model error apparel}
+\end{subfigure}
+
+\caption{\small Relative model error} % Smaller main caption
+\label{Relative model error}
+
+\end{figure}
 
 
 
@@ -1001,14 +1276,17 @@ Placeholder
         CR & 0.0432 & -2.5499 & 0.3292 & 0.5823 & 0.5379 & 0.9003 & 0.7050 & 0.0388 & 0.0073 & 1.6915  \\ \hline
         \end{tabular}
     \end{adjustbox}{}    
-    \caption{Variation table}
-    \label{Variation table}
+    \caption{Variation table (coefficient of variation)}
+    \label{fig:Variation table}
 \end{table}
 
 
 
 
 \pagebreak
+
+%\addcontentsline{toc}{section}{References}
+%\printbibliography[heading=bibnumbered, title={References}]
 \nocite{*}
 \bibliographystyle{abbrv}
 \bibliography{sample}

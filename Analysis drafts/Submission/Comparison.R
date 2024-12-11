@@ -1,6 +1,6 @@
 # General results
 
-all_res_old = readRDS(paste0(getwd(), "/Results - Kopie/all_res.RData"))
+all_res_old = readRDS(paste0(getwd(), "/Results - old/all_res.RData"))
 
 sum(c(all_res_old$gift_results$intervals_EN == all_res$gift_results$intervals_EN), na.rm = TRUE) + sum(is.na(is.na(c(all_res_old$gift_results$intervals_EN)) == is.na(c(all_res$gift_results$intervals_EN))))
 length(c(all_res_old$gift_results$intervals_BS == all_res$gift_results$intervals_BS))
@@ -37,18 +37,26 @@ for (dataset in names(all_res)){
 }
 
 # Results from "Application in marketing"
-perf_overview_old = readRDS(paste0(getwd(), "/Results - Kopie/perf_overview.RData"))
-comp_perf_overview_old = readRDS(paste0(getwd(), "/Results - Kopie/comp_perf_overview.RData"))
+perf_overview_old = readRDS(paste0(getwd(), "/Results - old/perf_overview.RData"))
+comp_perf_overview_old = readRDS(paste0(getwd(), "/Results - old/comp_perf_overview.RData"))
 
 repr$perf_overview = perf_overview[,3:length(perf_overview)] == perf_overview_old[,3:length(perf_overview)]
 repr$comp_perf_overview = comp_perf_overview[,2:length(comp_perf_overview)] == comp_perf_overview_old[,2:length(comp_perf_overview_old)]
+
+# Results from Covariates application in marketing
+perf_overview_cov_old = readRDS(paste0(getwd(), "/Results - old/perf_overview_cov.RData"))
+comp_perf_overview_cov_old = readRDS(paste0(getwd(), "/Results - old/comp_perf_overview_cov.RData"))
+
+repr$perf_overview_cov = perf_overview_cov[,3:length(perf_overview_cov)] == perf_overview_cov_old[,3:length(perf_overview_cov)]
+repr$comp_perf_overview_cov = comp_perf_overview_cov[,2:length(comp_perf_overview_cov)] == comp_perf_overview_cov_old[,2:length(comp_perf_overview_cov_old)]
+
 
 if (exists("big_grid")){
   # Results from periods
   big_grid_gift = readRDS(paste0(getwd(), "/Results/big_grid_gift.RData"))
   big_grid_el = readRDS(paste0(getwd(), "/Results/big_grid_el.RData"))
-  big_grid_gift_old = readRDS(paste0(getwd(), "/Results - Kopie/big_grid_gift.RData"))
-  big_grid_el_old = readRDS(paste0(getwd(), "/Results - Kopie/big_grid_el.RData"))
+  big_grid_gift_old = readRDS(paste0(getwd(), "/Results - old/big_grid_gift.RData"))
+  big_grid_el_old = readRDS(paste0(getwd(), "/Results - old/big_grid_el.RData"))
   
   repr$big_grid_gift = big_grid_gift_old == big_grid_gift
   repr$big_grid_el = big_grid_el_old == big_grid_el

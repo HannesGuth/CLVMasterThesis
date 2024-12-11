@@ -20,25 +20,25 @@ el2 = el2[,-"V1"]
 el1$Id = as.character(el1$Id)
 el2$Id = as.character(el2$Id)
 
-clv.el1 <- clvdata(el1,
+clv.el1 = clvdata(el1,
                    date.format="ymd", 
                    time.unit = "week",
                    estimation.split = 52, # 10,20,50,80,120
                    name.id = "Id",
                    name.date = "Date",
                    name.price = "Price")
-mod.el1 = pnbd(clv.data = clv.el1)
-results.el1 = predict(mod.el1, predict.spending = TRUE)
+# mod.el1 = pnbd(clv.data = clv.el1)
+# results.el1 = predict(mod.el1, predict.spending = TRUE)
 
-clv.el2 <- clvdata(el2,  
+clv.el2 = clvdata(el2,  
                   date.format="ymd", 
                   time.unit = "week",
                   estimation.split = 52, # 15,50,80,140
                   name.id = "Id",
                   name.date = "Date",
                   name.price = "Price")
-mod.el2 = pnbd(clv.data = clv.el2)
-results.el2 = predict(mod.el2, predict.spending = TRUE)
+# mod.el2 = pnbd(clv.data = clv.el2)
+# results.el2 = predict(mod.el2, predict.spending = TRUE)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -67,26 +67,26 @@ gift1$Id = as.character(gift1$Id)
 gift1$Date = as.Date(gift1$Date, format = "%d%b%Y")
 
 # gift2
-clv.gift2 <- clvdata(gift2,  
-                       date.format="ymd", 
-                       time.unit = "week",
-                       estimation.split = 120,
-                       name.id = "Id",
-                       name.date = "Date",
-                       name.price = "Price")
-est.gift2 = pnbd(clv.data = clv.gift2)
-results.gift2 = predict(est.gift2, predict.spending = TRUE)
+clv.gift2 = clvdata(gift2,  
+                     date.format="ymd", 
+                     time.unit = "week",
+                     estimation.split = 120,
+                     name.id = "Id",
+                     name.date = "Date",
+                     name.price = "Price")
+# est.gift2 = pnbd(clv.data = clv.gift2, optimx.args = list(method = "Nelder-Mead"))
+# results.gift2 = predict(est.gift2, predict.spending = TRUE)
 
 # gift1
-clv.gift1 <- clvdata(gift1,  
+clv.gift1 = clvdata(gift1,  
                      date.format="ymd", 
                      time.unit = "week",
                      estimation.split = 52,
                      name.id = "Id",
                      name.date = "Date",
                      name.price = "Price")
-est.gift1 = pnbd(clv.data = clv.gift1)
-results.gift1 = predict(est.gift1, predict.spending = TRUE)
+# est.gift1 = pnbd(clv.data = clv.gift1, optimx.args = list(method = "Nelder-Mead"))
+# results.gift1 = predict(est.gift1, predict.spending = TRUE)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -109,25 +109,25 @@ multi2 = merge(x = multi2, y = multi, by = "Id", all.x = TRUE)
 multi1 = multi1[,-"V1"]
 multi2 = multi2[,-"V1"]
 
-clv.multi1 <- clvdata(multi1, ################# 60 for split, 100 for end
+clv.multi1 = clvdata(multi1, ################# 60 for split, 100 for end
                    date.format="ymd", 
                    time.unit = "week",
                    estimation.split = 52, # 10,20,50,80,120
                    name.id = "Id",
                    name.date = "Date",
                    name.price = "Price")
-mod.multi1 = pnbd(clv.data = clv.multi1)
-results.multi1 = predict(mod.multi1, predict.spending = TRUE, prediction.end = 104)
+# mod.multi1 = pnbd(clv.data = clv.multi1)
+# results.multi1 = predict(mod.multi1, predict.spending = TRUE, prediction.end = 104)
 
-clv.multi2 <- clvdata(multi2,  
+clv.multi2 = clvdata(multi2,  
                    date.format="ymd", 
                    time.unit = "week",
                    estimation.split = 60, # 15,50,80,140
                    name.id = "Id",
                    name.date = "Date",
                    name.price = "Price")
-mod.multi2 = pnbd(clv.data = clv.multi2)
-results.multi2 = predict(mod.multi2, predict.spending = TRUE, prediction.end = 104)
+# mod.multi2 = pnbd(clv.data = clv.multi2)
+# results.multi2 = predict(mod.multi2, predict.spending = TRUE, prediction.end = 104)
 
 ###########
 
@@ -146,25 +146,25 @@ apparel2 = merge(x = apparel2, y = apparel, by = "Id", all.x = TRUE)
 apparel1 = apparel1[,-2]
 apparel2 = apparel2[,-2]
 
-clv.apparel1 <- clvdata(apparel1,
+clv.apparel1 = clvdata(apparel1,
                         date.format="ymd", 
                         time.unit = "week",
                         estimation.split = 52, # 10,20,50,80,120
                         name.id = "Id",
                         name.date = "Date",
                         name.price = "Price")
-mod.apparel1 = pnbd(clv.data = clv.apparel1)
-results.apparel1 = predict(mod.apparel1, predict.spending = TRUE, prediction.end = 104)
+# mod.apparel1 = pnbd(clv.data = clv.apparel1)
+# results.apparel1 = predict(mod.apparel1, predict.spending = TRUE, prediction.end = 104)
 
-clv.apparel2 <- clvdata(apparel2,  
+clv.apparel2 = clvdata(apparel2,  
                         date.format="ymd", 
                         time.unit = "week",
                         estimation.split = 52, # 15,50,80,140
                         name.id = "Id",
                         name.date = "Date",
                         name.price = "Price")
-mod.apparel2 = pnbd(clv.data = clv.apparel2)
-results.apparel2 = predict(mod.apparel2, predict.spending = TRUE, prediction.end = 104)
+# mod.apparel2 = pnbd(clv.data = clv.apparel2)
+# results.apparel2 = predict(mod.apparel2, predict.spending = TRUE, prediction.end = 104)
 
 #####
 

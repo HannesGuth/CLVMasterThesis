@@ -1,7 +1,3 @@
-#intervals_QR_measures = intervals_QR_m
-# intervals_QR_measures$CET_lower = (intervals_QR_measures$CET_lower <= CET_tolerance) * 0 + (intervals_QR_measures$CET_lower > CET_tolerance) * intervals_QR_measures$CET_lower
-# intervals_QR_measures$PTS_lower = (intervals_QR_measures$PTS_lower <= PTS_tolerance) * 0 + (intervals_QR_measures$PTS_lower > PTS_tolerance) * intervals_QR_measures$PTS_lower
-
 
 rst = list(intervals_BS, intervals_EN, intervals_BA, intervals_QR_m, intervals_CP_m, intervals_CR_m)
 measure_list = c("PICP", "ACE", "PICPW", "PIARW","PIARWW", "MSIS", "SWR", "Upper coverage", "Lower coverage", "Time")
@@ -40,13 +36,8 @@ f_LC = function(true, lower){
 
 f_MSIS = function(true, lower, upper, est, alpha){
   equ = (est == 0) * sort(unique(est))[2] + est
-  #equ = ((upper + lower)/2 == 0) * sort(unique((upper+lower)/2))[2] + (upper+lower)/2
   return(sum((upper - lower)/equ + (2/alpha) * ((true > upper)*((true-upper)/equ) + (true < lower)*((lower-true)/equ))) / length(true)) # scaling should be done by true value or estimation, not by upper but one cannot divide by 0
 }
-
-# f_BIAS = function(true, est){
-#   return(sum(true - est) / sum(true))
-# }
 
 f_PICPW = function(true, lower, upper, est){
   # equ = (est == 0) * sort(unique(est))[2] + est
@@ -92,17 +83,3 @@ for (i in 1:length(rst)){
 }
 CET_measures
 PTS_measures
-
-
-# f_PICP(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper)
-# f_ACE(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, 0.1)
-# f_UC(intervals_BA$CET_true, intervals_BA$CET_upper)
-# f_LC(intervals_BA$CET_true, intervals_BA$CET_lower)
-# f_MIS(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction, alpha)
-# f_BIAS(intervals_BA$CET_true, intervals_BA$CET_prediction)
-# f_MSIW(intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
-# f_MSIWW(intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
-# f_SWR(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction)
-# f_measures(intervals_BA$CET_true, intervals_BA$CET_lower, intervals_BA$CET_upper, intervals_BA$CET_prediction, alpha)
-# 
-# a = list(CET_measures = CET_measures, PTS_measures = PTS_measures)
