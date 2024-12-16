@@ -101,6 +101,6 @@ for (data_list in data_lists){
   
   print(data$name)
   print(data_analysis)
-  path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/Data Description ", data$name, ".csv")
+  path = paste0(getwd(), "/Results/", data$name, "_dataset_analysis.csv")
   write.csv(data_analysis, path)
 }
