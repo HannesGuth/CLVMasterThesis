@@ -5,7 +5,7 @@ m_CET = data.table("Id" = results_general$Id)
 m_PTS = data.table("Id" = results_general$Id)
 n = 100
 
-est.pnbd = pnbd(clv.data = clv.data2, verbose = TRUE)
+est.pnbd = pnbd(clv.data = clv.data2, verbose = TRUE, optimx.args = list(method = "Nelder-Mead"))
 ######
 
 # Create parameter tables by the help of a multivariate normal distribution over the parameter covariance matrix

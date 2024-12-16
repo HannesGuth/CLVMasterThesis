@@ -92,9 +92,9 @@ legend(x = 1.3, y = 0.9, horiz = FALSE, legend = methodlist, bty = "n", pch=20 ,
 spider_data_gg = spider_data[3:nrow(spider_data),]
 spider_data_gg = cbind(Method = rownames(spider_data_gg), spider_data_gg)
 
+# Covariates plot
 plot_selection_data = pivot_longer(perf_overview_cov, cols = hpp:ssq, names_to = "Metric", values_to = "Achieved_Number")
 
-# Covariates plot
 method_colors = c("BS" = "pink", "EN" = "grey", "BA" = "green", "CP" = "red", "QR" = "blue")
 title = "Valuable customer selection by method and metric (covariates)"
 ggplot(plot_selection_data, aes(x = Data, y = Achieved_Number, color = Method, shape = Metric)) +

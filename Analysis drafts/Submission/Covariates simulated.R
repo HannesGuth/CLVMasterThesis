@@ -34,6 +34,7 @@ for (dataset in data_lists2){
     all_res_cov[[dataset$name]][[method]][,"CET_lower"] = ((center - new_length_half) <= 0) * 0 + ((center - new_length_half) >= 0) * (center - new_length_half)
     all_res_cov[[dataset$name]][[method]][,"CET_upper"] = center + new_length_half
     all_res_cov[[dataset$name]][[method]][,"CET_covered"] = (all_res_cov[[dataset$name]][[method]][,"CET_lower"] <= all_res_cov[[dataset$name]][[method]][,"CET_true"]) &  (all_res_cov[[dataset$name]][[method]][,"CET_upper"] >= all_res_cov[[dataset$name]][[method]][,"CET_true"])
+    print(paste(dataset$name, ",", method, ",", med, ",", "PIARW:", mean(as.numeric(unlist(all_res_cov[[dataset$name]][[method]][,"abs_diff"] / all_res_cov[[dataset$name]][[method]][,"CET_prediction"])))))
   }
   intervals_BS = all_res_cov[[dataset$name]][["intervals_BS"]]
   intervals_EN = all_res_cov[[dataset$name]][["intervals_EN"]]
@@ -53,8 +54,9 @@ plot(as.numeric(unlist(all_res_cov[[dataset$name]][[method]][,"result"])), as.nu
 
 source(paste0(getwd(), "/Covariates data reorganization.r"))
 source(paste0(getwd(), "/Covariates results analysis.r"))
-source(paste0(getwd(), "/Covariates plotting.r"))
 source(paste0(getwd(), "/Covariates application in marketing.R"))
+source(paste0(getwd(), "/Covariates plotting.r"))
+source(paste0(getwd(), "/Covariates correlations.r"))
 
 # Comparing the actual results and the results obtained by inventing a covariate (PICP and PIARW only)
 comp = data.table("Method" = coverage_table$Method,

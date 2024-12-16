@@ -22,7 +22,7 @@ for (name in names(all_res)){
     }
   }
 }
-coverage_table$Time_rel = coverage_table$Time / (sort(coverage_table$Time)[2])
+coverage_table$Time_rel = coverage_table$Time / (sort(coverage_table$Time)[1])
 # coverage_table[13,3:length(coverage_table)] = NA
 
 method_order = c("BS", "EN", "BA", "QR", "CP", "CR")

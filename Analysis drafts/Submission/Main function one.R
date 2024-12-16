@@ -1,7 +1,8 @@
+write("INTERVAL GENERATION", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 packages = c(
   "CLVTools", "data.table", "compiler", "ggplot2", "profvis", 
   "rockchalk", "doParallel", "geomtextpath", "dbscan", 
-  "tidyr", "gghalves", "BTYD", "BTYDplus", "fmsb", "bit64"
+  "tidyr", "gghalves", "BTYD", "BTYDplus", "fmsb", "bit64", "scales"
 )
 
 for (pkg in packages) {
@@ -33,6 +34,8 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 # Load data
 source(paste0(getwd(), "/Data preparation.r"))
+write(paste("Data preparation done"), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
+
 
 # Set defaults
 alpha = 0.1
@@ -45,7 +48,7 @@ time_table = data.table("Method" = methodlist,
 times = c(0,0,0,0,0,0)
 all_res = list()
 
-data_lists2 = list(gift_list = gift_list, el_list = el_list, multi_list = multi_list, apparel_list = apparel_list)
+data_lists2 = list(gift_list = gift_list, el_list = el_list) #, multi_list = multi_list, apparel_list = apparel_list)
 for (data_list in data_lists2){
   set.seed(1)
   print(paste(data_list$name, "(Main function one)"))
@@ -67,7 +70,7 @@ for (data_list in data_lists2){
                        name.price = "Price")
   
   # Estimate standard Pareto/NBD Model
-  est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE)
+  est.data2 = pnbd(clv.data = clv.data2, verbose = TRUE, optimx.args = list(method = "Nelder-Mead"))
   if (whole_period2){
     results_general = predict(est.data2, predict.spending = TRUE)
   }else{
@@ -87,38 +90,45 @@ for (data_list in data_lists2){
     times[1] = NA #as.numeric(difftime(time2, time1, units = "secs"))
   }
   print(paste("Bootstrapping done for", data_list$name))
+  write(paste("   Bootstrapping done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   time1 = Sys.time()
   set.seed(1)
   source(paste0(getwd(), "/EN.r"))
   time2 = Sys.time()
   times[2] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Ensemble done for", data_list$name))
+  write(paste("   Ensemble done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   time1 = Sys.time()
   set.seed(1)
   source(paste0(getwd(), "/BA.r"))
   time2 = Sys.time()
   times[3] = as.numeric(difftime(time2, time1, units = "secs"))
-  print(paste("Bayesian appraoch done for", data_list$name))
+  print(paste("Bayesian approach done for", data_list$name))
+  write(paste("   Bayesian approach done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   time1 = Sys.time()
   set.seed(1)
   source(paste0(getwd(), "/QR.r"))
   time2 = Sys.time()
   times[4] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Quantile regression done for", data_list$name))
+  write(paste("   Quantile regression done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   time1 = Sys.time()
   set.seed(1)
   source(paste0(getwd(), "/CP one.r"))
   time2 = Sys.time()
   times[5] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Conformal prediction one done for", data_list$name))
+  write(paste("   Conformal prediction done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   time1 = Sys.time()
   set.seed(1)
   source(paste0(getwd(), "/CR.r"))
   time2 = Sys.time()
   times[6] = as.numeric(difftime(time2, time1, units = "secs"))
   print(paste("Conformal prediction rep done for", data_list$name))
+  write(paste("   Conformal prediction rep done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   set.seed(1)
   source(paste0(getwd(), "/Benchmarking.r"))
+  write(paste("   Benchmarking done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
   name = as.character(data_list$name)
   time_table[[name]] = times
   
@@ -135,11 +145,28 @@ for (data_list in data_lists2){
   all_res[[data_list$name]] = int_res
   saveRDS(all_res, file = paste0(getwd(), "/Results/all_res.RData"))
   time_table[[data_list$name]] = times
+  
+  write(paste("All methods done for", data_list$name), file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 }
 
 source(paste0(getwd(), "/Data reorganization.r"))
+print("Data reorganization done")
+write("Data reorganization done", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 source(paste0(getwd(), "/Results analysis.r"))
+print("Results analysis done")
+write("Results analysis done", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 source(paste0(getwd(), "/Application in marketing.r"))
+print("Application in marketing")
+write("Application in marketing", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 source(paste0(getwd(), "/Plotting.r"))
+print("Plotting done")
+write("Plotting done", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
+source(paste0(getwd(), "/Dataset analysis.r"))
+print("Dataset analysis done")
+write("Dataset analysis done", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 source(paste0(getwd(), "/Covariates simulated.r"))
+print("Covariates simulated done")
+write("Covariates simulated done", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 source(paste0(getwd(), "/Comparison.r"))
+print("Comparison done")
+write("Comparison done", file = paste0(getwd(), "/Status report.txt"), append = TRUE)

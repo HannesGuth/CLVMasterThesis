@@ -17,6 +17,7 @@ averages_table = coverage_table[, .(
   Time = mean(Time, na.rm = TRUE)
 ), by = Method]
 
+averages_table_rounded = cbind("Method" = averages_table$Method, round(averages_table[,2:11],4))
 
 # Coefficient of variation table
 cv_table = coverage_table[, .(
