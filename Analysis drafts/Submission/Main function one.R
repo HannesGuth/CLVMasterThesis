@@ -48,7 +48,7 @@ time_table = data.table("Method" = methodlist,
 times = c(0,0,0,0,0,0)
 all_res = list()
 
-data_lists2 = list(gift_list = gift_list, el_list = el_list) #, multi_list = multi_list, apparel_list = apparel_list)
+data_lists2 = list(gift_list = gift_list, el_list = el_list, multi_list = multi_list, apparel_list = apparel_list)
 for (data_list in data_lists2){
   set.seed(1)
   print(paste(data_list$name, "(Main function one)"))
