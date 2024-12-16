@@ -170,7 +170,7 @@ clv.apparel2 = clvdata(apparel2,
 
 gift_list = list(data1 = gift1, data2 = gift2, l1 = 52, l2 = 52, p1 = 52, p2 = 52, BS = TRUE, name = "gift_results", wp1 = FALSE, wp2 = FALSE, smoothwidth = 2, select = 127)
 el_list = list(data1 = el1, data2 = el2, l1 = 52, l2 = 52, p1 = 52, p2 = 52, BS = TRUE, name = "el_results", wp1 = FALSE, wp2 = FALSE, smoothwidth = 2, select = 520)
-multi_list = list(data1 = multi1, data2 = multi2, l1 = 52, l2 = 52, p1 = 104, p2 = 104, BS = TRUE, name = "multi_results", wp1 = FALSE, wp2 = FALSE, smoothwidth = 1, select = 313)
+multi_list = list(data1 = multi1, data2 = multi2, l1 = 52, l2 = 60, p1 = 104, p2 = 104, BS = TRUE, name = "multi_results", wp1 = FALSE, wp2 = FALSE, smoothwidth = 1, select = 313)
 apparel_list = list(data1 = apparel1, data2 = apparel2, l1 = 52, l2 = 52, p1 = 104, p2 = 104, BS = TRUE, name = "apparel_results", wp1 = FALSE, wp2 = FALSE, smoothwidth = 3, select = 332)
 
 data_lists = list(gift_list = gift_list, el_list = el_list, multi_list = multi_list, apparel_list = apparel_list)
