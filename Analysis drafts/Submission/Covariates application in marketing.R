@@ -145,10 +145,10 @@ print(perf_overview_cov)
 print(comp_perf_overview_cov)
 
 # path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/perf_overview_cov.csv")
-# write.csv(perf_overview_cov, path)
+write.csv(perf_overview_cov, paste0(getwd(), "/Results/perf_overview_cov.csv"))
 saveRDS(perf_overview_cov, file = paste0(getwd(), "/Results/perf_overview_cov.RData"))
 # path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/comp_perf_overview_cov.csv")
-# write.csv(comp_perf_overview_cov, path)
+write.csv(comp_perf_overview_cov, paste0(getwd(), "/Results/comp_perf_overview_cov.csv"))
 saveRDS(comp_perf_overview_cov, file = paste0(getwd(), "/Results/comp_perf_overview_cov.RData"))
 
 
