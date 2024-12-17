@@ -65,7 +65,7 @@ for (cor in cor_list){
   plot_selection_data = pivot_longer(perf_overview_cov, cols = hpp:ssq, names_to = "Metric", values_to = "Achieved_Number")
   
   method_colors = c("BS" = "pink", "EN" = "grey", "BA" = "green", "CP" = "red", "QR" = "blue")
-  title = paste0(counter_, ". Valuable customer selection by method and metric (r = ", cor, ")")
+  title = paste0("Valuable customer selection by method and metric (r = ", cor, ")")
   ggplot(plot_selection_data, aes(x = Data, y = Achieved_Number, color = Method, shape = Metric)) +
     geom_point(position = position_dodge(width = 0.5, preserve = "total"), size = 3,
                aes(color = ifelse(Metric == "hpp", "black", Method), group = Method)) +
@@ -82,5 +82,5 @@ for (cor in cor_list){
                        breaks = c("hpp", "hub", "hiw", "huu", "htp", "csw", "ssq")) +
     labs(title = title, x = "Data set", y = "Share of valuable customers selected", shape = "Metric") +
     scale_y_continuous(limits = c(0, 1))
-  ggsave(filename = file.path(plot_path = paste0(getwd(), "/Covariates plots/Valuable customers/", title, ".png")), width = 9, height = 4.5, limitsize = FALSE)
+  ggsave(filename = file.path(plot_path = paste0(getwd(), "/Covariates plots/Valuable customers/", counter_, ". ", title, ".png")), width = 9, height = 4.5, limitsize = FALSE)
 }

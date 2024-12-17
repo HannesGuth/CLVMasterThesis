@@ -806,7 +806,8 @@ However, across all data sets, BA has the highest coverage what is not surprisin
 
 
 \paragraph*{Width}\mbox{}\\
-Considering PICP across CET levels, it must be seen in connection with width development. The situation across data sets is again very heterogeneous but also, there is generally a downward trend visible, while either BA or QR deliver the widest intervals and BS and EN deliver across all levels intervals with a length of nearly 0. The downward trend is not as dominant as for PICP but still visible. A lot of this phenomenon can be explained by scaling “normal”-sized intervals at lower levels with very small predictions, delivering relatively wider intervals, as indicated before in section \ref{section:General method performances}. The key insight is therefore that a decreasing PICP with increasing customer value is first and foremost not the responsibility of relatively narrowing PIs.
+Considering PICP across CET levels, it must be seen in connection with width development. The situation across data sets is again very heterogeneous but also, there is generally a downward trend visible, while either BA or QR deliver the widest intervals and BS and EN deliver across all levels intervals with a length of nearly 0. The downward trend is not as dominant as for PICP but still visible. A lot of this phenomenon can be explained by scaling “normal”-sized intervals at lower levels with very small predictions, delivering relatively wider intervals, as indicated before in section \ref{section:General method performances}. The key insight is therefore that a decreasing PICP with increasing customer value is first and foremost not the responsibility of relatively narrowing PIs.\\
+The corresponding figures for the absolute width can be found in the appendix (\ref{fig:Abs. width developement with CET for gift} - \ref{fig:Absolute width development with CET for BS and EN only apparel}).
 
 \begin{figure}[h]
 \centering
@@ -865,7 +866,7 @@ Due to computational reasons, the analysis will be limited to the electronics an
     \label{fig:enter-label}
 \end{figure}
 
-BA and QR are, regarding coverage, not affected by changing period lengths or data sets and deliver constantly around 90\% coverage. In contrast, the performance of the conformal prediction implementations suffer for the gift data set a lot while delivering decent results for the electronics data set. Looking directly into the data\footnote{See this \href{}{link} or available on request} gives several insights but no definite explanation for the underperformance and especially not for the difference between the two data sets. Typically, low values resulted from short learning or prediction periods for the old cohort, what makes intuitively sense as it is here where the quantiles are derived. On the other hand, one can also observe cases in which all periods, for both cohorts have been low which performed decently. It suggests that, when both cohorts have been treated equally in terms of model fitting and quantile forming conditions, the method works properly.\\
+BA and QR are, regarding coverage, not affected by changing period lengths or data sets and deliver constantly around 90\% coverage. In contrast, the performance of the conformal prediction implementations suffer for the gift data set a lot while delivering decent results for the electronics data set. Looking directly into the data\footnote{See these links for the \href{https://github.com/HannesGuth/CLVMasterThesis/blob/CP_Managerial_version/Analysis%20drafts/Submission/Results%20-%20old/big_grid_gift.csv}{gift} and \href{https://github.com/HannesGuth/CLVMasterThesis/blob/CP_Managerial_version/Analysis%20drafts/Submission/Results%20-%20old/big_grid_el.csv}{el} data set, otherwise available on request} gives several insights but no definite explanation for the underperformance and especially not for the difference between the two data sets. Typically, low values resulted from short learning or prediction periods for the old cohort, what makes intuitively sense as it is here where the quantiles are derived. On the other hand, one can also observe cases in which all periods, for both cohorts have been low which performed decently. It suggests that, when both cohorts have been treated equally in terms of model fitting and quantile forming conditions, the method works properly.\\
 The motivation for this chapter was to give an intuition how stable the methods are and if managers can apply them safely. BA and QR seem to work stable, regardless of data set or learning and prediction time. The conformal prediction-based methods seem to suffer on one dataset but work well on the other one. The reasoning behind it cannot be clarified absolutely but tendencies are observable. It will be necessary to use more runs and data sets to get deeper insights for all methods but one should be especially careful to use CP or CR in combination with varying learning and prediction periods.
 
 \subsubsection{Results summary}
@@ -1123,7 +1124,7 @@ Tables \ref{table:Benchmarking identifying especially valuable customers} and \r
 
 \vspace{1cm}
 
-\noindent \textbf{Sidenote}: For this implementation, a correlation of $r = 0.6$ was chosen, which is admittedly a high value that could be difficult to find in a real-world data set. However, it shows the power of such a potential covariate and that it would indeed enhance the results significantly. For completeness, find in the appendix an overview how different values for $r$ would influence the result. Remarkably, a negative r would benefit csw and ssq.
+\noindent \textbf{Sidenote}: For this implementation, a correlation of $r = 0.6$ was chosen, which is admittedly a high value that could be difficult to find in a real-world data set. However, it shows the power of such a potential covariate and that it would indeed enhance the results significantly. For completeness, find in the appendix an overview how different values for $r$ would influence the result. Remarkably, a negative r would benefit csw and ssq, see figure \ref{fig:Identification capabilities with changing correlation for the covariate} in the appendix.
 
 \newpage
 
@@ -1146,6 +1147,27 @@ In the course of this work, there was no method found that achieves both, high r
 \newpage
 
 \section{Appendix}
+
+\begin{table}[h!]
+    \centering
+     % Shift the table 1cm to the left
+    \setlength{\tabcolsep}{4pt} % Adjust column separation
+    \renewcommand{\arraystretch}{1.2} % Adjust row separation
+    \begin{adjustbox}{width=\textwidth}
+    \begin{tabular}{|p{1.4cm}|p{1cm}|p{1.1cm}|p{1.4cm}|p{1.4cm}|p{1.8cm}|p{1.2cm}|p{1cm}|p{1.2cm}|p{1.2cm}|p{1.4cm}|}
+        \hline
+        \makecell[l]{\textbf{Method}} & \makecell[l]{\textbf{PICP}} & \makecell[l]{\textbf{ACE}} & \makecell[l]{\textbf{PICPW}} & \makecell[l]{\textbf{PIARW}} & \makecell[l]{\textbf{PIARWW}} & \makecell[l]{\textbf{MSIS}} & \makecell[l]{\textbf{SWR}} & \makecell[l]{\textbf{Upper}\\ \textbf{cov.}} & \makecell[l]{\textbf{Lower}\\ \textbf{cov.}} & \makecell[l]{\textbf{Time [s]}\\ \textbf{(abs)}}\\ \hline
+        BS & 0.8606 & 0.0099 & 0.5162 & 0.4207 & 0.4815 & 0.6918 & 1.1275 & 0.1501 & 0.5536 & 0.8262 \\ \hline
+        EN & 1.0262 & 0.0099 & 0.7570 & 0.2810 & 0.3658 & 0.6917 & 1.2363 & 0.1488 & 0.5557 & 0.4662 \\ \hline
+        BA & 0.0483 & -0.8839 & 0.2500 & 0.4518 & 0.3901 & 1.1326 & 0.4069 & 0.0485 & 0.0021 & 1.6797 \\ \hline
+        QR & 0.0341 & -0.7262 & 0.1232 & 0.7283 & 0.6986 & 0.7921 & 0.8409 & 0.0336 & 0.0005 & 0.0995 \\ \hline
+        CP & 0.055 & -1.8659 & 0.1911 & 0.5888 & 0.5552 & 0.9015 & 0.7315 & 0.0504 & 0.0073 & 0.8851 \\ \hline
+        CR & 0.055 & -1.8659 & 0.1911 & 0.5888 & 0.5552 & 0.9015 & 0.7315 & 0.0504 & 0.0073 & 0.7446 \\ \hline
+        \end{tabular}
+    \end{adjustbox}{}    
+    \caption{Variation table (coefficient of variation)}
+    \label{fig:Variation table}
+\end{table}
 
 \begin{figure}[h]
     \centering
@@ -1291,7 +1313,7 @@ In the course of this work, there was no method found that achieves both, high r
 
 \end{figure}
 
-% Asbolute width development only for BS and EN
+% Absolute width development only for BS and EN
 
 \begin{figure}[!h]
 \centering
@@ -1329,28 +1351,26 @@ In the course of this work, there was no method found that achieves both, high r
 
 \end{figure}
 
+% Different r
 
-
-
-\begin{table}[h!]
-    \centering
-     % Shift the table 1cm to the left
-    \setlength{\tabcolsep}{4pt} % Adjust column separation
-    \renewcommand{\arraystretch}{1.2} % Adjust row separation
-    \begin{adjustbox}{width=\textwidth}
-    \begin{tabular}{|p{1.4cm}|p{1cm}|p{1.1cm}|p{1.4cm}|p{1.4cm}|p{1.8cm}|p{1.2cm}|p{1cm}|p{1.2cm}|p{1.2cm}|p{1.4cm}|}
-        \hline
-        \makecell[l]{\textbf{Method}} & \makecell[l]{\textbf{PICP}} & \makecell[l]{\textbf{ACE}} & \makecell[l]{\textbf{PICPW}} & \makecell[l]{\textbf{PIARW}} & \makecell[l]{\textbf{PIARWW}} & \makecell[l]{\textbf{MSIS}} & \makecell[l]{\textbf{SWR}} & \makecell[l]{\textbf{Upper}\\ \textbf{cov.}} & \makecell[l]{\textbf{Lower}\\ \textbf{cov.}} & \makecell[l]{\textbf{Time [s]}\\ \textbf{(abs)}}\\ \hline
-        BS & 0.8606 & 0.0099 & 0.5162 & 0.4207 & 0.4815 & 0.6918 & 1.1275 & 0.1501 & 0.5536 & 0.8262 \\ \hline
-        EN & 1.0262 & 0.0099 & 0.7570 & 0.2810 & 0.3658 & 0.6917 & 1.2363 & 0.1488 & 0.5557 & 0.4662 \\ \hline
-        BA & 0.0483 & -0.8839 & 0.2500 & 0.4518 & 0.3901 & 1.1326 & 0.4069 & 0.0485 & 0.0021 & 1.6797 \\ \hline
-        QR & 0.0341 & -0.7262 & 0.1232 & 0.7283 & 0.6986 & 0.7921 & 0.8409 & 0.0336 & 0.0005 & 0.0995 \\ \hline
-        CP & 0.055 & -1.8659 & 0.1911 & 0.5888 & 0.5552 & 0.9015 & 0.7315 & 0.0504 & 0.0073 & 0.8851 \\ \hline
-        CR & 0.055 & -1.8659 & 0.1911 & 0.5888 & 0.5552 & 0.9015 & 0.7315 & 0.0504 & 0.0073 & 0.7446 \\ \hline
-        \end{tabular}
-    \end{adjustbox}{}    
-    \caption{Variation table (coefficient of variation)}
-    \label{fig:Variation table}
-\end{table}
+\begin{figure}
+    \hspace{-1cm}\begin{minipage}[H]{0.59\textwidth} % Left column (48% width)
+        \includegraphics[width=\linewidth]{Plots/1. Valuable customer selection by method and metric (r = -1).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/3. Valuable customer selection by method and metric (r = -0.8).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/5. Valuable customer selection by method and metric (r = -0.6).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/7. Valuable customer selection by method and metric (r = -0.4).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/9. Valuable customer selection by method and metric (r = -0.2).png}
+    \end{minipage}
+    \hfill
+    \hspace{-1.1cm}\begin{minipage}[H]{0.59\textwidth} % Right column (48% width)
+        \includegraphics[width=\linewidth]{Plots/13. Valuable customer selection by method and metric (r = 0.2).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/15. Valuable customer selection by method and metric (r = 0.4).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/17. Valuable customer selection by method and metric (r = 0.6).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/19. Valuable customer selection by method and metric (r = 0.8).png}\\[0.5em]
+        \includegraphics[width=\linewidth]{Plots/21. Valuable customer selection by method and metric (r = 1).png}
+    \end{minipage}
+    \caption{Identification capabilities with changing correlation for the covariate}
+    \label{fig:Identification capabilities with changing correlation for the covariate}
+\end{figure}
 
 \end{document}
