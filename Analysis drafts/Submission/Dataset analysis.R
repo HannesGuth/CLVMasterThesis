@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# Produce the tables that are shown in "Data"-section of the main document
+
+################################################################
+
 for (data_list in data_lists){
   data = data_list
 

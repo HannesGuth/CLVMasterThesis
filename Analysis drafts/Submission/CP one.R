@@ -1,3 +1,15 @@
+# DESCRIPTION
+
+# Conducts Conformal Prediction as described in the main document
+# 1. Model fitting on the old cohort
+# 2. Quantile generation on the old cohort
+# 3. Transfer of the quantile to the current cohort
+# 4. Model training and prediction on the new cohort
+# 5. Scaling and applying the quantile to the predictions
+# Report the results in the standard form
+
+################################################################
+
 repeat {
   # Attempt to execute the code
   tryCatch({

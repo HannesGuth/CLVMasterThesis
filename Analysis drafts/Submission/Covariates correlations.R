@@ -1,3 +1,11 @@
+# DESCRIPTION
+
+# This script was only set up to produce the plots for the last page of the Appendix with a varying correlation
+# Uses code snippets from other scripts
+
+################################################################
+
+
 cor_list = seq(-1, 1, by = 0.1)
 counter_ = 0
 

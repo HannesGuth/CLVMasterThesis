@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# From the previously calculated coverage table, derive and averages table, the table for the coefficient of variation and the ranking table
+
+################################################################
+
 
 numeric_columns = names(coverage_table)[sapply(coverage_table, is.numeric)]
 coverage_table[, (numeric_columns) := lapply(.SD, round, digits = 4), .SDcols = numeric_columns]

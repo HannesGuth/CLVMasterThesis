@@ -1,4 +1,16 @@
-# splitweek = 130
+# DESCRIPTION
+
+# The implementation of Quantiel Regression
+# Works as described in the main document
+# Create a grid with different parameter combinations
+# Predict with all combinations (old cohort)
+# Evaluate which combinations come closest to alpha/2 and 1-alpha/2 over- (or under-)predictions (old cohort) 
+# End up with two parameter combinations, one for the lower boundary, one for the upprt boundary
+# Take these two combinations to the current cohort
+# Make point predictions for every customer with both combinations
+# These are the lower and upper boundary
+
+################################################################
 
 # data1
 clv.data1 <- clvdata(data1,  

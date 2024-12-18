@@ -1,5 +1,10 @@
-# Selecting the 10% customers with the highest upward potential
-# Upward potential measured by highest above
+# DESCRIPTION
+
+# Basically the same as "Application in marketing" but uses the results from the individualized PIs that come from the introduced covariate
+
+################################################################
+
+
 # all_res_cov = readRDS("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Backup/all_res_cov_times.RData")
 method_list_appl = c("intervals_BS", "intervals_EN", "intervals_BA", "intervals_QR_m", "intervals_CP_m")
 a_table = data.table("a" = seq(0,1,0.01),
@@ -144,17 +149,10 @@ for (i in 1:6){
 print(perf_overview_cov)
 print(comp_perf_overview_cov)
 
-# path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/perf_overview_cov.csv")
 write.csv(perf_overview_cov, paste0(getwd(), "/Results/perf_overview_cov.csv"))
 saveRDS(perf_overview_cov, file = paste0(getwd(), "/Results/perf_overview_cov.RData"))
-# path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/comp_perf_overview_cov.csv")
 write.csv(comp_perf_overview_cov, paste0(getwd(), "/Results/comp_perf_overview_cov.csv"))
 saveRDS(comp_perf_overview_cov, file = paste0(getwd(), "/Results/comp_perf_overview_cov.RData"))
 
 
 plot_selection_data = pivot_longer(perf_overview_cov, cols = hpp:ssq, names_to = "Metric", values_to = "Achieved_Number")
-
-  
-  
-  
-

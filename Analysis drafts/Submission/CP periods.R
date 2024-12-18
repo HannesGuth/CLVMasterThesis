@@ -1,5 +1,8 @@
-# 1. Get the variances
-# 2. Get the intervals (academic version) and collect the quantiles (managerial version)
+# DESCRIPTION
+
+# Basically the same as for "CP" but small adaptations so that it works for the stability examination with different learning and prediction periods
+
+################################################################
 
 # Set default settings
 

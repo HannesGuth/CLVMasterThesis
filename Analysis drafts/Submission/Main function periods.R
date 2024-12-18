@@ -1,3 +1,12 @@
+# DESCRIPTION
+
+# This script is only there for the stability analysis of method over varying learning and prediction periods (for old and new cohort)
+# Create a grid of different learning and prediction periods
+# Conduct BA, QR, CP, CR for each prediction and learning time period
+# Call the respective plotting script and the Comparison for reproducibility
+
+################################################################
+
 write("PERIOD STABILITY", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 
 # Set working directory

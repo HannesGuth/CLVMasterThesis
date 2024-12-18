@@ -1,3 +1,10 @@
+# DESCRIPTION
+
+# Predict the PI for every customer using the benchmark Bootstrap approach in CLVTools
+# Error catching in case Nelder-Mead is needed
+
+################################################################
+
 clv.data2 = clvdata(data2,
                      date.format = "ymd",
                      time.unit = "week",

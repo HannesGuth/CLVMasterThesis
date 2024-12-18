@@ -1,3 +1,11 @@
+# DESCRIPTION
+
+# First attempt to introduce an existing covariate that actually exists
+# Not used in the work
+
+################################################################
+
+
 all_res = readRDS(paste0(getwd(), "/Results - Kopie/all_res.RData"))
 path = paste0(getwd(), "/Data/durdata1_final.csv")
 el_cov = fread(path)

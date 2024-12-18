@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# Plot the results of the stability analysis of different learning and prediction periods
+
+################################################################
+
 big_grid_gift = readRDS(paste0(getwd(), "/Results/big_grid_gift", ".RData"))
 big_grid_el = readRDS(paste0(getwd(), "/Results/big_grid_el", ".RData"))
 

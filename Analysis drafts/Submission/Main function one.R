@@ -1,3 +1,12 @@
+# DESCRIPTION
+
+# Install all packages
+# Call the Data preparation
+# Go through all data sets and call for each data set the PI-generating methods
+# Call the rest of the scripts, including the covariate implementation
+
+################################################################
+
 write("INTERVAL GENERATION", file = paste0(getwd(), "/Status report.txt"), append = TRUE)
 packages = c(
   "CLVTools", "data.table", "compiler", "ggplot2", "profvis", 

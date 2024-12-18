@@ -1,3 +1,10 @@
+# DESCRIPTION
+
+# Plot various graphs for all data sets
+# Does not include the graphs for the stability analysis of different learning and prediction periods and for the covariate implementation
+
+################################################################
+
 method_colors_all = c("BS" = "black", "EN" = "grey", "BA" = "green", "CP" = "red", "CR" = "yellow", "QR" = "blue")
 method_colors_sel = c("EN" = "grey", "BA" = "green", "CP" = "red", "CR" = "yellow", "QR" = "blue")
 
@@ -24,7 +31,7 @@ ggplot(plot_coverage_data, aes(x = Method, y = PICP*100, shape = Data)) +
 
 ggsave(filename = file.path(plot_path = paste0(getwd(), "/Plots/", title, ".png")), width = 7, height = 3.5)
 
-title = "PICP and PIARW by Method and Data Set"
+title = "PICP and PIARW by method and data set"
 ggplot(plot_coverage_data) +
   geom_point(aes(x = Method, y = PIARW*2, shape = Data), size = 2, color = "blue", position = position_nudge(0.15)) +  # Line for PIARW
   geom_point(aes(x = Method, y = PICP*100, shape = Data), size = 2, color = "black", position = position_nudge(-0.15)) +  # Set color for all points

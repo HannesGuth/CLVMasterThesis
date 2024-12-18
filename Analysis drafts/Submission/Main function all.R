@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# Call the main functions
+
+################################################################
+
 install.packages("rstudioapi")
 library(rstudioapi)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))

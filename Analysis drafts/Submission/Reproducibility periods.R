@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# Not used in this work
+
+################################################################
+
 gift_new = readRDS(paste0(getwd(), "/Results/big_grid_gift.RData"))
 el_new = readRDS(paste0(getwd(), "/Results/big_grid_el.RData"))
 

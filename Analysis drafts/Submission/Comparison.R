@@ -1,3 +1,11 @@
+# DESCRIPTION
+
+# This script compares the results from "Results - old" with the newly produces ones in "Results"
+# Saves the results in "repr"
+# The time usually varies from run to run and from computer to computer but the rest should be reproducible
+
+################################################################
+
 # General results
 
 all_res_old = readRDS(paste0(getwd(), "/Results - old/all_res.RData"))

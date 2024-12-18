@@ -1,3 +1,12 @@
+# DESCRIPTION
+
+# Estimate the model parameters with the Bayesian approach, using the BTYPplus package
+# Take for every customer the central 90% interval of the posterior predictive distribution
+# Bring in the standard reporting form
+
+################################################################
+
+
 # data("apparelTrans")
 # tryCatch(
 #   {

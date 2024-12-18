@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# Reorganize data, bring them into a more logical and processable form right after the PI-generating methods are done
+# Create the coverage table, which contains not only the coverages but the achieved values for all methods on all data sets for all metrics
+
+################################################################
 
 datalist = c("gift", "el", "multi", "apparel")
 coverage_table = data.table("Data" = rep(datalist, each = 6),
@@ -23,11 +29,9 @@ for (name in names(all_res)){
   }
 }
 coverage_table$Time_rel = coverage_table$Time / (sort(coverage_table$Time)[1])
-# coverage_table[13,3:length(coverage_table)] = NA
 
 method_order = c("BS", "EN", "BA", "QR", "CP", "CR")
 coverage_table = coverage_table[order(factor(coverage_table$Method, levels = method_order)), ]
-# coverage_table = coverage_table[order(Method)]
 data_column = coverage_table$Data
 coverage_table$Data = coverage_table$Method
 coverage_table$Method = data_column

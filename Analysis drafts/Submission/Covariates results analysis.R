@@ -1,3 +1,8 @@
+# DESCRIPTION
+
+# Basically the same as "Results Analysis" but uses the results from the individualized PIs that come from the introduced covariate
+
+################################################################
 
 numeric_columns = names(coverage_table_cov)[sapply(coverage_table_cov, is.numeric)]
 coverage_table_cov[, (numeric_columns) := lapply(.SD, round, digits = 4), .SDcols = numeric_columns]

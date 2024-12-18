@@ -1,3 +1,14 @@
+# DESCRIPTION
+
+# The Mini Bootstrap / Ensemble approach
+# Fit one model
+# Take parameter estimations and their covariance matrices and from there simulate 100 parameter combinations that mimic the estimations and the covariance matrix
+# Make point predictions for every customer with each parameter combination
+# Take the central 90% quantile of these point predictions for each customer
+# Bring the results into the standard reporting form
+
+################################################################
+
 # Modifying parameters
 
 # Create datatables and copy the estimated model

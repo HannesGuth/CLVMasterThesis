@@ -1,3 +1,8 @@
+# DESCRIPTION
+
+# Basically the same as "Benchmarking" but uses the results from the individualized PIs that come from the introduced covariate
+
+################################################################
 
 rst = list(intervals_BS, intervals_EN, intervals_BA, intervals_QR_m, intervals_CP_m, intervals_CR_m)
 measure_list = c("PICP", "ACE", "PICPW", "PIARW","PIARWW", "MSIS", "SWR", "Upper coverage", "Lower coverage", "Time")

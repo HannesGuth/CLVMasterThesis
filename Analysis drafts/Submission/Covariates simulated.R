@@ -1,3 +1,12 @@
+# DESCRIPTION
+
+# Simulates a covriate that is correlated with the prediction error
+# Builds based on this covariate and the initial intervals new PIs for every customer
+# Calls the other Covariates methods
+
+################################################################
+
+
 all_res_cov = all_res
 cov_methods = c("intervals_BS", "intervals_EN", "intervals_BA", "intervals_QR_m", "intervals_CP_m", "intervals_CR_m")
 

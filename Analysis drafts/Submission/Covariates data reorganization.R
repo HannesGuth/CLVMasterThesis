@@ -1,3 +1,8 @@
+# DESCRIPTION
+
+# Basically the same as "Reorganization" but uses the results from the individualized PIs that come from the introduced covariate
+
+################################################################
 
 datalist = c("gift", "el", "multi", "apparel")
 coverage_table_cov = data.table("Data" = rep(datalist, each = 6),

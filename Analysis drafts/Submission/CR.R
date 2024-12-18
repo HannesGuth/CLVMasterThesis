@@ -38,6 +38,16 @@ PTS_mod = lm(PTS_std ~ PTS_pred, data = cor_table)
 # Set default settings 
 alpha = 0.1
 n = 20
+# DESCRIPTION
+
+# Basically the same as "CP" but the procedure is repeated so that splitting in training and test is conducted several times
+# Take the average over the resulting quantiles
+# Avoid a potential bias
+# No further relevance for the used data sets
+# Side implementation of CP
+
+################################################################
+
 q = ceiling(((ntraining + 1) * (1 - alpha)))/ntraining # see 9CP, equation 7
 
 quantiles_CET = list()

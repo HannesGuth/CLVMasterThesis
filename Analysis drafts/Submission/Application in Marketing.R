@@ -1,5 +1,14 @@
-# Selecting the 10% customers with the highest upward potential
-# Upward potential measured by highest above
+# DESCRIPTION
+
+# Selecting the 10% customers with the highest potential:
+# Define metrics
+# Order customers by these metrics
+# Pick the top 10%
+# Compare the results to the highest point predictor
+# Report them as perf_overview
+
+################################################################
+
 # all_res = readRDS("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Backup/all_res_times.RData")
 method_list_appl = c("intervals_BS", "intervals_EN", "intervals_BA", "intervals_QR_m", "intervals_CP_m")
 a_table = data.table("a" = seq(0,1,0.01),
@@ -111,19 +120,6 @@ for (data_list in data_lists){
   }
 }
 
-# for (i in app_data){
-#   n_cust = ceiling(nrow(i) * percentage)
-#   i$CET_true = as.numeric(i$CET_true)
-#   if (exists("cor_table")){
-#     cor_table = cor_table + cor(i[1:n_cust,c(4,12:23)])*0.25
-#   }else{
-#     cor_table = cor(i[1:n_cust,c(4,12:23)])*0.25
-#   }
-# }
-
-# cor_table
-# rm(cor_table)
-
 comp_perf_overview = data.frame("Metric" = c("Better or equal", "Better", "Worse", "Mean advantage (rel)", "Sd of advantages"),
                                 "hub" = 0,
                                 "hiw" = 0,
@@ -144,9 +140,7 @@ for (i in 1:6){
 print(perf_overview)
 print(comp_perf_overview)
 
-# path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/perf_overview.csv")
 write.csv(perf_overview, paste0(getwd(), "/Results/perf_overview.csv"))
 saveRDS(perf_overview, file = paste0(getwd(), "/Results/perf_overview.RData"))
-# path = paste0("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/LaTeX/comp_perf_overview.csv")
 write.csv(comp_perf_overview, paste0(getwd(), "/Results/comp_perf_overview.csv"))
 saveRDS(comp_perf_overview, file = paste0(getwd(), "/Results/comp_perf_overview.RData"))

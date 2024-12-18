@@ -1,3 +1,11 @@
+# DESCRIPTION
+
+# Prepare all data sets (delete not needed columns, naming, data formatting)
+# Split them into and old an new cohort
+# Collect information that become relevant later on in the procedures in "data_lists"
+
+################################################################
+
 # Electronics
 path = paste0(getwd(), "/Data/durdata1_final.csv")
 electronics = fread(path)

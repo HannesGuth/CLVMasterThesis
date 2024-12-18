@@ -1,3 +1,9 @@
+# DESCRIPTION
+
+# Not used in this work
+
+################################################################
+
 library(CLVTools)
 library(data.table)
 

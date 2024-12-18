@@ -1,3 +1,10 @@
+# DESCRIPTION
+
+# Bootstrap procedure for the period stability
+# Basically the same as BS but with changed error catching
+
+################################################################
+
 tryCatch(
   {
     clv.data2 <- clvdata(data2,
