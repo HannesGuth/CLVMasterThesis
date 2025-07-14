@@ -1,0 +1,9 @@
+;Metric;Old learning;Old holdout;Total old;New learning;New holdout;Total new
+1;Customers;0;0;3644;0;0;3885
+2;Transactions;7365;1198;8563;7632;720;8352
+3;Period length;52;104;156;60;104;164
+4;Average number of rep. purchases per customer;2.02;0.33;2.35;1.96;0.19;2.15
+5;Standard deviation of rep. purchases;1.92;2.6;2.44;1.97;1.75;2.23
+6;Zero repeaters;2020;212;1823;2223;138;2103
+7;First entry date;0;0;01.12.2005;0;0;01.12.2008
+8;Last entry date;0;0;31.12.2005;0;0;31.12.2008

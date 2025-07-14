@@ -1,0 +1,28 @@
+man_data = as.data.table(app_data[3])
+man_data$hpp_s_t = 0
+
+man_data$hpp_s_t <- with(man_data, ifelse(max_s & hpp_s, "TT",
+                                          ifelse(max_s & !hpp_s, "TF",
+                                                 ifelse(!max_s & hpp_s, "FT",
+                                                        "FF"))))
+
+ggplot(man_data, aes(y = hll, x = hpp)) +
+  geom_point(aes(color = hpp_s_t)) +
+  scale_color_manual(values = c("TT" = "green",
+                               "FF" = "yellow",
+                               "TF" = "blue",
+                               "FT" = "red"))
+meas = c("CET_lower", "CET_upper", "CET_prediction", "PTS_prediction", "hpp_s", "hul", "hul_s", "hiw", "hiw_s", "huu", "huu_s", "htp", "htp_s", "c2w", "c2w_s", "ssq", "ssq_s", "hll", "hll_s")
+for (m in meas){
+  for (n in meas){
+    title = paste0(m, ", ", n)
+    ggplot(man_data, aes(y = man_data[[m]], x = man_data[[n]])) +
+          geom_point(aes(color = hpp_s_t, shape = hpp_s_t)) +
+          scale_color_manual(values = c("TT" = "green",
+                                        "FF" = "yellow",
+                                        "TF" = "blue",
+                                        "FT" = "red")) +
+          labs(x = m, y = n)
+    ggsave(filename = file.path("D:/Dokumente/Studium/Master/Université de Genève/Kurse/Master thesis/Drafts/Analysis drafts/Plots/Manual analysis", paste0(title,".png")), width = 7, height = 4.5)
+  }
+}
