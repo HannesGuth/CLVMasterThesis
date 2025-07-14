@@ -149,10 +149,14 @@ for (i in 1:6){
 print(perf_overview_cov)
 print(comp_perf_overview_cov)
 
-write.csv(perf_overview_cov, paste0(getwd(), "/Results/perf_overview_cov.csv"))
-saveRDS(perf_overview_cov, file = paste0(getwd(), "/Results/perf_overview_cov.RData"))
-write.csv(comp_perf_overview_cov, paste0(getwd(), "/Results/comp_perf_overview_cov.csv"))
-saveRDS(comp_perf_overview_cov, file = paste0(getwd(), "/Results/comp_perf_overview_cov.RData"))
+path_perf_overview_csv = paste0("/Results/perf_overview_cov r=", toString(target_cor), ".csv")
+path_perf_overview_RData = paste0("/Results/perf_overview_cov r=", toString(target_cor), ".RData")
+path_comp_perf_overview_csv = paste0("/Results/comp_perf_overview_cov r=", toString(target_cor), ".csv")
+path_comp_perf_overview_RData = paste0("/Results/comp_perf_overview_cov r=", toString(target_cor), ".RData")
 
+write.csv(perf_overview_cov, paste0(getwd(), path_perf_overview_csv))
+saveRDS(perf_overview_cov, file = paste0(getwd(), path_perf_overview_RData))
+write.csv(comp_perf_overview_cov, paste0(getwd(), path_comp_perf_overview_csv))
+saveRDS(comp_perf_overview_cov, file = paste0(getwd(), path_comp_perf_overview_RData))
 
 plot_selection_data = pivot_longer(perf_overview_cov, cols = hpp:ssq, names_to = "Metric", values_to = "Achieved_Number")
